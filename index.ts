@@ -14,6 +14,7 @@ const matrix = new LedMatrix(
   },
   {
     ...LedMatrix.defaultRuntimeOptions(),
+    gpioSlowdown: 2,
   }
 );
 
