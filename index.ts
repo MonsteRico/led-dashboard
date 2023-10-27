@@ -22,7 +22,6 @@ const matrix = new LedMatrix(
  
 
  matrix.afterSync((mat, dt, t) => {
-  matrix.clear()
  matrix.font(
    new Font(
      "Comic Sans MS",
