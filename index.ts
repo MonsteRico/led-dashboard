@@ -8,7 +8,6 @@ import {
 const matrix = new LedMatrix(
   {
     ...LedMatrix.defaultMatrixOptions(),
-    disableHardwarePulsing: true,
     rows: 32,
     cols: 64,
     hardwareMapping: GpioMapping.AdafruitHatPwm,
