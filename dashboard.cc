@@ -13,8 +13,7 @@
 #include <stdio.h>
 #include <signal.h>
 
-using rgb_matrix::Canvas;
-using rgb_matrix::RGBMatrix;
+using namespace rgb_matrix;
 
 volatile bool interrupt_received = false;
 static void InterruptHandler(int signo)
@@ -51,7 +50,7 @@ int main(int argc, char *argv[])
     RGBMatrix::Options defaults;
     defaults.hardware_mapping = "adafruit-hat-pwm"; // or e.g. "adafruit-hat"
     defaults.rows = 32;
-    defaults.cols = 64
+    defaults.cols = 64;
     defaults.chain_length = 1;
     defaults.parallel = 1;
     defaults.show_refresh_rate = true;
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
 
     DrawOnCanvas(canvas); // Using the canvas.
 
-    sleep(5000)
+    sleep(5000);
 
     // Animation finished. Shut down the RGB matrix.
     canvas->Clear();
