@@ -38,4 +38,10 @@ matrix
   // draw two diagonal red lines connecting the corners
   .drawLine(0, 0, matrix.width(), matrix.height())
   .drawLine(matrix.width() - 1, 0, 0, matrix.height() - 1)
-  .sync();
+  
+
+ matrix.afterSync(mat, dt, t) => {
+	 setTimeout(() => matrix.sync(), 0);
+});
+
+matrix.sync()
