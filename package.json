@@ -1,8 +1,9 @@
 {
   "name": "led-dashboard",
   "module": "index.ts",
-  "type": "module",
+  "type": "commonjs",
   "devDependencies": {
+    "@types/node": "^20.8.9",
     "bun-types": "latest",
     "rpi-led-matrix": "^1.14.0"
   },

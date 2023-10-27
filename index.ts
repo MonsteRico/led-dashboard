@@ -1,4 +1,3 @@
-console.log("Hello via Bun!");
 import {
   LedMatrix,
   GpioMapping,
