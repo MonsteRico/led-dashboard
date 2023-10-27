@@ -19,11 +19,16 @@ const matrix = new LedMatrix(
   }
 );
 
-  matrix.font(new Font("Comic Sans MS", "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf"))
+ 
 
  matrix.afterSync((mat, dt, t) => {
   matrix.clear()
-
+ matrix.font(
+   new Font(
+     "Comic Sans MS",
+     "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf"
+   )
+ );
     matrix.drawText("Hello World", 1, 1);
 
 	 setTimeout(() => matrix.sync(), 0);
