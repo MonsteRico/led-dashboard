@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var rpi_led_matrix_1 = require("rpi-led-matrix");
-var matrix = new rpi_led_matrix_1.LedMatrix(__assign(__assign({}, rpi_led_matrix_1.LedMatrix.defaultMatrixOptions()), { rows: 32, cols: 64, hardwareMapping: rpi_led_matrix_1.GpioMapping.AdafruitHatPwm }), __assign(__assign({}, rpi_led_matrix_1.LedMatrix.defaultRuntimeOptions()), { gpioSlowdown: 1 }));
+var matrix = new rpi_led_matrix_1.LedMatrix(__assign(__assign({}, rpi_led_matrix_1.LedMatrix.defaultMatrixOptions()), { disableHardwarePulsing: true, rows: 32, cols: 64, hardwareMapping: rpi_led_matrix_1.GpioMapping.AdafruitHatPwm }), __assign({}, rpi_led_matrix_1.LedMatrix.defaultRuntimeOptions()));
 matrix
     .clear() // clear the display
     .brightness(100) // set the panel brightness to 100%
