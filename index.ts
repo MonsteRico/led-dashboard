@@ -40,7 +40,7 @@ matrix
   .drawLine(matrix.width() - 1, 0, 0, matrix.height() - 1)
   
 
- matrix.afterSync(mat, dt, t) => {
+ matrix.afterSync((mat, dt, t) => {
 	 setTimeout(() => matrix.sync(), 0);
 });
 

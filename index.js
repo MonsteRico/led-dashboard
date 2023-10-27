@@ -27,5 +27,8 @@ matrix
     .fgColor({ r: 255, g: 0, b: 0 })
     // draw two diagonal red lines connecting the corners
     .drawLine(0, 0, matrix.width(), matrix.height())
-    .drawLine(matrix.width() - 1, 0, 0, matrix.height() - 1)
-    .sync();
+    .drawLine(matrix.width() - 1, 0, 0, matrix.height() - 1);
+matrix.afterSync(function (mat, dt, t) {
+    setTimeout(function () { return matrix.sync(); }, 0);
+});
+matrix.sync();
