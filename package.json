@@ -1,0 +1,31 @@
+{
+  "name": "led-matrix",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx index.ts --watch"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ts-node": "^10.9.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/color": "^3.0.6",
+    "@types/luxon": "^3.4.2",
+    "bdfparser": "^2.2.5",
+    "canvas": "^2.11.2",
+    "color": "^4.2.3",
+    "glob": "^10.4.1",
+    "libxmljs": "^1.0.11",
+    "luxon": "^3.4.4",
+    "node-gyp": "^10.1.0",
+    "readlineiter": "^1.0.1",
+    "rpi-led-matrix": "^1.14.0",
+    "sharp": "^0.33.4",
+    "socket.io": "^4.7.5",
+    "tsx": "^4.11.0"
+  }
+}
