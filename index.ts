@@ -78,12 +78,12 @@ const MATRIX_ENABLED = false;
 	class Weather {
 		static async update() {
 			matrix.clear();
+			await matrix.drawImage("spaceManatee.png", 46, 1);
 			await matrix.drawImage("storm.png", 0 + 8, 4);
 			matrix.font(fonts["7x13"]);
-			matrix.fgColor(new Color("#ffffff"));
+			matrix.fgColor(new Color("#111111"));
 			await matrix.drawText("72°F", 18 + 8, 6);
 			matrix.font(fonts["6x9"]);
-			matrix.fgColor(new Color("#ffffff"));
 			await matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
 		}
 	}
