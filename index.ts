@@ -22,34 +22,34 @@ console.log("Hello World!");
 // 	type FontMap = { [name: string]: FontInstance };
 // 	const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
 
-// 	let matrix = new LedMatrix(
-// 		{
-// 			brightness: 100,
-// 			chainLength: 1,
-// 			cols: 64,
-// 			disableHardwarePulsing: false,
-// 			hardwareMapping: GpioMapping.AdafruitHatPwm,
-// 			inverseColors: false,
-// 			ledRgbSequence: "RGB",
-// 			limitRefreshRateHz: 0,
-// 			multiplexing: MuxType.Direct,
-// 			panelType: "",
-// 			parallel: 1,
-// 			pixelMapperConfig: "",
-// 			pwmBits: 11,
-// 			pwmDitherBits: 0,
-// 			pwmLsbNanoseconds: 130,
-// 			rowAddressType: RowAddressType.Direct,
-// 			rows: 32,
-// 			scanMode: ScanMode.Progressive,
-// 			showRefreshRate: false,
-// 		},
-// 		{
-// 			daemon: RuntimeFlag.Off,
-// 			doGpioInit: true,
-// 			dropPrivileges: RuntimeFlag.On,
-// 			gpioSlowdown: 0,
-// 		}	);
+	let matrix = new LedMatrix(
+		{
+			brightness: 100,
+			chainLength: 1,
+			cols: 64,
+			disableHardwarePulsing: false,
+			hardwareMapping: GpioMapping.AdafruitHatPwm,
+			inverseColors: false,
+			ledRgbSequence: "RGB",
+			limitRefreshRateHz: 0,
+			multiplexing: MuxType.Direct,
+			panelType: "",
+			parallel: 1,
+			pixelMapperConfig: "",
+			pwmBits: 11,
+			pwmDitherBits: 0,
+			pwmLsbNanoseconds: 130,
+			rowAddressType: RowAddressType.Direct,
+			rows: 32,
+			scanMode: ScanMode.Progressive,
+			showRefreshRate: false,
+		},
+		{
+			daemon: RuntimeFlag.Off,
+			doGpioInit: true,
+			dropPrivileges: RuntimeFlag.On,
+			gpioSlowdown: 0,
+		}	);
 
 // 	matrix.font(fonts["7x13"]);
 // 	matrix.clear().sync();
