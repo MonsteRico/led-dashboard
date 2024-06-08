@@ -1,13 +1,10 @@
 import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode } from "rpi-led-matrix";
 import type { FontInstance, LedMatrixInstance } from "rpi-led-matrix/dist/types";
-import http from "http";
 import { DateTime } from "luxon";
 import { basename } from "path";
 import readline from "readline";
 import Color from "color";
 import { glob } from "glob";
-import { Server } from "socket.io";
-const MATRIX_ENABLED = false;
 
 (async () => {
 	const fontList = (await glob("fonts/*.bdf"))
