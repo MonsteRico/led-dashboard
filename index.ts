@@ -1,4 +1,5 @@
-import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode } from "rpi-led-matrix";
+//import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode } from "rpi-led-matrix";
+import * as ledMatrix from "rpi-led-matrix";
 import type { FontInstance, LedMatrixInstance } from "rpi-led-matrix/dist/types";
 import { DateTime } from "luxon";
 import { basename } from "path";
@@ -8,6 +9,9 @@ import { glob } from "glob";
 
 console.log("Hello World!");
 
+async function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
 
 // (async () => {
 // 	const fontList = (await glob("fonts/*.bdf"))
@@ -22,37 +26,42 @@ console.log("Hello World!");
 // 	type FontMap = { [name: string]: FontInstance };
 // 	const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
 
-	let matrix = new LedMatrix(
-		{
-			brightness: 100,
-			chainLength: 1,
-			cols: 64,
-			disableHardwarePulsing: false,
-			hardwareMapping: GpioMapping.AdafruitHatPwm,
-			inverseColors: false,
-			ledRgbSequence: "RGB",
-			limitRefreshRateHz: 0,
-			multiplexing: MuxType.Direct,
-			panelType: "",
-			parallel: 1,
-			pixelMapperConfig: "",
-			pwmBits: 11,
-			pwmDitherBits: 0,
-			pwmLsbNanoseconds: 130,
-			rowAddressType: RowAddressType.Direct,
-			rows: 32,
-			scanMode: ScanMode.Progressive,
-			showRefreshRate: false,
-		},
-		{
-			daemon: RuntimeFlag.Off,
-			doGpioInit: true,
-			dropPrivileges: RuntimeFlag.On,
-			gpioSlowdown: 0,
-		}	);
+	 let matrix = new ledMatrix.LedMatrix(
+	 	{
+	 		brightness: 100,
+	 		chainLength: 1,
+	 		cols: 64,
+	 		disableHardwarePulsing: false,
+	 		hardwareMapping: ledMatrix.GpioMapping.AdafruitHatPwm,
+	 		inverseColors: false,
+	 		ledRgbSequence: "RGB",
+	 		limitRefreshRateHz: 0,
+	 		multiplexing: ledMatrix.MuxType.Direct,
+	 		panelType: "",
+	 		parallel: 1,
+	 		pixelMapperConfig: "",
+	 		pwmBits: 11,
+	 		pwmDitherBits: 0,
+	 		pwmLsbNanoseconds: 130,
+	 		rowAddressType: ledMatrix.RowAddressType.Direct,
+	 		rows: 32,
+	 		scanMode: ledMatrix.ScanMode.Progressive,
+	 		showRefreshRate: false,
+	 	},
+	 	{
+	 		daemon: ledMatrix.RuntimeFlag.Off,
+	 		doGpioInit: true,
+	 		dropPrivileges: ledMatrix.RuntimeFlag.On,
+	 		gpioSlowdown: 0,
+	 	}	);
+
+	matrix.fgColor(0xff0000).fill().sync();
+
+	await delay(5000);
 
 // 	matrix.font(fonts["7x13"]);
 // 	matrix.clear().sync();
+
 
 
 // 	class Weather {
