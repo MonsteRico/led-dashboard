@@ -24,7 +24,7 @@
     "luxon": "^3.4.4",
     "node-gyp": "^10.1.0",
     "readlineiter": "^1.0.1",
-    "rpi-led-matrix": "^1.14.0",
+    "rpi-led-matrix": "git+https://github.com/MonsteRico/rpi-led-matrix.git",
     "sharp": "^0.33.4",
     "socket.io": "^4.7.5",
     "tsx": "^4.11.0"
