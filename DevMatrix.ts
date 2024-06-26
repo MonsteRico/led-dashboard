@@ -90,12 +90,12 @@ export default class DevMatrix {
     return this;
   }
 
-  async drawText(
+  drawText(
     text: string,
     x: number,
     y: number,
     kerning?: number | undefined
-  ): Promise<this> {
+  ): this {
     this.ledMatrix!.drawText(text, x, y, kerning);
 
     return this;

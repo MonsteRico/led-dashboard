@@ -54,30 +54,30 @@ import DevFont from "./DevFont";
 	matrix.clear().sync();
 
 	class Weather {
-		static async update() {
+		static update() {
 			matrix.clear();
 			// await matrix.drawImage("spaceManatee.png", 46, 1);
 			// await matrix.drawImage("storm.png", 0 + 8, 4);
 			matrix.font(fonts["7x13"]);
 			matrix.fgColor(new Color("#111111"));
-			await matrix.drawText("72°F", 18 + 8, 6);
+			matrix.drawText("72°F", 18 + 8, 6);
 			matrix.font(fonts["6x9"]);
-			await matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
+			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
 		}
 	}
 
 	class Clock {
 		static time: DateTime;
-		static async update() {
+		static update() {
 			this.time = DateTime.now();
 			matrix.clear();
 			// await matrix.drawImage("moon.png", 0, 0);
 			matrix.fgColor(new Color("#000000"));
 			matrix.font(fonts["spleen-8x16"]);
-			await matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
+			matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
 			matrix.font(fonts["6x9"]);
 			matrix.fgColor(new Color("#ffffff"));
-			await matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
+			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
 		}
 	}
 
@@ -99,9 +99,9 @@ import DevFont from "./DevFont";
 		}
 	});
 
-	matrix.afterSync(async () => {
+	matrix.afterSync(() => {
 		matrix.clear();
-		await apps[currentApp].update();
+		apps[currentApp].update();
 		setTimeout(() => matrix.sync(), 1000);
 	});
 
