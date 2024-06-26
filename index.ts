@@ -5,7 +5,6 @@ import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
-import DevFont from "./DevFont";
 
 (async () => {
 	const fontList = (await glob("fonts/*.bdf"))
@@ -20,7 +19,7 @@ import DevFont from "./DevFont";
 	}
 	type FontMap = { [name: string]: FontInstance };
 	const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
-
+	console.log(fonts);
 	let matrix = new DevMatrix(
 		{
 			brightness: 100,
@@ -47,7 +46,7 @@ import DevFont from "./DevFont";
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.On,
-			gpioSlowdown: 0,
+			gpioSlowdown: 1,
 		}	);
 
 	matrix.font(fonts["7x13"]);

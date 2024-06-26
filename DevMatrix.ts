@@ -6,7 +6,6 @@ import type {
   MatrixOptions,
   RuntimeOptions,
 } from "rpi-led-matrix/dist/types";
-import type DevFont from "./DevFont";
 export default class DevMatrix {
   private ledMatrix: LedMatrixInstance | null;
 
