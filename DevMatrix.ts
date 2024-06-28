@@ -109,7 +109,7 @@ private hexToRgb(hex:string) {
 private getFillColor(color:string) {
   let rgbColor = this.hexToRgb(color)!;
   let reversed = rgbColor.reverse();
-  let hex = 0xff000000 | (reversed[0] << 16) | (reversed[1] << 8) | reversed[2];
+  let hex = 0x000000 | (reversed[0] << 16) | (reversed[1] << 8) | reversed[2];
 
   return parseInt(`0x${(hex >>> 0).toString(16)}`);
 }
