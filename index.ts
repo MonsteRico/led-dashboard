@@ -58,9 +58,9 @@ import { glob } from "glob";
 			matrix.fill();
 			matrix.fgColor(new Color("#00ff00"));
 			matrix.setPixel(0,0);
-			matrix.setPixel(matrix.width(), 0);
-			matrix.setPixel(0, matrix.height());
-			matrix.setPixel(matrix.width(), matrix.height());
+			matrix.setPixel(matrix.width()-1, 0);
+			matrix.setPixel(0, matrix.height()-1);
+			matrix.setPixel(matrix.width()-1, matrix.height()-1);
 		}
 	}
 
