@@ -29,7 +29,7 @@ import { glob } from "glob";
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
 			ledRgbSequence: "RGB",
-			limitRefreshRateHz: 60,
+			limitRefreshRateHz: 180,
 			multiplexing: MuxType.Direct,
 			panelType: "",
 			parallel: 1,
