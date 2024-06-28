@@ -114,17 +114,10 @@ function delay(ms: number) {
 			console.log("Switching to app " + currentApp);
 		}
 	});
-	matrix.font(fonts["6x9"]);
-	matrix.fgColor(new Color("#000000"));
-	matrix.drawText("Hello World", 0, 0).sync();
-	await delay(3000);
+
 	matrix.fgColor(new Color("#ffffff"));
 	matrix.clear().sync();
-	matrix.drawText("Hello World x2", 0, 0).sync();
-	await delay(3000);
-	matrix.fgColor(new Color("#ff0000"));
-	matrix.clear().sync();
-	matrix.drawText("Hello World x3", 0, 0).sync();
-	await delay(3000);
+	matrix.setPixel(5,5).sync();
+	
 
 })();
