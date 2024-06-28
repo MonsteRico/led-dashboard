@@ -22,7 +22,7 @@ function delay(ms: number) {
 	type FontMap = { [name: string]: FontInstance };
 	const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
 	Object.keys(fonts).map(font => console.log(fonts[font].name()));
-	let matrix = new DevMatrix(
+	let matrix = new LedMatrix(
 		{
 			brightness: 100,
 			chainLength: 1,
@@ -60,7 +60,7 @@ function delay(ms: number) {
 			// await matrix.drawImage("spaceManatee.png", 46, 1);
 			// await matrix.drawImage("storm.png", 0 + 8, 4);
 			matrix.font(fonts["7x13"]);
-			matrix.fgColor(new Color("#111111"));
+			matrix.fgColor(0x111111);
 			matrix.drawText("72°F", 18 + 8, 6);
 			matrix.font(fonts["6x9"]);
 			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
@@ -73,10 +73,10 @@ function delay(ms: number) {
 			this.time = DateTime.now();
 			matrix.clear();
 			// await matrix.drawImage("moon.png", 0, 0);
-			matrix.fgColor(new Color("#000000"));
+			matrix.fgColor(0xffffff);
 			matrix.font(fonts["spleen-8x16"]);
 			matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
-			matrix.fgColor(new Color("#ffffff"));
+			matrix.fgColor(0xffffff);
 
 			const lines = LayoutUtils.textToLines(
 				fonts["6x9"],
@@ -115,8 +115,9 @@ function delay(ms: number) {
 		}
 	});
 
-	matrix.fgColor(new Color("#ffffff"));
+	matrix.fgColor(0xffffff);
 	matrix.clear().sync();
 	matrix.fill().sync();
-
+	matrix.fgColor(0xff0000);
+	matrix.drawText("Hello World!", 0, 0).sync();
 })();
