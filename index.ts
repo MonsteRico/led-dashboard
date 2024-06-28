@@ -40,7 +40,7 @@ function delay(ms: number) {
 			pwmDitherBits: 0,
 			pwmLsbNanoseconds: 130,
 			rowAddressType: RowAddressType.Direct,
-			rows: 32,
+			rows: 64,
 			scanMode: ScanMode.Progressive,
 			showRefreshRate: true,
 		},
