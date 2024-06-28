@@ -26,7 +26,7 @@ function delay(ms: number) {
 		{
 			brightness: 100,
 			chainLength: 2,
-			cols: 64,
+			cols: 32,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
