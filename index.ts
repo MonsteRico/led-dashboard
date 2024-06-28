@@ -38,7 +38,7 @@ import { glob } from "glob";
 			pwmDitherBits: 0,
 			pwmLsbNanoseconds: 130,
 			rowAddressType: RowAddressType.Direct,
-			rows: 16,
+			rows: 32,
 			scanMode: ScanMode.Progressive,
 			showRefreshRate: true,
 		},
