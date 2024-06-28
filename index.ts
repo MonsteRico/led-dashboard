@@ -46,7 +46,7 @@ import { glob } from "glob";
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.On,
-			gpioSlowdown: 2,
+			gpioSlowdown: 3,
 		}	);
 
 	matrix.font(fonts["7x13"]);
