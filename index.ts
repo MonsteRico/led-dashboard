@@ -25,7 +25,7 @@ function delay(ms: number) {
 	let matrix = new LedMatrix(
 		{
 			brightness: 100,
-			chainLength: 1,
+			chainLength: 2,
 			cols: 64,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
@@ -40,7 +40,7 @@ function delay(ms: number) {
 			pwmDitherBits: 0,
 			pwmLsbNanoseconds: 130,
 			rowAddressType: RowAddressType.Direct,
-			rows: 32,
+			rows: 16,
 			scanMode: ScanMode.Progressive,
 			showRefreshRate: true,
 		},
