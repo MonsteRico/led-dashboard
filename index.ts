@@ -30,7 +30,7 @@ import { glob } from "glob";
 			inverseColors: false,
 			ledRgbSequence: "RGB",
 			limitRefreshRateHz: 120,
-			multiplexing: MuxType.ZStripe,
+			multiplexing: MuxType.Direct,
 			panelType: "",
 			parallel: 1,
 			pixelMapperConfig: "",
