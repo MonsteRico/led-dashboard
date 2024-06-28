@@ -119,8 +119,7 @@ private getFillColor(color:string) {
       return new Color(this.ledMatrix!.fgColor());
     }
     if (color) {
-      console.log(this.getFillColor(color.hex()), "vs", color.hex(), "vs" , color.rgbNumber());
-      this.ledMatrix!.fgColor(0xff00000);
+      this.ledMatrix!.fgColor(color.rgbNumber());
     }
     return this;
   }

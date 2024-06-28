@@ -71,11 +71,11 @@ import { glob } from "glob";
 			this.time = DateTime.now();
 			matrix.clear();
 			// await matrix.drawImage("moon.png", 0, 0);
-			matrix.fgColor(new Color("#000000"));
+			matrix.fgColor(new Color("#ff0000"));
 			matrix.font(fonts["spleen-8x16"]);
 			matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
 			matrix.font(fonts["6x9"]);
-			matrix.fgColor(new Color("#ffffff"));
+			matrix.fgColor(new Color("#00ff00"));
 			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
 		}
 	}
