@@ -32,7 +32,7 @@ function delay(ms: number) {
 			inverseColors: false,
 			ledRgbSequence: "RGB",
 			limitRefreshRateHz: 0,
-			multiplexing: MuxType.QiangLiQ8,
+			multiplexing: MuxType.Spiral,
 			panelType: "",
 			parallel: 1,
 			pixelMapperConfig: "",
