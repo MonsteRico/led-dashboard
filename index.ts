@@ -54,7 +54,7 @@ import { glob } from "glob";
 
 	class Test {
 		static update() {
-			matrix.fgColor(new Color("#ff0000"));
+			matrix.fgColor(new Color("#fff00"));
 			matrix.fill();
 			matrix.fgColor(new Color("#00ff00"));
 			matrix.setPixel(0,0);
