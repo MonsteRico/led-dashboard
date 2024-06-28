@@ -101,7 +101,7 @@ import { glob } from "glob";
 	matrix.afterSync(() => {
 		matrix.clear();
 		apps[currentApp].update();
-		setTimeout(() => matrix.sync(), 1000);
+		setTimeout(() => matrix.sync(), 0);
 	});
 
 	matrix.sync();
