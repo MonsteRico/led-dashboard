@@ -117,7 +117,6 @@ function delay(ms: number) {
 
 	matrix.fgColor(new Color("#ffffff"));
 	matrix.clear().sync();
-	matrix.setPixel(5,5).sync();
-	
+	matrix.fill().sync();
 
 })();
