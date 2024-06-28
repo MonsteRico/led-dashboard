@@ -1,4 +1,4 @@
-import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode, type FontInstance } from "rpi-led-matrix";
+import { Font, GpioMapping, HorizontalAlignment, LayoutUtils, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode, VerticalAlignment, type FontInstance } from "rpi-led-matrix";
 import { DateTime } from "luxon";
 import { basename } from "path";
 import readline from "readline";
@@ -19,7 +19,7 @@ import { glob } from "glob";
 	}
 	type FontMap = { [name: string]: FontInstance };
 	const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
-	console.log(fonts);
+	Object.keys(fonts).map(font => console.log(fonts[font].name()));
 	let matrix = new DevMatrix(
 		{
 			brightness: 100,
@@ -49,8 +49,8 @@ import { glob } from "glob";
 			gpioSlowdown: 1,
 		}	);
 
-	matrix.font(fonts["7x13"]);
-	matrix.clear().sync();
+
+		matrix.clear().sync();
 
 	class Weather {
 		static update() {
@@ -74,9 +74,24 @@ import { glob } from "glob";
 			matrix.fgColor(new Color("#000000"));
 			matrix.font(fonts["spleen-8x16"]);
 			matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
-			matrix.font(fonts["6x9"]);
 			matrix.fgColor(new Color("#ffffff"));
-			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
+
+			const lines = LayoutUtils.textToLines(
+				fonts["6x9"],
+				matrix.width(),
+				Clock.time.toFormat("EEE LLL d"),
+			);
+
+			LayoutUtils.linesToMappedGlyphs(
+				lines,
+				fonts["6x9"].height(),
+				matrix.width(),
+				matrix.height(),
+				HorizontalAlignment.Center,
+				VerticalAlignment.Bottom
+			).map(glyph => {
+				matrix.drawText(glyph.char, glyph.x, glyph.y);
+			});
 		}
 	}
 
