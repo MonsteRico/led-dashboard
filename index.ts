@@ -31,7 +31,7 @@ function delay(ms: number) {
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
 			ledRgbSequence: "RGB",
-			limitRefreshRateHz: 0,
+			limitRefreshRateHz: 120,
 			multiplexing: MuxType.Stripe,
 			panelType: "",
 			parallel: 1,
@@ -48,7 +48,7 @@ function delay(ms: number) {
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.On,
-			gpioSlowdown: 2,
+			gpioSlowdown: 1,
 		}	);
 
 
