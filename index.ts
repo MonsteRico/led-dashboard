@@ -52,6 +52,18 @@ import { glob } from "glob";
 	matrix.font(fonts["7x13"]);
 	matrix.clear().sync();
 
+	class Test {
+		static update() {
+			matrix.fgColor(new Color("#ff0000"));
+			matrix.fill();
+			matrix.fgColor(new Color("#00ff00"));
+			matrix.setPixel(0,0);
+			matrix.setPixel(matrix.width(), 0);
+			matrix.setPixel(0, matrix.height());
+			matrix.setPixel(matrix.width(), matrix.height());
+		}
+	}
+
 	class Weather {
 		static update() {
 			// await matrix.drawImage("spaceManatee.png", 46, 1);
@@ -78,13 +90,14 @@ import { glob } from "glob";
 		}
 	}
 
-	const apps = [Clock, Weather];
+	const apps = [Clock, Weather, Test];
 
 	enum App {
 		CLOCK = 0,
 		WEATHER = 1,
+		TEST = 2,
 	}
-	let currentApp = App.CLOCK;
+	let currentApp = App.TEST;
 
 	readline.emitKeypressEvents(process.stdin);
 	if (process.stdin.isTTY) process.stdin.setRawMode(true);
