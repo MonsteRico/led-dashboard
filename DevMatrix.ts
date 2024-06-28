@@ -100,12 +100,26 @@ export default class DevMatrix {
     return this;
   }
 
+private hexToRgb(hex:string) {
+  return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+      , (m, r, g, b) => "#" + r + r + g + g + b + b)
+      ?.substring(1)?.match(/.{2}/g)
+      ?.map(x => parseInt(x, 16));
+}
+private getFillColor(color:string) {
+  let rgbColor = this.hexToRgb(color)!;
+  let reversed = rgbColor.reverse();
+  let hex = 0xff000000 | (reversed[0] << 16) | (reversed[1] << 8) | reversed[2];
+
+  return parseInt(`0x${(hex >>> 0).toString(16)}`);
+}
+
   fgColor(color?: Color): this | Color {
     if (!color) {
       return new Color(this.ledMatrix!.fgColor());
     }
     if (color) {
-      console.log(color.rgbNumber());
+      console.log(this.getFillColor(color.hex()));
       this.ledMatrix!.fgColor(color.rgbNumber());
     }
     return this;
