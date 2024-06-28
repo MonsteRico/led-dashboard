@@ -32,7 +32,7 @@ function delay(ms: number) {
 			inverseColors: false,
 			ledRgbSequence: "RGB",
 			limitRefreshRateHz: 0,
-			multiplexing: MuxType.P10Outdoor1R1G1BMultiplexMapper3,
+			multiplexing: MuxType.P10Outdoor32x16HalfScanMapper,
 			panelType: "",
 			parallel: 1,
 			pixelMapperConfig: "",
