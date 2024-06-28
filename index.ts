@@ -48,7 +48,7 @@ function delay(ms: number) {
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.On,
-			gpioSlowdown: 3,
+			gpioSlowdown: 2,
 		}	);
 
 
