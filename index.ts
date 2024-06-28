@@ -24,7 +24,7 @@ import { glob } from "glob";
 	{
 			brightness: 100,
 			chainLength: 1,
-			cols: 64,
+			cols: 32,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
