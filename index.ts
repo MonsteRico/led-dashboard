@@ -25,14 +25,14 @@ function delay(ms: number) {
 	let matrix = new LedMatrix(
 		{
 			brightness: 100,
-			chainLength: 2,
-			cols: 32,
+			chainLength: 1,
+			cols: 64,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
 			ledRgbSequence: "RGB",
 			limitRefreshRateHz: 0,
-			multiplexing: MuxType.Stripe,
+			multiplexing: MuxType.Coreman,
 			panelType: "",
 			parallel: 1,
 			pixelMapperConfig: "",
