@@ -23,7 +23,7 @@ import { glob } from "glob";
 	let matrix = new DevMatrix(
 	{
 			brightness: 100,
-			chainLength: 1,
+			chainLength: 2,
 			cols: 64,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
