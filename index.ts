@@ -1,13 +1,11 @@
-import { Font, GpioMapping, HorizontalAlignment, LayoutUtils, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode, VerticalAlignment, type FontInstance } from "rpi-led-matrix";
+import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode, type FontInstance } from "rpi-led-matrix";
 import { DateTime } from "luxon";
 import { basename } from "path";
 import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
-function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-}
+
 (async () => {
 	const fontList = (await glob("fonts/*.bdf"))
 		.filter((path) => !Number.isSafeInteger(basename(path, ".bdf")[0]))
@@ -21,9 +19,9 @@ function delay(ms: number) {
 	}
 	type FontMap = { [name: string]: FontInstance };
 	const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
-	Object.keys(fonts).map(font => console.log(fonts[font].name()));
-	let matrix = new LedMatrix(
-		{
+	console.log(fonts);
+	let matrix = new DevMatrix(
+	{
 			brightness: 100,
 			chainLength: 1,
 			cols: 64,
@@ -51,8 +49,8 @@ function delay(ms: number) {
 			gpioSlowdown: 2,
 		}	);
 
-
-		matrix.clear().sync();
+	matrix.font(fonts["7x13"]);
+	matrix.clear().sync();
 
 	class Weather {
 		static update() {
@@ -60,7 +58,7 @@ function delay(ms: number) {
 			// await matrix.drawImage("spaceManatee.png", 46, 1);
 			// await matrix.drawImage("storm.png", 0 + 8, 4);
 			matrix.font(fonts["7x13"]);
-			matrix.fgColor(0x111111);
+			matrix.fgColor(new Color("#111111"));
 			matrix.drawText("72°F", 18 + 8, 6);
 			matrix.font(fonts["6x9"]);
 			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
@@ -73,27 +71,12 @@ function delay(ms: number) {
 			this.time = DateTime.now();
 			matrix.clear();
 			// await matrix.drawImage("moon.png", 0, 0);
-			matrix.fgColor(0xffffff);
+			matrix.fgColor(new Color("#000000"));
 			matrix.font(fonts["spleen-8x16"]);
 			matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
-			matrix.fgColor(0xffffff);
-
-			const lines = LayoutUtils.textToLines(
-				fonts["6x9"],
-				matrix.width(),
-				Clock.time.toFormat("EEE LLL d"),
-			);
-
-			LayoutUtils.linesToMappedGlyphs(
-				lines,
-				fonts["6x9"].height(),
-				matrix.width(),
-				matrix.height(),
-				HorizontalAlignment.Center,
-				VerticalAlignment.Bottom
-			).map(glyph => {
-				matrix.drawText(glyph.char, glyph.x, glyph.y);
-			});
+			matrix.font(fonts["6x9"]);
+			matrix.fgColor(new Color("#ffffff"));
+			matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
 		}
 	}
 
@@ -115,11 +98,11 @@ function delay(ms: number) {
 		}
 	});
 
-	matrix.fgColor(0xffffff);
-	matrix.clear().sync();
-	matrix.fill().sync();
-	matrix.font(fonts["spleen-8x16"]);
-	matrix.fgColor(0xff0000);
-	matrix.setPixel(0,0).sync();
-	matrix.drawText("Hello World", 0, 0).sync();
+	matrix.afterSync(() => {
+		matrix.clear();
+		apps[currentApp].update();
+		setTimeout(() => matrix.sync(), 1000);
+	});
+
+	matrix.sync();
 })();
