@@ -32,7 +32,7 @@ function delay(ms: number) {
 			inverseColors: false,
 			ledRgbSequence: "RGB",
 			limitRefreshRateHz: 0,
-			multiplexing: MuxType.Kaler2Scan,
+			multiplexing: MuxType.P10128x4Z,
 			panelType: "",
 			parallel: 1,
 			pixelMapperConfig: "",
