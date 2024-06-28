@@ -5,7 +5,9 @@ import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
-
+function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
 (async () => {
 	const fontList = (await glob("fonts/*.bdf"))
 		.filter((path) => !Number.isSafeInteger(basename(path, ".bdf")[0]))
@@ -112,12 +114,16 @@ import { glob } from "glob";
 			console.log("Switching to app " + currentApp);
 		}
 	});
+	matrix.fgColor(new Color("#000000"));
+	matrix.drawText("Hello World", 0, 0).sync();
+	await delay(3000);
+	matrix.fgColor(new Color("#ffffff"));
+	matrix.clear().sync();
+	matrix.drawText("Hello World x2", 0, 0).sync();
+	await delay(3000);
+	matrix.fgColor(new Color("#ff0000"));
+	matrix.clear().sync();
+	matrix.drawText("Hello World x3", 0, 0).sync();
+	await delay(3000);
 
-	matrix.afterSync(() => {
-		matrix.clear();
-		apps[currentApp].update();
-		setTimeout(() => matrix.sync(), 1000);
-	});
-
-	matrix.sync();
 })();
