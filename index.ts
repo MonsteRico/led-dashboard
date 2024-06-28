@@ -23,7 +23,7 @@ import { glob } from "glob";
 	let matrix = new DevMatrix(
 	{
 			brightness: 100,
-			chainLength: 2,
+			chainLength: 1,
 			cols: 64,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
@@ -38,7 +38,7 @@ import { glob } from "glob";
 			pwmDitherBits: 0,
 			pwmLsbNanoseconds: 130,
 			rowAddressType: RowAddressType.Direct,
-			rows: 64,
+			rows: 32,
 			scanMode: ScanMode.Progressive,
 			showRefreshRate: true,
 		},
