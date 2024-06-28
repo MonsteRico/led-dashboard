@@ -114,6 +114,7 @@ function delay(ms: number) {
 			console.log("Switching to app " + currentApp);
 		}
 	});
+	matrix.font(fonts["6x9"]);
 	matrix.fgColor(new Color("#000000"));
 	matrix.drawText("Hello World", 0, 0).sync();
 	await delay(3000);
