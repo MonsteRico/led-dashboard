@@ -105,6 +105,7 @@ export default class DevMatrix {
       return new Color(this.ledMatrix!.fgColor());
     }
     if (color) {
+      console.log(color.rgbNumber());
       this.ledMatrix!.fgColor(color.rgbNumber());
     }
     return this;
