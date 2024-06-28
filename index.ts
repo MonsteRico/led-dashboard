@@ -32,7 +32,7 @@ function delay(ms: number) {
 			inverseColors: false,
 			ledRgbSequence: "RGB",
 			limitRefreshRateHz: 0,
-			multiplexing: MuxType.Direct,
+			multiplexing: MuxType.Checker,
 			panelType: "",
 			parallel: 1,
 			pixelMapperConfig: "",
@@ -42,13 +42,13 @@ function delay(ms: number) {
 			rowAddressType: RowAddressType.Direct,
 			rows: 32,
 			scanMode: ScanMode.Progressive,
-			showRefreshRate: false,
+			showRefreshRate: true,
 		},
 		{
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.On,
-			gpioSlowdown: 1,
+			gpioSlowdown: 3,
 		}	);
 
 
