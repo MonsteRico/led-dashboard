@@ -36,7 +36,7 @@ import { glob } from "glob";
 			pixelMapperConfig: "",
 			pwmBits: 11,
 			pwmDitherBits: 0,
-			pwmLsbNanoseconds: 130,
+			pwmLsbNanoseconds: 230,
 			rowAddressType: RowAddressType.Direct,
 			rows: 32,
 			scanMode: ScanMode.Progressive,
