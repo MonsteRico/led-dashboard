@@ -54,7 +54,6 @@ import { glob } from "glob";
 
 	class Weather {
 		static update() {
-			matrix.clear();
 			// await matrix.drawImage("spaceManatee.png", 46, 1);
 			// await matrix.drawImage("storm.png", 0 + 8, 4);
 			matrix.font(fonts["7x13"]);
@@ -69,7 +68,6 @@ import { glob } from "glob";
 		static time: DateTime;
 		static update() {
 			this.time = DateTime.now();
-			matrix.clear();
 			// await matrix.drawImage("moon.png", 0, 0);
 			matrix.fgColor(new Color("#ff0000"));
 			matrix.font(fonts["spleen-8x16"]);
