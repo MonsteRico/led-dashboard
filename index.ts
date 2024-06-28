@@ -24,7 +24,7 @@ import { glob } from "glob";
 	{
 			brightness: 100,
 			chainLength: 1,
-			cols: 64,
+			cols: 32,
 			disableHardwarePulsing: false,
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
@@ -38,7 +38,7 @@ import { glob } from "glob";
 			pwmDitherBits: 0,
 			pwmLsbNanoseconds: 130,
 			rowAddressType: RowAddressType.Direct,
-			rows: 32,
+			rows: 16,
 			scanMode: ScanMode.Progressive,
 			showRefreshRate: true,
 		},
