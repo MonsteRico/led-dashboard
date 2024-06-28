@@ -98,7 +98,8 @@ import { glob } from "glob";
 		}
 	});
 
-	matrix.afterSync(() => {
+	matrix.afterSync((mat, dt, t) => {
+		console.log(t);
 		matrix.clear();
 		apps[currentApp].update();
 		setTimeout(() => matrix.sync(), 0);
