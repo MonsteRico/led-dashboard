@@ -1,10 +1,13 @@
 import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode, type FontInstance } from "rpi-led-matrix";
-import { DateTime } from "luxon";
+import { DateTime, Settings } from "luxon";
 import { basename } from "path";
 import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
+
+// Configure the time zone
+Settings.defaultZone = "America/Indianapolis";
 
 (async () => {
 	const fontList = (await glob("fonts/*.bdf"))
