@@ -120,5 +120,5 @@ function delay(ms: number) {
 	matrix.fill().sync();
 	matrix.font(fonts["spleen-8x16"]);
 	matrix.fgColor(0xff0000);
-	matrix.drawText("Hello World!", 0, 0).sync();
+	matrix.setPixel(0,0);
 })();
