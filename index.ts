@@ -72,6 +72,7 @@ Settings.defaultZone = "America/Indianapolis";
 		static async update() {
 			await matrix.drawImage("spaceManatee.png",matrix.width() - 30, 1, 17, 30, );
 			await matrix.drawImage("storm.png", 0 + 8, 4,16, 16, );
+			matrix.sync();
 			matrix.font(fonts["7x13"]);
 			matrix.fgColor(new Color("#111111"));
 			matrix.drawText("72°F", 18 + 8, 6);
@@ -114,7 +115,7 @@ Settings.defaultZone = "America/Indianapolis";
 	});
 
 	matrix.afterSync((mat, dt, t) => {
-		// matrix.clear();
+		matrix.clear();
 		apps[currentApp].update();
 		setTimeout(() => matrix.sync(), 0);
 	});
