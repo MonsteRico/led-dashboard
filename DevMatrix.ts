@@ -57,7 +57,8 @@ export default class DevMatrix {
     w?: number | undefined,
     h?: number | undefined
   ): this {
-    throw new Error("Method not implemented.");
+    this.ledMatrix!.drawBuffer(buffer, w, h);
+    return this;
   }
 
   drawCircle(x: number, y: number, r: number): this {
@@ -69,12 +70,17 @@ export default class DevMatrix {
   // destination x/y/width/height
   async drawImage(
     imagePath: string,
-    xVal: number,
-    yVal: number,
-    w?: number,
-    h?: number
+    w: number,
+    h: number
   ): Promise<this> {
-    throw new Error("Method not implemented.");
+    // open the image
+    const image = await Bun.file(imagePath);
+    const buffer = await image.arrayBuffer();
+    // create a buffer
+    const imageBuffer = Buffer.from(buffer);
+    // draw the image
+    this.ledMatrix!.drawBuffer(imageBuffer, w, h);
+    return this;
   }
 
   drawLine(x0: number, y0: number, x1: number, y1: number): this {

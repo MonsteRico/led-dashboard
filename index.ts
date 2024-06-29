@@ -55,6 +55,7 @@ Settings.defaultZone = "America/Indianapolis";
 	matrix.font(fonts["7x13"]);
 	matrix.clear().sync();
 
+
 	class Test {
 		static update() {
 			matrix.fgColor(new Color("#ffff00"));
@@ -68,8 +69,8 @@ Settings.defaultZone = "America/Indianapolis";
 	}
 
 	class Weather {
-		static update() {
-			// await matrix.drawImage("spaceManatee.png", 46, 1);
+		static async update() {
+			await matrix.drawImage("spaceManatee.png", 17, 30);
 			// await matrix.drawImage("storm.png", 0 + 8, 4);
 			matrix.font(fonts["7x13"]);
 			matrix.fgColor(new Color("#111111"));
