@@ -77,7 +77,7 @@ async drawImage(
 ): Promise<this> {
   try {
     // Resolve the absolute path to the image
-    const absoluteImagePath = path.resolve(__dirname, imagePath);
+    const absoluteImagePath = path.resolve("./", imagePath);
 
     // Read the image file into a buffer
     const buffer = await fs.readFile(absoluteImagePath);
