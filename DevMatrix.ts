@@ -73,10 +73,11 @@ export default class DevMatrix {
   // destination x/y/width/height
 async drawImage(
   imagePath: string,
+    startX: number = 0,
+  startY: number = 0,
   w: number,
   h: number,
-  startX: number = 0,
-  startY: number = 0
+
 ): Promise<this> {
   const ogColor = this.ledMatrix!.fgColor();
   let x = startX;
