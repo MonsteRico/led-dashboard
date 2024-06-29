@@ -8,7 +8,6 @@ import type {
 } from "rpi-led-matrix/dist/types";
 import { promises as fs } from 'fs';
 import path from 'path';
-import sharp from "sharp";
 export default class DevMatrix {
   private ledMatrix: LedMatrixInstance | null;
 
@@ -75,26 +74,39 @@ async drawImage(
   imagePath: string,
   w: number,
   h: number,
-  startX: number = 0,
-  startY: number = 0
+  startX?: number,
+  startY?: number
 ): Promise<this> {
   const ogColor = this.ledMatrix!.fgColor();
-  let x = startX;
-  let y = startY;
-
+  let x = startX || 0;
+  let y = startY || 0;
   try {
     // Resolve the absolute path to the image
     const absoluteImagePath = path.resolve("./", imagePath);
 
-    // Read the image file into a buffer using sharp
-    const imageBuffer = await sharp(absoluteImagePath)
-      .resize(w, h) // Resize if needed
-      .raw({
-        depth: "uint"
-      }) // Get raw pixel data
-      .toBuffer(); // Convert to Buffer
-      console.log(imageBuffer.length, "vs", w * h * 3);
-    this.ledMatrix!.drawBuffer(imageBuffer);
+    // Read the image file into a buffer
+    const buffer = await fs.readFile(absoluteImagePath);
+  // Convert buffer to Uint8Array to work with pixel data
+    const imageData = new Uint8Array(buffer);
+
+    // loop through each pixel in the image starting at the top left corner
+    for (y; y < h; y++) {
+      for (x; x < w; x++) {
+        // calculate the index of the pixel in the image data
+        const i = (y * w + x) * 4;
+
+        // extract the RGB values from the image data
+        const r:number = imageData[i];
+        const g:number = imageData[i + 1];
+        const b:number = imageData[i + 2];
+
+        // set the pixel color in the LED matrix
+        this.fgColor(Color.rgb([r, g, b]));
+        this.ledMatrix!.setPixel(x, y);
+      }
+    }
+
+    this.ledMatrix!.fgColor(ogColor);
 
     return this;
   } catch (error) {
