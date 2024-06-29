@@ -46,10 +46,10 @@ Settings.defaultZone = "America/Indianapolis";
 			showRefreshRate: true,
 		},
 		{
-			daemon: RuntimeFlag.Off,
+			daemon: RuntimeFlag.On,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.Off,
-			gpioSlowdown: 3,
+			gpioSlowdown: 4,
 		}	);
 
 	matrix.font(fonts["7x13"]);
