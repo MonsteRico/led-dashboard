@@ -89,9 +89,11 @@ async drawImage(
     // Read the image file into a buffer using sharp
     const imageBuffer = await sharp(absoluteImagePath)
       .resize(w, h) // Resize if needed
-      .raw() // Get raw pixel data
+      .raw({
+        depth: "uint"
+      }) // Get raw pixel data
       .toBuffer(); // Convert to Buffer
-
+      console.log(imageBuffer.length, "vs", w * h * 3);
     this.ledMatrix!.drawBuffer(imageBuffer, w, h);
 
     return this;
