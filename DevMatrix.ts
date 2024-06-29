@@ -6,6 +6,8 @@ import type {
   MatrixOptions,
   RuntimeOptions,
 } from "rpi-led-matrix/dist/types";
+import { promises as fs } from 'fs';
+import path from 'path';
 export default class DevMatrix {
   private ledMatrix: LedMatrixInstance | null;
 
@@ -68,21 +70,29 @@ export default class DevMatrix {
   }
 
   // destination x/y/width/height
-  async drawImage(
-    imagePath: string,
-    w: number,
-    h: number
-  ): Promise<this> {
-    // open the image
-    const image = await Bun.file(imagePath);
-    const buffer = await image.arrayBuffer();
-    // create a buffer
-    const imageBuffer = Buffer.from(buffer);
-    // draw the image
-    this.ledMatrix!.drawBuffer(imageBuffer, w, h);
-    return this;
-  }
+async drawImage(
+  imagePath: string,
+  w: number,
+  h: number
+): Promise<this> {
+  try {
+    // Resolve the absolute path to the image
+    const absoluteImagePath = path.resolve(__dirname, imagePath);
 
+    // Read the image file into a buffer
+    const buffer = await fs.readFile(absoluteImagePath);
+
+    // Draw the image
+    const imageBuffer = Buffer.from(buffer);
+    this.ledMatrix!.drawBuffer(imageBuffer, w, h);
+
+    return this;
+  } catch (error) {
+    // Handle any errors (e.g., file not found, permissions issue)
+    console.error('Error reading or drawing image:', error);
+    throw error; // Optionally re-throw the error to handle it further up
+  }
+}
   drawLine(x0: number, y0: number, x1: number, y1: number): this {
     this.ledMatrix!.drawLine(x0, y0, x1, y1);
 
