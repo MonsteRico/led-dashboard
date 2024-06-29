@@ -94,7 +94,7 @@ async drawImage(
       }) // Get raw pixel data
       .toBuffer(); // Convert to Buffer
       console.log(imageBuffer.length, "vs", w * h * 3);
-    this.ledMatrix!.drawBuffer(imageBuffer, w, h);
+    this.ledMatrix!.drawBuffer(imageBuffer);
 
     return this;
   } catch (error) {
