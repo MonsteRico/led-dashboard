@@ -32,7 +32,7 @@ Settings.defaultZone = "America/Indianapolis";
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
 			ledRgbSequence: "RGB",
-			limitRefreshRateHz: 30,
+			limitRefreshRateHz: 120,
 			multiplexing: MuxType.Direct,
 			panelType: "",
 			parallel: 1,
@@ -49,7 +49,7 @@ Settings.defaultZone = "America/Indianapolis";
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.Off,
-			gpioSlowdown: 4,
+			gpioSlowdown: 3,
 		}	);
 
 	matrix.font(fonts["7x13"]);
