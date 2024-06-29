@@ -8,6 +8,7 @@ import type {
 } from "rpi-led-matrix/dist/types";
 import { promises as fs } from 'fs';
 import path from 'path';
+import sharp from "sharp";
 export default class DevMatrix {
   private ledMatrix: LedMatrixInstance | null;
 
@@ -74,38 +75,41 @@ async drawImage(
   imagePath: string,
   w: number,
   h: number,
-  startX?: number,
-  startY?: number
+  startX: number = 0,
+  startY: number = 0
 ): Promise<this> {
   const ogColor = this.ledMatrix!.fgColor();
-  let x = startX || 0;
-  let y = startY || 0;
+  let x = startX;
+  let y = startY;
+
   try {
     // Resolve the absolute path to the image
     const absoluteImagePath = path.resolve("./", imagePath);
 
-    // Read the image file into a buffer
-    const buffer = await fs.readFile(absoluteImagePath);
-  // Convert buffer to Uint8Array to work with pixel data
-    const imageData = new Uint8Array(buffer);
+    // Read the image file into a buffer using sharp
+    const imageBuffer = await sharp(absoluteImagePath)
+      .resize(w, h) // Resize if needed
+      .raw() // Get raw pixel data
+      .toBuffer(); // Convert to Buffer
 
-    // loop through each pixel in the image starting at the top left corner
-    for (y; y < h; y++) {
-      for (x; x < w; x++) {
-        // calculate the index of the pixel in the image data
-        const i = (y * w + x) * 4;
+    // Loop through each pixel in the image
+    for (let py = 0; py < h; py++) {
+      for (let px = 0; px < w; px++) {
+        // Calculate the index of the pixel in the image data
+        const i = (py * w + px) * 4;
 
-        // extract the RGB values from the image data
-        const r:number = imageData[i];
-        const g:number = imageData[i + 1];
-        const b:number = imageData[i + 2];
+        // Extract the RGB values from the image data
+        const r = imageBuffer[i];
+        const g = imageBuffer[i + 1];
+        const b = imageBuffer[i + 2];
 
-        // set the pixel color in the LED matrix
-        this.fgColor(Color.rgb([r, g, b]));
-        this.ledMatrix!.setPixel(x, y);
+        // Set the pixel color in the LED matrix
+        this.fgColor(Color.rgb(r, g, b)); // Assuming Color.rgb accepts separate r, g, b values
+        this.ledMatrix!.setPixel(x + px, y + py);
       }
     }
 
+    // Restore original foreground color
     this.ledMatrix!.fgColor(ogColor);
 
     return this;
