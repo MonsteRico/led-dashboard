@@ -48,7 +48,7 @@ Settings.defaultZone = "America/Indianapolis";
 		{
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
-			dropPrivileges: RuntimeFlag.On,
+			dropPrivileges: RuntimeFlag.Off,
 			gpioSlowdown: 3,
 		}	);
 
