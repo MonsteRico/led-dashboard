@@ -92,25 +92,7 @@ async drawImage(
       .raw() // Get raw pixel data
       .toBuffer(); // Convert to Buffer
 
-    // Loop through each pixel in the image
-    for (let py = 0; py < h; py++) {
-      for (let px = 0; px < w; px++) {
-        // Calculate the index of the pixel in the image data
-        const i = (py * w + px) * 4;
-
-        // Extract the RGB values from the image data
-        const r = imageBuffer[i];
-        const g = imageBuffer[i + 1];
-        const b = imageBuffer[i + 2];
-
-        // Set the pixel color in the LED matrix
-        this.fgColor(Color.rgb(r, g, b)); // Assuming Color.rgb accepts separate r, g, b values
-        this.ledMatrix!.setPixel(x + px, y + py);
-      }
-    }
-
-    // Restore original foreground color
-    this.ledMatrix!.fgColor(ogColor);
+    this.ledMatrix!.drawBuffer(imageBuffer, w, h);
 
     return this;
   } catch (error) {
