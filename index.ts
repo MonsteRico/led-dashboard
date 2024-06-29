@@ -114,7 +114,7 @@ Settings.defaultZone = "America/Indianapolis";
 	});
 
 	matrix.afterSync((mat, dt, t) => {
-		matrix.clear();
+		// matrix.clear();
 		apps[currentApp].update();
 		setTimeout(() => matrix.sync(), 0);
 	});
