@@ -49,7 +49,7 @@ Settings.defaultZone = "America/Indianapolis";
 			daemon: RuntimeFlag.Off,
 			doGpioInit: true,
 			dropPrivileges: RuntimeFlag.Off,
-			gpioSlowdown: 3,
+			gpioSlowdown: 4,
 		}	);
 
 	matrix.font(fonts["7x13"]);
