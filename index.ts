@@ -32,7 +32,7 @@ Settings.defaultZone = "America/Indianapolis";
 			hardwareMapping: GpioMapping.AdafruitHatPwm,
 			inverseColors: false,
 			ledRgbSequence: "RGB",
-			limitRefreshRateHz: 30,
+			limitRefreshRateHz: 60,
 			multiplexing: MuxType.Direct,
 			panelType: "",
 			parallel: 1,
