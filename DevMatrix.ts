@@ -73,18 +73,40 @@ export default class DevMatrix {
 async drawImage(
   imagePath: string,
   w: number,
-  h: number
+  h: number,
+  startX?: number,
+  startY?: number
 ): Promise<this> {
+  const ogColor = this.ledMatrix!.fgColor();
+  let x = startX || 0;
+  let y = startY || 0;
   try {
     // Resolve the absolute path to the image
     const absoluteImagePath = path.resolve("./", imagePath);
 
     // Read the image file into a buffer
     const buffer = await fs.readFile(absoluteImagePath);
+  // Convert buffer to Uint8Array to work with pixel data
+    const imageData = new Uint8Array(buffer);
 
-    // Draw the image
-    const imageBuffer = Buffer.from(buffer);
-    this.ledMatrix!.drawBuffer(imageBuffer, w, h);
+    // loop through each pixel in the image starting at the top left corner
+    for (y; y < h; y++) {
+      for (x; x < w; x++) {
+        // calculate the index of the pixel in the image data
+        const i = (y * w + x) * 4;
+
+        // extract the RGB values from the image data
+        const r:number = imageData[i];
+        const g:number = imageData[i + 1];
+        const b:number = imageData[i + 2];
+
+        // set the pixel color in the LED matrix
+        this.fgColor(Color.rgb([r, g, b]));
+        this.ledMatrix!.setPixel(x, y);
+      }
+    }
+
+    this.ledMatrix!.fgColor(ogColor);
 
     return this;
   } catch (error) {
@@ -121,13 +143,6 @@ private hexToRgb(hex:string) {
       , (m, r, g, b) => "#" + r + r + g + g + b + b)
       ?.substring(1)?.match(/.{2}/g)
       ?.map(x => parseInt(x, 16));
-}
-private getFillColor(color:string) {
-  let rgbColor = this.hexToRgb(color)!;
-  let reversed = rgbColor.reverse();
-  let hex = 0x000000 | (reversed[0] << 16) | (reversed[1] << 8) | reversed[2];
-
-  return parseInt(`0x${(hex >>> 0).toString(16)}`);
 }
 
   fgColor(color?: Color): this | Color {
