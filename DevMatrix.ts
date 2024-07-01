@@ -85,12 +85,17 @@ export default class DevMatrix {
         if (options?.color) {
             this.fgColor(options.color);
         }
+
+      if (options?.outline) {
+          const fgColor = this.fgColor() as Color;
+          this.fgColor(fgColor.darken(0.5));
+          this.ledMatrix!.drawText(text, x - 1, y, options?.kerning ?? 0);
+          this.fgColor(fgColor);
+      }
+
         this.ledMatrix!.drawText(text, x, y, options?.kerning ?? 0);
 
-        if (options?.outline) {
-            this.fgColor(new Color("#ffffff"));
-            this.ledMatrix!.drawText(text, x+1, y, options?.kerning ?? 0);
-        }
+  
 
         this.fgColor(ogColor);
 
