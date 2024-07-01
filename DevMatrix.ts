@@ -111,6 +111,8 @@ async drawImage(
         rgbArray[j + 2] = b;
       }
     }
+    console.log("rgbArray length", rgbArray.length);
+    console.log("correct length", w * h * 3);
 
     this.ledMatrix.drawBuffer(rgbArray, w, h);
 
