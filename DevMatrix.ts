@@ -88,8 +88,8 @@ export default class DevMatrix {
         this.ledMatrix!.drawText(text, x, y, options?.kerning ?? 0);
 
         if (options?.outline) {
-            this.fgColor(new Color("#000000"));
-            this.ledMatrix!.drawText(text, x-1, y, options?.kerning ?? 0);
+            this.fgColor(new Color("#ffffff"));
+            this.ledMatrix!.drawText(text, x+1, y, options?.kerning ?? 0);
         }
 
         this.fgColor(ogColor);
