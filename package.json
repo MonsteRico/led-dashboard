@@ -19,7 +19,7 @@
     "luxon": "^3.4.4",
     "node-gyp": "^10.1.0",
     "prettier": "^3.3.2",
-    "rpi-led-matrix": "github:MonsteRico/rpi-led-matrix",
+    "rpi-led-matrix": "^1.14.0",
     "sharp": "^0.33.4",
     "tsx": "^4.11.0"
   },

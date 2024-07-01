@@ -1,13 +1,10 @@
-import { Font, GpioMapping, LedMatrix, MuxType, RowAddressType, RuntimeFlag, ScanMode, type FontInstance } from "rpi-led-matrix";
+import { Font, GpioMapping, MuxType, RowAddressType, RuntimeFlag, ScanMode, type FontInstance } from "rpi-led-matrix";
 import { DateTime, Settings } from "luxon";
 import { basename } from "path";
 import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
-import { promises as fs } from "fs";
-import path from "path";
-import sharp from "sharp";
 import preloadImages from "./preloadImages";
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
