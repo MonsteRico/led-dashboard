@@ -5,7 +5,9 @@ import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
-
+import { promises as fs } from 'fs';
+import path from 'path';
+import sharp from "sharp";
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
 
@@ -68,10 +70,23 @@ Settings.defaultZone = "America/Indianapolis";
 		}
 	}
 
+    // Resolve the absolute path to the image
+    const absoluteImagePathOne = path.resolve("./", "spaceManatee.png");
+	const absoluteImagePathTwo = path.resolve("./", "storm.png");
+
+    // Read the image file into a buffer using sharp
+    const manateeBuffer = await sharp(absoluteImagePathOne)
+      .raw() // Get raw pixel data
+      .toBuffer(); // Convert to Buffer
+
+	  const stormBuffer = await sharp(absoluteImagePathTwo)
+      .raw() // Get raw pixel data
+      .toBuffer(); // Convert to Buffer
+
 	class Weather {
 		static async update() {
-			matrix.drawImage("spaceManatee.png",matrix.width() - 30, 1, 17, 30, );
-			matrix.drawImage("storm.png", 0 + 8, 4,16, 16, );
+			matrix.drawImage(manateeBuffer,matrix.width() - 30, 1, 17, 30, );
+			matrix.drawImage(stormBuffer, 0 + 8, 4,16, 16, );
 			matrix.sync();
 			matrix.font(fonts["7x13"]);
 			matrix.fgColor(new Color("#111111"));

@@ -70,27 +70,20 @@ export default class DevMatrix {
   }
 
   // destination x/y/width/height
-async drawImage(
-  imagePath: string,
+drawImage(
+  imageBuffer: Buffer,
     startX: number = 0,
   startY: number = 0,
   w: number,
   h: number,
 
-): Promise<this> {
+): this {
   const ogColor = this.ledMatrix!.fgColor();
   let x = startX;
   let y = startY;
 
   try {
-    // Resolve the absolute path to the image
-    const absoluteImagePath = path.resolve("./", imagePath);
 
-    // Read the image file into a buffer using sharp
-    const imageBuffer = await sharp(absoluteImagePath)
-      .resize(w, h) // Resize if needed
-      .raw() // Get raw pixel data
-      .toBuffer(); // Convert to Buffer
     const rgbArray : Uint8Array = new Uint8Array(w * h * 3);
     // Loop through each pixel in the image
     for (let py = 0; py < h; py++) {
