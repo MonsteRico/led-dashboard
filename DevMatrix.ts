@@ -4,6 +4,7 @@ import type { FontInstance, LedMatrixInstance, MatrixOptions, RuntimeOptions } f
 import { promises as fs } from "fs";
 import path from "path";
 import sharp from "sharp";
+import type { Image } from "./preloadImages";
 export default class DevMatrix {
     private ledMatrix: LedMatrixInstance;
 
@@ -56,15 +57,8 @@ export default class DevMatrix {
     }
 
     // destination x/y/width/height
-    drawImage(imageBuffer: Uint8Array, startX: number = 0, startY: number = 0, w: number, h: number): this {
-        const ogColor = this.ledMatrix!.fgColor();
-        let x = startX;
-        let y = startY;
-
-        this.ledMatrix.drawBuffer(imageBuffer, w, h);
-
-        // Restore original foreground color
-        this.ledMatrix!.fgColor(ogColor);
+    drawImage(image: Image, x: number = 0, y: number = 0): this {
+        this.ledMatrix.drawBuffer(image.data, image.width, image.height, x, y);
 
         return this;
     }

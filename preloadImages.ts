@@ -1,8 +1,14 @@
 import { basename } from "path";
 import sharp from "sharp";
 
-export default async function preloadImages(imagePaths: string[]) : Promise<Record<string, Uint8Array>> {
-    const imagesObject: Record<string, Uint8Array> = {};
+export type Image = {
+    width: number;
+    height: number;
+    data: Uint8Array;
+}
+
+export default async function preloadImages(imagePaths: string[]) : Promise<Record<string, Image>> {
+    const imagesObject: Record<string, Image> = {};
     const promises = imagePaths.map(async (path) => {
         const sharpImage = await sharp(path);
         const { width, height } = await sharpImage.metadata();
@@ -34,7 +40,11 @@ export default async function preloadImages(imagePaths: string[]) : Promise<Reco
         }
         // get the filename
         const filename = basename(path);
-        imagesObject[filename] = rgbArray;
+        imagesObject[filename] = {
+            width,
+            height,
+            data: rgbArray,
+        };
         return rgbArray;
     });
      await Promise.all(promises);
