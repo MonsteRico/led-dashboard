@@ -23,7 +23,7 @@
     "node-gyp": "^10.1.0",
     "prettier": "^3.3.2",
     "readlineiter": "^1.0.1",
-    "rpi-led-matrix": "github:MonsteRico/rpi-led-matrix",
+    "rpi-led-matrix": "^1.14.0",
     "sharp": "^0.33.4",
     "socket.io": "^4.7.5",
     "tsx": "^4.11.0"
