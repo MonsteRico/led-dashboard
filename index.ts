@@ -75,7 +75,7 @@ Settings.defaultZone = "America/Indianapolis";
             matrix.drawImage(images["spaceManatee.png"], matrix.width() - 30, 1);
             matrix.drawImage(images["storm.png"], 0 + 8, 4);
             matrix.font(fonts["7x13"]);
-            matrix.fgColor(new Color("#555555"));
+            matrix.fgColor(new Color("#888888"));
             matrix.drawText("72°F", 18 + 8, 6);
             matrix.font(fonts["6x9"]);
             matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
