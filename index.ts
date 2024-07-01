@@ -72,7 +72,7 @@ Settings.defaultZone = "America/Indianapolis";
 
     class Weather {
         static async update() {
-            matrix.drawImage(images["spaceManatee.png"], matrix.width() - 30, 1);
+            matrix.drawImage(images["spaceManatee.png"], matrix.width() - 15, 1);
             matrix.drawImage(images["storm.png"], 0 + 8, 4);
             matrix.font(fonts["7x13"]);
             matrix.drawText("72°F", 18 + 8, 6, { color: new Color("#888888"), rightShadow: true });
