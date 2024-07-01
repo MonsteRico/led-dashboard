@@ -10,7 +10,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import sharp from "sharp";
 export default class DevMatrix {
-  private ledMatrix: LedMatrixInstance | null;
+  private ledMatrix: LedMatrixInstance;
 
   private heightValue: number;
   private widthValue: number;
@@ -18,7 +18,6 @@ export default class DevMatrix {
   constructor(
     matrixOptions: MatrixOptions,
     runtimeOptions: RuntimeOptions,
-    enableMatrix?: boolean
   ) {
     this.ledMatrix = new LedMatrix(matrixOptions, runtimeOptions);
     this.heightValue = matrixOptions.rows;
@@ -92,7 +91,7 @@ async drawImage(
       .resize(w, h) // Resize if needed
       .raw() // Get raw pixel data
       .toBuffer(); // Convert to Buffer
-
+    const rgbArray : Uint8Array = new Uint8Array();
     // Loop through each pixel in the image
     for (let py = 0; py < h; py++) {
       for (let px = 0; px < w; px++) {
@@ -104,11 +103,16 @@ async drawImage(
         const g = imageBuffer[i + 1];
         const b = imageBuffer[i + 2];
 
-        // Set the pixel color in the LED matrix
-        this.fgColor(Color.rgb(r, g, b)); // Assuming Color.rgb accepts separate r, g, b values
-        this.ledMatrix!.setPixel(x + px, y + py);
+        // set the pixel in the rgb array (3 bytes per pixel)
+        const j = (py * w + px) * 3;
+
+        rgbArray[j] = r;
+        rgbArray[j + 1] = g;
+        rgbArray[j + 2] = b;
       }
     }
+
+    this.ledMatrix.drawBuffer(rgbArray, w, h);
 
     // Restore original foreground color
     this.ledMatrix!.fgColor(ogColor);
