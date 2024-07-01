@@ -24,7 +24,13 @@ export default class DevMatrix {
     }
 
     bgColor(color?: Color): this | Color {
-        throw new Error("it does nothing?");
+        if (!color) {
+            return new Color(this.ledMatrix!.bgColor());
+        }
+        if (color) {
+            this.ledMatrix!.bgColor(color.rgbNumber());
+        }
+        return this;
     }
 
     brightness(brightness?: number): this | number {
