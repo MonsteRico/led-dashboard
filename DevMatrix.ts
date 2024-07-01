@@ -80,8 +80,19 @@ export default class DevMatrix {
         return this;
     }
 
-    drawText(text: string, x: number, y: number, kerning?: number | undefined): this {
-        this.ledMatrix!.drawText(text, x, y, kerning);
+    drawText(text: string, x: number, y: number, options?: { kerning?: number; color?: Color; outline?: boolean }): this {
+        let ogColor = this.fgColor() as Color;
+        if (options?.color) {
+            this.fgColor(options.color);
+        }
+        this.ledMatrix!.drawText(text, x, y, options?.kerning ?? 0);
+
+        if (options?.outline) {
+            this.fgColor(new Color("#000000"));
+            this.ledMatrix!.drawText(text, x-1, y, options?.kerning ?? 0);
+        }
+
+        this.fgColor(ogColor);
 
         return this;
     }

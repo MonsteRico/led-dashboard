@@ -75,10 +75,9 @@ Settings.defaultZone = "America/Indianapolis";
             matrix.drawImage(images["spaceManatee.png"], matrix.width() - 30, 1);
             matrix.drawImage(images["storm.png"], 0 + 8, 4);
             matrix.font(fonts["7x13"]);
-            matrix.fgColor(new Color("#888888"));
-            matrix.drawText("72°F", 18 + 8, 6);
+            matrix.drawText("72°F", 18 + 8, 6, { color: new Color("#888888"), outline: true });
             matrix.font(fonts["6x9"]);
-            matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
+            matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, { color: new Color("#888888"), outline: true });
         }
     }
 
@@ -89,10 +88,10 @@ Settings.defaultZone = "America/Indianapolis";
             // await matrix.drawImage("moon.png", 0, 0);
             matrix.fgColor(new Color("#ff0000"));
             matrix.font(fonts["spleen-8x16"]);
-            matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8, 0);
+            matrix.drawText(Clock.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8);
             matrix.font(fonts["6x9"]);
             matrix.fgColor(new Color("#00ff00"));
-            matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, 0);
+            matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21);
         }
     }
 
