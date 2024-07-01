@@ -91,7 +91,7 @@ async drawImage(
       .resize(w, h) // Resize if needed
       .raw() // Get raw pixel data
       .toBuffer(); // Convert to Buffer
-    const rgbArray : Uint8Array = new Uint8Array();
+    const rgbArray : Uint8Array = new Uint8Array(w * h * 3);
     // Loop through each pixel in the image
     for (let py = 0; py < h; py++) {
       for (let px = 0; px < w; px++) {
