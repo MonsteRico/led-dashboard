@@ -6,8 +6,6 @@
     "dev": "tsx index.ts --watch"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/socket.io": "^3.0.2",
     "ts-node": "^10.9.2"
   },
   "peerDependencies": {
@@ -16,16 +14,13 @@
   "dependencies": {
     "@types/color": "^3.0.6",
     "@types/luxon": "^3.4.2",
-    "bdfparser": "^2.2.5",
     "color": "^4.2.3",
     "glob": "^10.4.1",
     "luxon": "^3.4.4",
     "node-gyp": "^10.1.0",
     "prettier": "^3.3.2",
-    "readlineiter": "^1.0.1",
-    "rpi-led-matrix": "^1.14.0",
+    "rpi-led-matrix": "github:MonsteRico/rpi-led-matrix",
     "sharp": "^0.33.4",
-    "socket.io": "^4.7.5",
     "tsx": "^4.11.0"
   },
   "trustedDependencies": [
