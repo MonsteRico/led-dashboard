@@ -80,7 +80,6 @@ Settings.defaultZone = "America/Indianapolis";
 		static async update() {
 			matrix.drawImage(images["spaceManatee.png"],matrix.width() - 30, 1, 17, 30, );
 			matrix.drawImage(images["storm.png"], 0 + 8, 4,16, 16, );
-			matrix.sync();
 			matrix.font(fonts["7x13"]);
 			matrix.fgColor(new Color("#111111"));
 			matrix.drawText("72°F", 18 + 8, 6);
