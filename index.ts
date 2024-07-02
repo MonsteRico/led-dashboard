@@ -83,7 +83,8 @@ Settings.defaultZone = "America/Indianapolis";
             const temperature = Math.round(weatherData.current.temperature2m);
             matrix.drawText(`${temperature}°F`, 18, 6, { color: new Color("#fdb813"), rightShadow: true });
             matrix.font(fonts["6x9"]);
-            matrix.drawText(Clock.time.toFormat("EEE MMM"), 2, 21, { color: new Color("#fdb813"), rightShadow: true });
+            matrix.drawText(Clock.time.toFormat("EEE"), 2, 21, { color: new Color("#fdb813"), rightShadow: true });
+            matrix.drawText(Clock.time.toFormat("MMM"), 24, 21, { color: new Color("#fdb813"), rightShadow: true });
             matrix.drawText(Clock.time.toFormat("d"), 44, 21, { color: new Color("#fdb813"), rightShadow: true });
         }
     }
