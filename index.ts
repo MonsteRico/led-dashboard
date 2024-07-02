@@ -6,13 +6,9 @@ import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
 import preloadImages from "./preloadImages";
-import OpenWeatherMap from "openweathermap-ts";
+import { weatherData } from "./weather";
 
-const openWeather = new OpenWeatherMap({
-    apiKey: process.env.OPENWEATHER_API_KEY,
-});
 
-console.log(openWeather.getCurrentWeatherByCityName({ cityName: "Carmel", state: "IN" }));
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -81,11 +77,16 @@ Settings.defaultZone = "America/Indianapolis";
     class Weather {
         static async update() {
             matrix.drawImage(images["spaceManatee.png"], matrix.width() - 18, 1);
+            const weatherCode = weatherData.current.weatherCode;
+            console.log(weatherCode);
             matrix.drawImage(images["storm.png"], 1, 4);
             matrix.font(fonts["7x13"]);
+            const temperature = weatherData.current.temperature2m;
+            console.log(temperature);
             matrix.drawText("72°F", 18, 6, { color: new Color("#888888"), rightShadow: true });
             matrix.font(fonts["6x9"]);
-            matrix.drawText(Clock.time.toFormat("EEE LLL d"), 2, 21, { color: new Color("#888888"), rightShadow: true });
+            matrix.drawText(Clock.time.toFormat("EEE MMM"), 2, 21, { color: new Color("#888888"), rightShadow: true });
+            matrix.drawText(Clock.time.toFormat("d"), 32, 21, { color: new Color("#ff0000"), rightShadow: true });
         }
     }
 
