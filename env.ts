@@ -2,8 +2,14 @@ import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 export const env = createEnv({
-    server: {
-        OPENWEATHER_API_KEY: z.string(),
+    /**
+     * The prefix that client-side variables must have. This is enforced both at
+     * a type-level and at runtime.
+     */
+    clientPrefix: "",
+
+    client: {
+        OPENWEATHER_API_KEY: z.string().min(1),
     },
 
     /**
