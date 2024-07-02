@@ -30,7 +30,7 @@ Settings.defaultZone = "America/Indianapolis";
     // preload images, they are in images folder and can be .png or .jpg and can be in subfolders
     const globImageFiles = await glob("images/*.{png,jpg}");
     const images = await preloadImages(globImageFiles);
-
+    console.log(images);
 
     let matrix = new DevMatrix(
         {
