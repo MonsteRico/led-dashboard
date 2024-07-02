@@ -27,7 +27,10 @@ Settings.defaultZone = "America/Indianapolis";
     type FontMap = { [name: string]: FontInstance };
     const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
 
-    const images = await preloadImages(["./spaceManatee.png", "./storm.png", "./cloudy.png"]);
+    // preload images, they are in images folder and can be .png or .jpg and can be in subfolders
+    const globImageFiles = await glob("images/*.{png,jpg}");
+    const images = await preloadImages(globImageFiles);
+
 
     let matrix = new DevMatrix(
         {
