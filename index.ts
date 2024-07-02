@@ -85,7 +85,7 @@ Settings.defaultZone = "America/Indianapolis";
             matrix.font(fonts["6x9"]);
             matrix.drawText(Clock.time.toFormat("EEE"), 2, 21, { color: new Color("#fdb813"), rightShadow: true });
             matrix.drawText(Clock.time.toFormat("MMM"), 22, 21, { color: new Color("#fdb813"), rightShadow: true });
-            matrix.drawText(Clock.time.toFormat("d"), 44, 21, { color: new Color("#fdb813"), rightShadow: true });
+            matrix.drawText(Clock.time.toFormat("d"), 40, 21, { color: new Color("#fdb813"), rightShadow: true });
         }
     }
 
