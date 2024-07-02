@@ -32,11 +32,11 @@
 	"3":{
 		"day":{
 			"description":"Cloudy",
-			"image":"clouds.png"
+			"image":"cloud_sun.png"
 		},
 		"night":{
 			"description":"Cloudy",
-			"image":"clouds.png"
+			"image":"cloud_moon.png"
 		}
 	},
 	"45":{
