@@ -73,9 +73,10 @@ const weatherCodeMap = weatherCodeJSON as {
     };
 };
 export function getWeatherCodeIcon(weatherCode: number): string | null {
-    const image = weatherCodeMap[weatherCode].day.image;
-    if (!image) {
+    try {
+        const image = weatherCodeMap[weatherCode].day.image;
+        return image;
+    } catch (e) {
         return null;
     }
-    return image;
 }
