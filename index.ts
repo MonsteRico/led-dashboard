@@ -28,7 +28,7 @@ Settings.defaultZone = "America/Indianapolis";
     const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
 
     // preload images, they are in images folder and can be .png or .jpg and can be in subfolders
-    const globImageFiles = await glob("images/*.{png,jpg}");
+    const globImageFiles = await glob("images/**/*.{png,jpg}");
     const images = await preloadImages(globImageFiles);
     console.log(images);
 
