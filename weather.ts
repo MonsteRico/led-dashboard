@@ -58,3 +58,20 @@ export const weatherData = {
         sunset: daily.variables(1)!.valuesArray()!,
     },
 };
+
+import weatherCodeJSON from "./weatherCodeMap.json";
+const weatherCodeMap = weatherCodeJSON as {
+    [weatherCode: string]: {
+        day: {
+            description: string;
+            image: string;
+        };
+        night: {
+            description: string;
+            image: string;
+        };
+    };
+};
+export function getWeatherCodeIcon(weatherCode: number): string {
+    return weatherCodeMap[weatherCode].day.image;
+}

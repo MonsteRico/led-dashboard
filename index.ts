@@ -6,7 +6,7 @@ import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
 import preloadImages from "./preloadImages";
-import { weatherData } from "./weather";
+import { getWeatherCodeIcon, weatherData } from "./weather";
 
 
 
@@ -27,7 +27,7 @@ Settings.defaultZone = "America/Indianapolis";
     type FontMap = { [name: string]: FontInstance };
     const fonts: FontMap = fontList.reduce((map, font) => ({ ...map, [font.name()]: font }), {});
 
-    const images = await preloadImages(["./spaceManatee.png", "./storm.png"]);
+    const images = await preloadImages(["./spaceManatee.png", "./storm.png", "./cloudy.png"]);
 
     let matrix = new DevMatrix(
         {
@@ -78,7 +78,7 @@ Settings.defaultZone = "America/Indianapolis";
         static async update() {
             matrix.drawImage(images["spaceManatee.png"], matrix.width() - 18, 1);
             const weatherCode = weatherData.current.weatherCode;
-            matrix.drawImage(images["storm.png"], 1, 4);
+            matrix.drawImage(images[getWeatherCodeIcon(weatherCode)], 1, 4);
             matrix.font(fonts["7x13"]);
             const temperature = Math.round(weatherData.current.temperature2m);
             matrix.drawText(`${temperature}°F`, 18, 6, { color: new Color("#fdb813"), rightShadow: true });
