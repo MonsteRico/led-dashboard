@@ -7,10 +7,9 @@ import Color from "color";
 import { glob } from "glob";
 import preloadImages from "./preloadImages";
 import OpenWeatherMap from "openweathermap-ts";
-import { env } from "./env";
 
 const openWeather = new OpenWeatherMap({
-    apiKey: env.OPENWEATHER_API_KEY,
+    apiKey: process.env.OPENWEATHER_API_KEY as string,
 });
 
 console.log(openWeather.getCurrentWeatherByCityName({ cityName: "Carmel", state: "IN" }));
