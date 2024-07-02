@@ -82,7 +82,7 @@ Settings.defaultZone = "America/Indianapolis";
             matrix.font(fonts["7x13"]);
             matrix.drawImage(images["spaceManatee.png"], matrix.width() - 18, 1);
             const weatherCode = weatherData.current.weatherCode;
-            const weatherImage = getWeatherCodeIcon(120938)
+            const weatherImage = getWeatherCodeIcon(weatherCode)
             if (weatherImage) {
                 matrix.drawImage(images[weatherImage], 1, 4);
             }
