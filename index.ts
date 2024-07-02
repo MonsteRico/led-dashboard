@@ -6,6 +6,15 @@ import DevMatrix from "./DevMatrix";
 import Color from "color";
 import { glob } from "glob";
 import preloadImages from "./preloadImages";
+import OpenWeatherMap from "openweathermap-ts";
+import { env } from "./env";
+
+const openWeather = new OpenWeatherMap({
+    apiKey: env.OPENWEATHER_API_KEY,
+});
+
+console.log(openWeather.getCurrentWeatherByCityName({ cityName: "Carmel", state: "IN" }));
+
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
 
