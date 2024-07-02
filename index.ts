@@ -79,10 +79,16 @@ Settings.defaultZone = "America/Indianapolis";
 
     class Weather {
         static async update() {
+            matrix.font(fonts["7x13"]);
             matrix.drawImage(images["spaceManatee.png"], matrix.width() - 18, 1);
             const weatherCode = weatherData.current.weatherCode;
-            matrix.drawImage(images[getWeatherCodeIcon(weatherCode)], 1, 4);
-            matrix.font(fonts["7x13"]);
+            const weatherImage = getWeatherCodeIcon(120938)
+            if (weatherImage) {
+                matrix.drawImage(images[weatherImage], 1, 4);
+            }
+            else {
+                matrix.drawText("?", 1, 4, { color: new Color("#ff0000") });
+            }
             const temperature = Math.round(weatherData.current.temperature2m);
             matrix.drawText(`${temperature}°F`, 18, 6, { color: new Color("#fdb813"), rightShadow: true });
             matrix.font(fonts["6x9"]);
