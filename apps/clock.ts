@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import App from "./app";
 import Color from "color";
-import { fonts } from "../preload";
+import { fonts, images } from "../preload";
 import type DevMatrix from "../DevMatrix";
 
 export default class Clock extends App {
@@ -13,7 +13,7 @@ export default class Clock extends App {
 
     public update() {
         this.time = DateTime.now();
-        // await matrix.drawImage("moon.png", 0, 0);
+        this.matrix.drawImage(images["moon.png"], 0, 0);
         this.matrix.fgColor(new Color("#ff0000"));
         this.matrix.font(fonts["spleen-8x16"]);
         this.matrix.drawText(this.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8);

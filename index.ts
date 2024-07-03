@@ -37,16 +37,22 @@ Settings.defaultZone = "America/Indianapolis";
     // Apps array from apps folder
     const apps: App[] = [new Clock(matrix), new Weather(matrix), new Test(matrix)];
 
+    // Initialize apps if they have an initialize method
+    for (const app of apps) {
+        await app.initialize?.();
+    }
+
     let currentApp = 0;
 
     // Handle keypresses for switching apps and exiting
     readline.emitKeypressEvents(process.stdin);
     if (process.stdin.isTTY) process.stdin.setRawMode(true);
     process.stdin.on("keypress", (chunk, key) => {
-        if (key && key.name == "q") process.exit();
+        if (key && key.name == "q") exit(apps);
         if (key && key.name == "space") {
             currentApp = (currentApp + 1) % apps.length;
             console.log("Switching to app " + currentApp);
+            // onStart is called when the app is switched to (usually to force an update)
             apps[currentApp].onStart?.();
         }
     });
@@ -61,3 +67,15 @@ Settings.defaultZone = "America/Indianapolis";
     // Start the matrix
     matrix.sync();
 })();
+
+function exit(apps: App[]) {
+    // Stop the background intervals for good measure
+    for (const app of apps) {
+        if (app.backgroundInterval) {
+            clearInterval(app.backgroundInterval);
+            app.backgroundInterval = null;
+        }
+    }
+
+    process.exit();
+}
