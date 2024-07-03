@@ -18,7 +18,7 @@ Settings.defaultZone = "America/Indianapolis";
             ...LedMatrix.defaultMatrixOptions(),
             cols: 64,
             hardwareMapping: GpioMapping.AdafruitHatPwm,
-            limitRefreshRateHz: 300,
+            limitRefreshRateHz: 150,
             rows: 32,
             showRefreshRate: true,
         },
