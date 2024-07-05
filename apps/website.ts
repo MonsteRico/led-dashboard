@@ -36,6 +36,6 @@ export default class Website extends App {
         // fetch from https://led-dashboard-web.vercel.app/image
         fetch("https://led-dashboard-web.vercel.app/image")
             .then(response => response.json())
-            .then(json => this.buffer = new Uint8Array(json.rawBuffer));
+            .then(jsonResponse => console.log(jsonResponse));
     }
 }
