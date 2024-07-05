@@ -15,11 +15,13 @@ export default class Website extends App {
     }
 
     public update() {
-        this.matrix.drawBuffer(this.buffer);
+        
     }
 
     public onStart() {
         console.log(this.buffer)
+        console.log(this.buffer.length);
+        console.log(this.matrix.width() * this.matrix.height() * 3);
     }
 
     public backgroundUpdate() {
