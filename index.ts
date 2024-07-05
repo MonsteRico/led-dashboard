@@ -7,6 +7,7 @@ import Weather from "./apps/weather";
 import Clock from "./apps/clock";
 import Test from "./apps/test";
 import type App from "./apps/app";
+import Website from "./apps/website";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -35,7 +36,7 @@ Settings.defaultZone = "America/Indianapolis";
     matrix.clear().sync();
 
     // Apps array from apps folder
-    const apps: App[] = [new Clock(matrix), new Weather(matrix), new Test(matrix)];
+    const apps: App[] = [new Clock(matrix), new Weather(matrix), new Test(matrix), new Website(matrix)];
 
     // Initialize apps if they have an initialize method
     for (const app of apps) {
