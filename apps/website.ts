@@ -42,6 +42,7 @@ export default class Website extends App {
             .then(jsonResponse => JSON.parse(jsonResponse.rawBuffer))
             .then(rawBuffer => {
                 console.log(rawBuffer.rawBuffer);
+                this.buffer = new Uint8Array(rawBuffer.rawBuffer);
             });
     }
 }
