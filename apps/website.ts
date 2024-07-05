@@ -15,7 +15,7 @@ export default class Website extends App {
     }
 
     public update() {
-        
+        this.matrix.drawBuffer(this.buffer);
     }
 
     public onStart() {
