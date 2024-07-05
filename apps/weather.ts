@@ -44,9 +44,6 @@ export default class Weather extends App {
         getWeatherData().then((weatherData) => {
             this.weatherCode = weatherData.current.weatherCode;
             this.temperature = Math.round(weatherData.current.temperature2m);
-            console.log("Updated weather data");
-            console.log("Weather code: " + this.weatherCode);
-            console.log("Temperature: " + this.temperature);
         });
     }
 

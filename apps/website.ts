@@ -1,9 +1,6 @@
-import { DateTime } from "luxon";
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
-import { fonts, images } from "../preload";
-import { getWeatherCodeIcon, getWeatherData, type WeatherData } from "../weather";
-import Color from "color";
+
 
 export default class Website extends App {
     private buffer : Uint8Array | null;
@@ -22,9 +19,7 @@ export default class Website extends App {
 
     public onStart() {
         if (!this.buffer) return;
-        console.log(this.buffer)
-        console.log(this.buffer.length);
-        console.log(this.matrix.width() * this.matrix.height() * 3);
+        this.getBuffer();
     }
 
     public backgroundUpdate() {
@@ -41,7 +36,6 @@ export default class Website extends App {
             .then(response => response.json())
             .then(jsonResponse => JSON.parse(jsonResponse.rawBuffer))
             .then(rawBuffer => {
-                console.log(rawBuffer.rawBuffer);
                 // Convert the object back to Uint8Array
                 const values = Object.values(rawBuffer.rawBuffer) as number[];
                 const uint8Array = new Uint8Array(values);
