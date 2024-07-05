@@ -42,7 +42,10 @@ export default class Website extends App {
             .then(jsonResponse => JSON.parse(jsonResponse.rawBuffer))
             .then(rawBuffer => {
                 console.log(rawBuffer.rawBuffer);
-                this.buffer = new Uint8Array(rawBuffer.rawBuffer);
+                // Convert the object back to Uint8Array
+                const values = Object.values(rawBuffer.rawBuffer) as number[];
+                const uint8Array = new Uint8Array(values);
+                this.buffer = uint8Array;
             });
     }
 }
