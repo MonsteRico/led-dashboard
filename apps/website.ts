@@ -6,19 +6,22 @@ import { getWeatherCodeIcon, getWeatherData, type WeatherData } from "../weather
 import Color from "color";
 
 export default class Website extends App {
-    private buffer = new Uint8Array(this.matrix.width() * this.matrix.height() * 3);
+    private buffer : Uint8Array | null;
 
     constructor(matrix: DevMatrix) {
         super(matrix);
+        this.buffer = null;
         const refreshTime = 1000 * 60 * 5; // 5 minutes
         this.backgroundInterval = setInterval(() => this.backgroundUpdate(), refreshTime);
     }
 
     public update() {
-        
+        if (!this.buffer) return;
+        this.matrix.drawBuffer(this.buffer);
     }
 
     public onStart() {
+        if (!this.buffer) return;
         console.log(this.buffer)
         console.log(this.buffer.length);
         console.log(this.matrix.width() * this.matrix.height() * 3);
@@ -37,6 +40,6 @@ export default class Website extends App {
         fetch("https://led-dashboard-web.vercel.app/image")
             .then(response => response.json())
             .then(jsonResponse => JSON.parse(jsonResponse.rawBuffer))
-            .then(rawBuffer => console.log(rawBuffer));
+            .then(rawBuffer => this.buffer = new Uint8Array(rawBuffer));
     }
 }
