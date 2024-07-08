@@ -8,11 +8,14 @@ import Clock from "./apps/clock";
 import Test from "./apps/test";
 import type App from "./apps/app";
 import Website from "./apps/website";
+import { checkWiFiConnection } from "./wifi";
+import Wifi from "./apps/wifiApp";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
 
 (async () => {
+    const wifiConnected = await checkWiFiConnection();
     // Initialize the matrix
     let matrix = new DevMatrix(
         {
@@ -26,7 +29,7 @@ Settings.defaultZone = "America/Indianapolis";
         {
             ...LedMatrix.defaultRuntimeOptions(),
             daemon: RuntimeFlag.Off,
-            dropPrivileges: RuntimeFlag.Off,
+            dropPrivileges: wifiConnected ? RuntimeFlag.On : RuntimeFlag.Off,
             gpioSlowdown: 3,
         },
     );
@@ -36,7 +39,17 @@ Settings.defaultZone = "America/Indianapolis";
     matrix.clear().sync();
 
     // Apps array from apps folder
-    const apps: App[] = [new Clock(matrix), new Weather(matrix), new Test(matrix), new Website(matrix)];
+    const apps: App[] = [];
+
+    if (wifiConnected) {
+        apps.push(new Clock(matrix));
+        apps.push(new Weather(matrix));
+        apps.push(new Test(matrix));
+        apps.push(new Website(matrix));
+    } else {
+        apps.push(new Wifi(matrix));
+    }
+
 
     // Initialize apps if they have an initialize method
     for (const app of apps) {
