@@ -14,11 +14,11 @@ export default class Clock extends App {
     public update() {
         this.time = DateTime.now();
         this.matrix.drawImage(images["flowerBG.png"], 0, 0);
-        this.matrix.fgColor(new Color("#ff0000"));
+        this.matrix.fgColor(new Color("#ffffff"));
         this.matrix.font(fonts["spleen-8x16"]);
         this.matrix.drawText(this.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8);
         this.matrix.font(fonts["6x9"]);
-        this.matrix.fgColor(new Color("#00ff00"));
+        this.matrix.fgColor(new Color("#ffffff"));
         this.matrix.drawText(this.time.toFormat("EEE LLL d"), 2, 21);
     }
 }
