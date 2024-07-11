@@ -13,7 +13,7 @@ export default class Clock extends App {
 
     public update() {
         this.time = DateTime.now();
-        this.matrix.drawImage(images["clockBG.png"], 0, 0);
+        this.matrix.drawImage(images["flowerBG.png"], 0, 0);
         this.matrix.fgColor(new Color("#ff0000"));
         this.matrix.font(fonts["spleen-8x16"]);
         this.matrix.drawText(this.time.toLocaleString(DateTime.TIME_SIMPLE), 0, 8);
