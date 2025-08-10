@@ -1,9 +1,8 @@
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
 
-
 export default class Website extends App {
-    private buffer : Uint8Array | null;
+    private buffer: Uint8Array | null;
 
     constructor(matrix: DevMatrix) {
         super(matrix);
@@ -32,10 +31,10 @@ export default class Website extends App {
 
     private getBuffer() {
         // fetch from https://led-dashboard-web.vercel.app/image
-        fetch("https://led-dashboard-web.vercel.app/image")
-            .then(response => response.json())
-            .then(jsonResponse => JSON.parse(jsonResponse.rawBuffer))
-            .then(rawBuffer => {
+        fetch(`https://led-dashboard-web.vercel.app/image?key=${process.env.LED_DASHBOARD_WEB_KEY}`)
+            .then((response) => response.json())
+            .then((jsonResponse) => JSON.parse(jsonResponse.rawBuffer))
+            .then((rawBuffer) => {
                 // Convert the object back to Uint8Array
                 const values = Object.values(rawBuffer.rawBuffer) as number[];
                 const uint8Array = new Uint8Array(values);
