@@ -33,3 +33,14 @@ sudo update-initramfs -u
 
 Reboot the pi
 `sudo reboot`
+
+# Things you need on the pi
+
+-   Install bun `curl -fsSL https://bun.sh/install | bash`
+-   Install git if not already installed `sudo apt-get install git`
+-   Make sure git is configured with credentials
+-   Clone this repo
+
+# How to run
+
+-   theoretically just `bun index.ts` cuz bun does typescript?
