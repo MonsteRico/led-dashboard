@@ -35,6 +35,7 @@ export default class Website extends App {
             .then((response) => response.json())
             .then((jsonResponse) => JSON.parse(jsonResponse))
             .then((body: { id: string; key: string; rawBuffer: string }) => {
+                console.log(body);
                 const parsedBuffer = JSON.parse(body.rawBuffer) as { [key: number]: number };
                 // Convert the object back to Uint8Array
                 const values = Object.values(parsedBuffer) as number[];
