@@ -18,7 +18,7 @@ First
 `sudo apt upgrade`
 Do this just in case
 `sudo apt-get remove bluez bluez-firmware pi-bluetooth triggerhappy pigpio`
-Switch off on board audio `dtparam=audio=off` in `/boot/config.txt`
+Switch off on board audio `dtparam=audio=off` in `/boot/firmware/config.txt` (might be in `/boot` directly)
 Check for sound module
 `lsmod | grep snd_bcm2835`
 If any results (aka it exists) run this
@@ -32,3 +32,4 @@ sudo update-initramfs -u
 ```
 
 Reboot the pi
+`sudo reboot`
