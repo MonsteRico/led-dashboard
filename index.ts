@@ -64,6 +64,8 @@ Settings.defaultZone = "America/Indianapolis";
     let spacebarLongPressTimeout: NodeJS.Timeout | null = null;
     let spacebarDoublePressTimeout: NodeJS.Timeout | null = null;
     let spacebarTriplePressTimeout: NodeJS.Timeout | null = null;
+    let isSpacebarPressed = false;
+    let hasLongPressTriggered = false;
 
     // Constants for timing (in milliseconds)
     const DOUBLE_PRESS_DELAY = 300; // Time window for double press detection
@@ -98,20 +100,27 @@ Settings.defaultZone = "America/Indianapolis";
             const currentTime = Date.now();
             const app = apps[currentAppNumber];
 
-            // Handle spacebar press down
-            if (key.ctrl === false && key.meta === false && key.shift === false) {
+            // Handle spacebar press down (when key is pressed and not already pressed)
+            if (!isSpacebarPressed && key.ctrl === false && key.meta === false && key.shift === false) {
+                isSpacebarPressed = true;
+                hasLongPressTriggered = false; // Reset long press flag for new press
                 spacebarPressCount++;
                 spacebarLastPressTime = currentTime;
 
                 // Start long press detection
                 spacebarPressStartTime = currentTime;
                 spacebarLongPressTimeout = setTimeout(() => {
-                    console.log("Long press detected - calling app.handleLongPress");
-                    if (app.handleLongPress) {
-                        app.handleLongPress();
+                    if (isSpacebarPressed && !hasLongPressTriggered) {
+                        // Only trigger if still pressed and hasn't triggered yet
+                        console.log("Long press detected - calling app.handleLongPress");
+                        if (app.handleLongPress) {
+                            app.handleLongPress();
+                        }
+                        hasLongPressTriggered = true; // Mark as triggered to prevent multiple calls
+                        // Reset press count after long press
+                        spacebarPressCount = 0;
+                        isSpacebarPressed = false;
                     }
-                    // Reset press count after long press
-                    spacebarPressCount = 0;
                 }, LONG_PRESS_DURATION);
 
                 // Handle double press detection
@@ -144,10 +153,16 @@ Settings.defaultZone = "America/Indianapolis";
                     spacebarPressCount = 0;
                 }, DOUBLE_PRESS_DELAY);
             }
+            // Handle spacebar release (when key is released)
+            else if (isSpacebarPressed) {
+                isSpacebarPressed = false;
 
-            // Handle spacebar release (for future physical button implementation)
-            // Note: This will be useful when transitioning to physical button + potentiometer
-            // The potentiometer can be used for rotation (left/right) and the button for press actions
+                // Clear long press timeout if spacebar is released before long press duration
+                if (spacebarLongPressTimeout) {
+                    clearTimeout(spacebarLongPressTimeout);
+                    spacebarLongPressTimeout = null;
+                }
+            }
         }
     });
 
