@@ -29,8 +29,8 @@ export default class Test extends App {
     }
 
     public handleLongPress(): void {
-        this.text = `long, ${this.overrideDefaultPressOn ? "OR yes" : "OR no"}`;
         this.toggleOverrideDefaultPress();
+        this.text = `long, ${this.overrideDefaultPressOn ? "OR yes" : "OR no"}`;
     }
 
     public handlePress(): void {
