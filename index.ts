@@ -48,130 +48,122 @@ Settings.defaultZone = "America/Indianapolis";
         await app.initialize?.();
     }
 
-let currentAppNumber = 0;
+    let currentAppNumber = 0;
 
-const defaultOnPress = (): void => {
-    currentAppNumber = (currentAppNumber + 1) % apps.length;
-    console.log("Switching to app " + currentAppNumber);
-    apps[currentAppNumber].onStart?.();
-};
+    const defaultOnPress = (): void => {
+        currentAppNumber = (currentAppNumber + 1) % apps.length;
+        console.log("\nSwitching to app " + currentAppNumber);
+        apps[currentAppNumber].onStart?.();
+    };
 
-// Actions for other press types
-const onDoublePress = (): void => {
-    console.log("Double press detected");
-};
-const onTriplePress = (): void => {
-    console.log("Triple press detected");
-};
-const onLongPress = (): void => {
-    console.log("Long press detected");
-};
-const handleRotateRight = (): void => {
-    console.log("Rotate right detected");
-}
-const handleRotateLeft = (): void => {
-    console.log("Rotate left detected");
-};
+    // Actions for other press types
+    const onDoublePress = (): void => {
+        console.log("\nDouble press detected");
+    };
+    const onTriplePress = (): void => {
+        console.log("\nTriple press detected");
+    };
+    const onLongPress = (): void => {
+        console.log("\nLong press detected");
+    };
+    // Handlers for rotation
+    const handleRotateLeft = (): void => {
+        console.log("\nRotate Left");
+    };
+    const handleRotateRight = (): void => {
+        console.log("\nRotate Right");
+    };
 
+    // Timing config
+    const MULTI_PRESS_THRESHOLD = 300; // ms between presses
+    const LONG_PRESS_THRESHOLD = 500; // ms to trigger long press
 
-// Timing config
-const MULTI_PRESS_THRESHOLD = 300; // ms between presses
-const LONG_PRESS_THRESHOLD = 500; // ms to trigger long press
+    // Tracking variables for spacebar logic
+    let pressCount = 0;
+    let lastPressTime = 0;
+    let keyDownTime: number | null = null;
+    let longPressTriggered = false;
+    let keyIsDown = false;
+    let releaseTimer: NodeJS.Timeout | null = null;
 
-// Tracking variables for spacebar logic
-let pressCount = 0;
-let lastPressTime = 0;
-let pressTimer: NodeJS.Timeout | null = null;
-let keyDownTime: number | null = null;
-let longPressTriggered = false;
-let keyIsDown = false;
-let releaseTimer: NodeJS.Timeout | null = null;
+    readline.emitKeypressEvents(process.stdin);
+    if (process.stdin.isTTY) process.stdin.setRawMode(true);
 
-readline.emitKeypressEvents(process.stdin);
-if (process.stdin.isTTY) process.stdin.setRawMode(true);
+    process.stdin.on("keypress", (_chunk: string, key: readline.Key) => {
+        if (!key) return;
 
-process.stdin.on("keypress", (_chunk: string, key: readline.Key) => {
-    if (!key) return;
+        // Quit
+        if (key.name === "q") exit(apps);
 
-    // Quit
-    if (key.name === "q") exit(apps);
+        // Spacebar pressed
+        if (key.name === "space") {
+            // Ignore repeats while held down
+            if (keyIsDown) return;
+            keyIsDown = true;
 
-    // Spacebar logic (single/double/triple/long)
-    if (key.name === "space") {
-        // Ignore repeats while held down
-        if (keyIsDown) return;
-        keyIsDown = true;
+            const now = Date.now();
 
-        const now = Date.now();
-
-        // Track press count only if we aren't in a long press state
-        if (!longPressTriggered) {
+            // Count press for multi-press logic
             if (now - lastPressTime <= MULTI_PRESS_THRESHOLD) {
                 pressCount++;
             } else {
                 pressCount = 1;
             }
             lastPressTime = now;
+
+            // Start timing hold
+            keyDownTime = now;
+            longPressTriggered = false;
         }
 
-        // Start tracking hold time
-        keyDownTime = now;
-        longPressTriggered = false;
+        // Rotation logic
+        if (key.name === "left") {
+            handleRotateLeft();
+        } else if (key.name === "right") {
+            handleRotateRight();
+        }
+    });
 
-        // Reset multi-press timer
-        if (pressTimer) clearTimeout(pressTimer);
-        pressTimer = setTimeout(() => {
-            // Only fire if no long press happened
-            if (!longPressTriggered) {
-                if (pressCount === 1) {
-                    const app = apps[currentAppNumber];
-                    if (app.overrideDefaultPressOn && app.handlePress) {
-                        app.handlePress();
-                    } else {
-                        defaultOnPress();
+    // Simulated key release & event firing
+    process.stdin.on("data", (data: Buffer) => {
+        const str = data.toString();
+
+        if (str === " ") {
+            if (releaseTimer) clearTimeout(releaseTimer);
+            releaseTimer = setTimeout(() => {
+                if (keyIsDown) {
+                    const now = Date.now();
+                    const holdDuration = keyDownTime ? now - keyDownTime : 0;
+
+                    if (holdDuration >= LONG_PRESS_THRESHOLD) {
+                        // Long press takes priority
+                        longPressTriggered = true;
+                        onLongPress();
+                        pressCount = 0; // Cancel multi-press sequence
+                    } else if (!longPressTriggered) {
+                        // Short press logic AFTER confirming no long press
+                        if (pressCount === 1) {
+                            const app = apps[currentAppNumber];
+                            if (app.overrideDefaultPressOn && app.handlePress) {
+                                app.handlePress();
+                            } else {
+                                defaultOnPress();
+                            }
+                        } else if (pressCount === 2) {
+                            onDoublePress();
+                            pressCount = 0;
+                        } else if (pressCount === 3) {
+                            onTriplePress();
+                            pressCount = 0;
+                        }
                     }
-                } else if (pressCount === 2) {
-                    onDoublePress();
-                } else if (pressCount === 3) {
-                    onTriplePress();
+
+                    keyIsDown = false;
+                    keyDownTime = null;
                 }
-            }
-            pressCount = 0; // Reset so triple doesn't become double/single
-        }, MULTI_PRESS_THRESHOLD);
-    }
-
-    // Rotation logic
-    if (key.name === "left") {
-        handleRotateLeft();
-    } else if (key.name === "right") {
-        handleRotateRight();
-    }
-});
-
-// Simulated key release & long press detection for spacebar
-process.stdin.on("data", (data: Buffer) => {
-    const str = data.toString();
-    if (str === " ") {
-        if (releaseTimer) clearTimeout(releaseTimer);
-        releaseTimer = setTimeout(() => {
-            if (keyIsDown) {
-                const now = Date.now();
-                const holdDuration = keyDownTime ? now - keyDownTime : 0;
-
-                // Long press fires only if held long enough AND no short-press was already decided
-                if (holdDuration >= LONG_PRESS_THRESHOLD && !longPressTriggered) {
-                    longPressTriggered = true;
-                    if (pressTimer) clearTimeout(pressTimer); // Cancel multi-press detection
-                    pressCount = 0;
-                    onLongPress();
-                }
-
-                keyIsDown = false;
-                keyDownTime = null;
-            }
-        }, 50); // Simulated keyup after small pause
-    }
-});
+            }, 50); // small delay to confirm release
+        }
+    });
     // Update the matrix every frame
     matrix.afterSync((mat, dt, t) => {
         matrix.clear();
