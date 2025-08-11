@@ -129,6 +129,7 @@ Settings.defaultZone = "America/Indianapolis";
             // Clear previous multi-press timer; will trigger after MULTI_PRESS_THRESHOLD ms of no presses
             if (pressTimer) clearTimeout(pressTimer);
             pressTimer = setTimeout(() => {
+                // Only fire if no long press occurred
                 if (!longPressTriggered) {
                     if (pressCount === 1) {
                         const app = apps[currentAppNumber];
@@ -166,9 +167,17 @@ Settings.defaultZone = "America/Indianapolis";
 
                     if (longPressTriggered) {
                         onLongPress();
+
+                        // Important: reset pressCount and clear timers so multi-press won't fire again
                         pressCount = 0;
+
+                        if (pressTimer) {
+                            clearTimeout(pressTimer);
+                            pressTimer = null;
+                        }
                     } else if (holdDuration < LONG_PRESS_THRESHOLD && pressTimer) {
-                        // Short press handled by pressTimer's timeout, so just let it run
+                        // Let the multi-press timer handle single/double/triple press firing,
+                        // so do nothing here.
                     }
 
                     keyDownTime = null;
