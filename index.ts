@@ -131,16 +131,16 @@ Settings.defaultZone = "America/Indianapolis";
             pressTimer = setTimeout(() => {
                 // Only fire if no long press occurred
                 if (!longPressTriggered) {
-                    if (pressCount === 1) {
+                    if (pressCount === 1 && !keyIsDown) {
                         const app = apps[currentAppNumber];
                         if (app.overrideDefaultPressOn && app.handlePress) {
                             app.handlePress();
                         } else {
                             defaultOnPress();
                         }
-                    } else if (pressCount === 2) {
+                    } else if (pressCount === 2 && !keyIsDown) {
                         onDoublePress();
-                    } else if (pressCount >= 3) {
+                    } else if (pressCount >= 3 && !keyIsDown) {
                         onTriplePress();
                     }
                 }
