@@ -18,4 +18,8 @@ export default abstract class App {
     public handleTriplePress?(): void;
     public handleRotateRight?(): void;
     public handleRotateLeft?(): void;
+
+    public toggleOverrideDefaultPress() {
+        this.overrideDefaultPressOn = !this.overrideDefaultPressOn;
+    }
 }

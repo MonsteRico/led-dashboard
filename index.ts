@@ -62,30 +62,10 @@ Settings.defaultZone = "America/Indianapolis";
     let releaseTimer: NodeJS.Timeout | null = null;
     let longPressInterval: NodeJS.Timeout | null = null;
 
-    const defaultOnPress = (): void => {
+    const switchNextApp = (): void => {
         currentAppNumber = (currentAppNumber + 1) % apps.length;
         console.log("Switching to app " + currentAppNumber);
         apps[currentAppNumber].onStart?.();
-    };
-
-    const onDoublePress = (): void => {
-        console.log("Double press detected");
-    };
-
-    const onTriplePress = (): void => {
-        console.log("Triple press detected");
-    };
-
-    const onLongPress = (): void => {
-        console.log("Long press detected");
-    };
-
-    const handleRotateLeft = (): void => {
-        console.log("Rotate Left");
-    };
-
-    const handleRotateRight = (): void => {
-        console.log("Rotate Right");
     };
 
     readline.emitKeypressEvents(process.stdin);
@@ -93,6 +73,8 @@ Settings.defaultZone = "America/Indianapolis";
 
     process.stdin.on("keypress", (_chunk: string, key: readline.Key) => {
         if (!key) return;
+
+        const app = apps[currentAppNumber];
 
         if (key.name === "q") exit(apps);
 
@@ -132,16 +114,26 @@ Settings.defaultZone = "America/Indianapolis";
                 // Only fire if no long press occurred
                 if (!longPressTriggered) {
                     if (pressCount === 1 && !keyIsDown) {
-                        const app = apps[currentAppNumber];
+                        console.log("\nSingle Press");
                         if (app.overrideDefaultPressOn && app.handlePress) {
+                            console.log("\nApp handling press");
                             app.handlePress();
                         } else {
-                            defaultOnPress();
+                            console.log("\nSwitching apps");
+                            switchNextApp();
                         }
                     } else if (pressCount === 2 && !keyIsDown) {
-                        onDoublePress();
+                        console.log("\nDouble Press");
+                        if (app.handleDoublePress) {
+                            console.log("\nApp handling double press");
+                            app.handleDoublePress();
+                        }
                     } else if (pressCount >= 3 && !keyIsDown) {
-                        onTriplePress();
+                        console.log("Triple Press");
+                        if (app.handleTriplePress) {
+                            console.log("\nApp handling triple press");
+                            app.handleTriplePress();
+                        }
                     }
                 }
                 pressCount = 0;
@@ -150,14 +142,23 @@ Settings.defaultZone = "America/Indianapolis";
         }
 
         if (key.name === "left") {
-            handleRotateLeft();
+            console.log("\nRotating Left");
+            if (app.handleRotateLeft) {
+                console.log("\nApp handling rotate left");
+                app.handleRotateLeft();
+            }
         } else if (key.name === "right") {
-            handleRotateRight();
+            console.log("\nRotating Right");
+            if (app.handleRotateRight) {
+                console.log("\nApp handling rotate right");
+                app.handleRotateRight();
+            }
         }
     });
 
     process.stdin.on("data", (data: Buffer) => {
         if (data.toString() === " ") {
+            const app = apps[currentAppNumber];
             if (releaseTimer) clearTimeout(releaseTimer);
             releaseTimer = setTimeout(() => {
                 if (keyIsDown) {
@@ -166,7 +167,11 @@ Settings.defaultZone = "America/Indianapolis";
                     const holdDuration = keyDownTime ? now - keyDownTime : 0;
 
                     if (longPressTriggered) {
-                        onLongPress();
+                        console.log("\nLong press");
+                        if (app.handleLongPress) {
+                            console.log("\nApp handling long press");
+                            app.handleLongPress();
+                        }
 
                         // Important: reset pressCount and clear timers so multi-press won't fire again
                         pressCount = 0;
