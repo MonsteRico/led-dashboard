@@ -50,6 +50,7 @@ Settings.defaultZone = "America/Indianapolis";
 
     const MULTI_PRESS_THRESHOLD = 300; // ms between presses
     const LONG_PRESS_THRESHOLD = 500; // ms to trigger long press
+    const LONG_PRESS_CHECK_INTERVAL = 50; // ms polling interval while holding
 
     let currentAppNumber = 0;
     let pressCount = 0;
@@ -59,6 +60,7 @@ Settings.defaultZone = "America/Indianapolis";
     let keyIsDown = false;
     let pressTimer: NodeJS.Timeout | null = null;
     let releaseTimer: NodeJS.Timeout | null = null;
+    let longPressInterval: NodeJS.Timeout | null = null;
 
     const defaultOnPress = (): void => {
         currentAppNumber = (currentAppNumber + 1) % apps.length;
@@ -100,7 +102,6 @@ Settings.defaultZone = "America/Indianapolis";
 
             const now = Date.now();
 
-            // If last press was recent, increment count, else reset
             if (now - lastPressTime <= MULTI_PRESS_THRESHOLD) {
                 pressCount++;
             } else {
@@ -111,10 +112,23 @@ Settings.defaultZone = "America/Indianapolis";
             keyDownTime = now;
             longPressTriggered = false;
 
-            // Clear previous press timer, start a new one to detect end of multi-press sequence
+            // Start polling interval to detect long press during hold
+            if (longPressInterval) clearInterval(longPressInterval);
+            longPressInterval = setInterval(() => {
+                if (!keyDownTime) return;
+                const elapsed = Date.now() - keyDownTime;
+                if (elapsed >= LONG_PRESS_THRESHOLD && !longPressTriggered) {
+                    longPressTriggered = true;
+                    if (pressTimer) {
+                        clearTimeout(pressTimer);
+                        pressTimer = null;
+                    }
+                }
+            }, LONG_PRESS_CHECK_INTERVAL);
+
+            // Clear previous multi-press timer; will trigger after MULTI_PRESS_THRESHOLD ms of no presses
             if (pressTimer) clearTimeout(pressTimer);
             pressTimer = setTimeout(() => {
-                // Only fire if no long press occurred
                 if (!longPressTriggered) {
                     if (pressCount === 1) {
                         const app = apps[currentAppNumber];
@@ -141,29 +155,29 @@ Settings.defaultZone = "America/Indianapolis";
         }
     });
 
-    // Simulate key release & handle long press detection
     process.stdin.on("data", (data: Buffer) => {
         if (data.toString() === " ") {
             if (releaseTimer) clearTimeout(releaseTimer);
             releaseTimer = setTimeout(() => {
                 if (keyIsDown) {
+                    keyIsDown = false;
                     const now = Date.now();
                     const holdDuration = keyDownTime ? now - keyDownTime : 0;
 
-                    if (holdDuration >= LONG_PRESS_THRESHOLD && !longPressTriggered) {
-                        longPressTriggered = true;
-                        if (pressTimer) {
-                            clearTimeout(pressTimer); // Cancel multi-press timer
-                            pressTimer = null;
-                        }
-                        pressCount = 0;
+                    if (longPressTriggered) {
                         onLongPress();
+                        pressCount = 0;
+                    } else if (holdDuration < LONG_PRESS_THRESHOLD && pressTimer) {
+                        // Short press handled by pressTimer's timeout, so just let it run
                     }
 
-                    keyIsDown = false;
                     keyDownTime = null;
+                    if (longPressInterval) {
+                        clearInterval(longPressInterval);
+                        longPressInterval = null;
+                    }
                 }
-            }, 50);
+            }, 50); // simulate key release after short delay
         }
     });
     // Update the matrix every frame
