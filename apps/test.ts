@@ -15,9 +15,9 @@ export default class Test extends App {
         this.matrix.setPixel(0, 0);
         this.matrix.setPixel(this.matrix.width() - 1, 0);
         this.matrix.setPixel(0, this.matrix.height() - 1);
-        this.matrix.font(fonts["spleen-8x16"]);
+        this.matrix.font(fonts["4x6"]);
         this.matrix.setPixel(this.matrix.width() - 1, this.matrix.height() - 1);
-        this.matrix.drawText(this.text, 16, 16);
+        this.matrix.drawText(this.text, 4, 4);
     }
 
     public handleDoublePress() {
