@@ -8,6 +8,7 @@ import Clock from "./apps/clock";
 import Test from "./apps/test";
 import type App from "./apps/app";
 import Website from "./apps/website";
+import Spotify from "./apps/spotify";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -42,6 +43,7 @@ Settings.defaultZone = "America/Indianapolis";
     apps.push(new Weather(matrix));
     apps.push(new Test(matrix));
     apps.push(new Website(matrix));
+    apps.push(new Spotify(matrix));
 
     // Initialize apps if they have an initialize method
     for (const app of apps) {
