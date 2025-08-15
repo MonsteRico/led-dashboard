@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>LED Dashboard Configuration</title>
+        <link rel="stylesheet" href="/static/styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>LED Dashboard Configuration</h1>
+
+            <div class="app-list" id="appList">
+                <!-- Apps will be populated here -->
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
+                <button class="btn btn-secondary" onclick="loadConfig()">Refresh</button>
+            </div>
+
+            <div id="status" class="status"></div>
+
+            <div class="spotify-section">
+                <h2>Spotify Integration</h2>
+                <div class="spotify-login">
+                    <button id="spotifyLoginBtn" class="spotify-btn" onclick="loginToSpotify()">Login to Spotify</button>
+                    <div id="spotifyStatus" class="spotify-status" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+
+        <script src="/static/script.js"></script>
+    </body>
+</html>

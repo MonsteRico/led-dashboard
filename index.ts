@@ -3,12 +3,10 @@ import { Settings } from "luxon";
 import readline from "readline";
 import DevMatrix from "./DevMatrix";
 import { fonts } from "./preload";
-import Weather from "./apps/weather";
-import Clock from "./apps/clock";
-import Test from "./apps/test";
-import type App from "./apps/app";
-import Website from "./apps/website";
-import Spotify from "./apps/spotify";
+import type App from "@/apps/app";
+import { WebServer } from "@/modules/webconfig/server";
+import { appRegistry } from "@/modules/config/app-registry";
+import { registerAllApps } from "@/modules/config/app-registrations";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -36,25 +34,28 @@ Settings.defaultZone = "America/Indianapolis";
     matrix.font(fonts["7x13"]);
     matrix.clear().sync();
 
-    // Apps array from apps folder
-    const apps: App[] = [];
+    // Register all apps
+    registerAllApps();
 
-    apps.push(new Clock(matrix));
-    apps.push(new Weather(matrix));
-    apps.push(new Test(matrix));
-    apps.push(new Website(matrix));
-    apps.push(new Spotify(matrix));
+    // Start the web server
+    const webServer = new WebServer(3000);
+    webServer.start();
+
+    // Create enabled apps using the registry
+    const enabledApps = appRegistry.createEnabledApps(matrix);
 
     // Initialize apps if they have an initialize method
-    for (const app of apps) {
+    for (const app of enabledApps) {
         await app.initialize?.();
     }
 
+    let currentAppNumber = 0;
+
+    // Keypress handling for the terminal
     const MULTI_PRESS_THRESHOLD = 300; // ms between presses
     const LONG_PRESS_THRESHOLD = 500; // ms to trigger long press
     const LONG_PRESS_CHECK_INTERVAL = 50; // ms polling interval while holding
 
-    let currentAppNumber = 0;
     let pressCount = 0;
     let lastPressTime = 0;
     let keyDownTime: number | null = null;
@@ -65,9 +66,9 @@ Settings.defaultZone = "America/Indianapolis";
     let longPressInterval: NodeJS.Timeout | null = null;
 
     const switchNextApp = (): void => {
-        currentAppNumber = (currentAppNumber + 1) % apps.length;
+        currentAppNumber = (currentAppNumber + 1) % enabledApps.length;
         console.log("Switching to app " + currentAppNumber);
-        apps[currentAppNumber].onStart?.();
+        enabledApps[currentAppNumber].onStart?.();
     };
 
     readline.emitKeypressEvents(process.stdin);
@@ -76,9 +77,9 @@ Settings.defaultZone = "America/Indianapolis";
     process.stdin.on("keypress", (_chunk: string, key: readline.Key) => {
         if (!key) return;
 
-        const app = apps[currentAppNumber];
+        const app = enabledApps[currentAppNumber];
 
-        if (key.name === "q") exit(apps);
+        if (key.name === "q") exit(enabledApps);
 
         if (key.name === "space") {
             if (keyIsDown) return; // Ignore repeats while held down
@@ -160,7 +161,7 @@ Settings.defaultZone = "America/Indianapolis";
 
     process.stdin.on("data", (data: Buffer) => {
         if (data.toString() === " ") {
-            const app = apps[currentAppNumber];
+            const app = enabledApps[currentAppNumber];
             if (releaseTimer) clearTimeout(releaseTimer);
             releaseTimer = setTimeout(() => {
                 if (keyIsDown) {
@@ -199,7 +200,7 @@ Settings.defaultZone = "America/Indianapolis";
     // Update the matrix every frame
     matrix.afterSync((mat, dt, t) => {
         matrix.clear();
-        apps[currentAppNumber].update();
+        enabledApps[currentAppNumber].update();
         setTimeout(() => matrix.sync(), 0);
     });
 
