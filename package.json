@@ -12,6 +12,7 @@
         "typescript": "^5.0.0"
     },
     "dependencies": {
+        "@spotify/web-api-ts-sdk": "^1.2.0",
         "@types/color": "^3.0.6",
         "@types/luxon": "^3.4.2",
         "color": "^4.2.3",
