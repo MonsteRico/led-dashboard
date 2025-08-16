@@ -128,20 +128,26 @@ export default class Spotify extends App {
 
     private async setAlbumArt() {
         if (this.albumArtUrl) {
-            const albumArt = await fetch(this.albumArtUrl);
-            console.log("ALBUM ART RESPONSE");
-            console.log(albumArt);
-            const albumArtBuffer = await albumArt.arrayBuffer();
-            console.log("ALBUM ART BUFFER");
-            console.log(albumArtBuffer);
-            const albumArtImageData = await sharpToUint8Array(sharp(albumArtBuffer).resize(32, 32));
-            console.log("ALBUM ART IMAGE DATA");
-            console.log(albumArtImageData);
-            this.albumArtImage = {
-                width: 32,
-                height: 32,
-                data: albumArtImageData,
-            };
+            try {
+                const albumArt = await fetch(this.albumArtUrl);
+                if (!albumArt.ok) {
+                    console.error("Failed to fetch album art:", albumArt.status, albumArt.statusText);
+                    return;
+                }
+
+                const albumArtBuffer = await albumArt.arrayBuffer();
+                // Convert ArrayBuffer to Buffer for Sharp
+                const buffer = Buffer.from(albumArtBuffer);
+
+                const albumArtImageData = await sharpToUint8Array(sharp(buffer).resize(32, 32));
+                this.albumArtImage = {
+                    width: 32,
+                    height: 32,
+                    data: albumArtImageData,
+                };
+            } catch (error) {
+                console.error("Error setting album art:", error);
+            }
         }
     }
 
