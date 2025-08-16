@@ -3,6 +3,7 @@ import type DevMatrix from "../DevMatrix";
 import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
 import type { Image } from "@/modules/preload/preloadImages";
+import { fonts } from "@/modules/preload/preload";
 
 export default class Spotify extends App {
     private spotify: SpotifyApi | null = null;
@@ -27,6 +28,11 @@ export default class Spotify extends App {
 
     public update() {
         this.updateStateVariables();
+        if (this.isPlaying) {
+            this.drawPause({x: 48, y: 12});
+        } else {
+            this.drawPlay({x: 48, y: 12});
+        }
     }
 
     public updateStateVariables() {
@@ -117,6 +123,21 @@ export default class Spotify extends App {
         }
     }
 
+    // Drawing functions
+    private drawPause({x, y}: {x: number, y: number}) {
+        this.matrix.font(fonts["7x13"]);
+        this.matrix.drawText("⏸︎", x, y);
+    }
+
+    private drawPlay({x, y}: {x: number, y: number}) {
+        this.matrix.font(fonts["7x13"]);
+        this.matrix.drawText("⏵︎", x, y);
+    }
+
+
+
+    // Handlers
+
     public async handleDoublePress() {
         if (!this.deviceId) {
             console.log("No device ID found");
@@ -179,11 +200,9 @@ export default class Spotify extends App {
             if (this.isPlaying) {
                 await this.spotify?.player.pausePlayback(this.deviceId);
                 await this.backgroundUpdate();
-                this.isPlaying = false;
             } else {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
                 await this.backgroundUpdate();
-                this.isPlaying = true;
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -202,7 +221,7 @@ export default class Spotify extends App {
             return;
         }
         if (this.volume !== null) {
-            const newVolume = Math.min(100, this.volume + 1);
+            const newVolume = Math.min(100, Math.round((this.volume + 5) / 5) * 5);
             await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             this.volume = newVolume;
             await this.backgroundUpdate();
@@ -215,7 +234,7 @@ export default class Spotify extends App {
             return;
         }
         if (this.volume !== null) {
-            const newVolume = Math.max(0, this.volume - 1);
+            const newVolume = Math.max(0, Math.round((this.volume - 5) / 5) * 5);
             await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             this.volume = newVolume;
             await this.backgroundUpdate();
