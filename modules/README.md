@@ -137,12 +137,15 @@ The Spotify module handles authentication and API interactions with Spotify.
 ### Setup:
 
 1. Create a Spotify app at https://developer.spotify.com/dashboard
-2. Set the redirect URI to `http://127.0.0.1:3000/spotify/callback`
+2. **Important**: For network access, set the redirect URI to your Raspberry Pi's local IP address:
+    - Local: `http://127.0.0.1:3000/api/spotify/callback`
+    - Network: `http://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback`
 3. Add environment variables:
+
     ```
     SPOTIFY_CLIENT_ID=your_spotify_client_id_here
     SPOTIFY_CLIENT_SECRET=your_spotify_client_secret_here
-    SPOTIFY_REDIRECT_URI=http://127.0.0.1:3000/spotify/callback
+    SPOTIFY_REDIRECT_URI=http://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback
     ```
 
 ### Files:
@@ -155,6 +158,26 @@ The Spotify module handles authentication and API interactions with Spotify.
 1. User clicks "Login to Spotify" in web interface
 2. User is redirected to Spotify authorization page
 3. User authorizes the application
-4. User is redirected back to `/spotify/callback`
+4. User is redirected back to `/api/spotify/callback`
 5. Tokens are saved to `spotify-tokens.json`
 6. User can now use Spotify features in the dashboard
+
+### Network Access Setup:
+
+For users accessing the web interface from other devices on the network:
+
+1. Find your Raspberry Pi's IP address:
+
+    ```bash
+    ./scripts/get-pi-ip.sh
+    ```
+
+2. Update your environment variables with the Pi's IP:
+
+    ```bash
+    export SPOTIFY_REDIRECT_URI="http://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback"
+    ```
+
+3. Update your Spotify app settings in the developer dashboard with the same URI
+
+4. Access the web interface at `http://YOUR_PI_IP_ADDRESS:3000`

@@ -19,7 +19,10 @@ export class SpotifyAuth {
     constructor() {
         this.clientId = process.env.SPOTIFY_CLIENT_ID || "";
         this.clientSecret = process.env.SPOTIFY_CLIENT_SECRET || "";
-        this.redirectUri = process.env.SPOTIFY_REDIRECT_URI || "http://127.0.0.1:3000/spotify/callback";
+        // Use the Raspberry Pi's IP address for the redirect URI
+        // This allows users to authenticate from other devices on the network
+        // Default to 0.0.0.0 which will work for local access, but should be set to actual IP for network access
+        this.redirectUri = process.env.SPOTIFY_REDIRECT_URI || "http://0.0.0.0:3000/api/spotify/callback";
     }
 
     private checkCredentials(): void {
