@@ -179,9 +179,11 @@ export default class Spotify extends App {
             if (this.isPlaying) {
                 await this.spotify?.player.pausePlayback(this.deviceId);
                 await this.backgroundUpdate();
+                this.isPlaying = false;
             } else {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
                 await this.backgroundUpdate();
+                this.isPlaying = true;
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
