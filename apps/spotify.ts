@@ -30,11 +30,11 @@ export default class Spotify extends App {
     public update() {
         this.updateStateVariables();
         if (this.isPlaying) {
-            this.drawPause({ x: 48, y: 13 });
+            this.drawPause({ x: 48, y: 16 });
         } else {
-            this.drawPlay({ x: 48, y: 13 });
+            this.drawPlay({ x: 48, y: 16 });
         }
-        this.drawProgress({ x: 40, y: 28 });
+        this.drawProgress({ x: 40, y: 27 });
         this.matrix.font(fonts["6x13"]);
         this.matrix.drawText(this.currentTrack?.name ?? "", 36, 0);
         this.matrix.font(fonts["5x7"]);
