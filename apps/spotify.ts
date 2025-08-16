@@ -78,6 +78,12 @@ export default class Spotify extends App {
                 const currentPlaybackState = await this.spotify.player.getPlaybackState();
                 this.currentPlaybackState = currentPlaybackState;
             } catch (error) {
+                // Handle JSON parse errors silently as they don't affect functionality
+                if (error instanceof SyntaxError && error.message.includes("JSON")) {
+                    // JSON parse errors are expected due to Spotify API response format issues
+                    // The API calls work correctly, but the SDK has trouble parsing some responses
+                    return;
+                }
                 console.error("Error getting playback state:", error);
                 // If we get an error, try to reinitialize the API
                 try {
@@ -117,39 +123,19 @@ export default class Spotify extends App {
             return;
         }
 
-        // Ensure we have a valid Spotify API instance
-        if (!(await this.ensureValidSpotifyApi())) {
-            console.log("Cannot perform action - Spotify API not available");
-            return;
-        }
-
         try {
-            console.log("Skipping to next track...");
-            const skipResult = await this.spotify?.player.skipToNext(this.deviceId);
-            console.log("Skip result:", skipResult);
-
+            await this.spotify?.player.skipToNext(this.deviceId);
             if (!this.isPlaying) {
-                console.log("Starting playback...");
-                const playResult = await this.spotify?.player.startResumePlayback(this.deviceId);
-                console.log("Play result:", playResult);
+                await this.spotify?.player.startResumePlayback(this.deviceId);
             }
         } catch (error) {
-            console.error("Error in handleDoublePress:", error);
-            // Log additional error details
-            if (error instanceof Error) {
-                console.error("Error message:", error.message);
-                console.error("Error stack:", error.stack);
-            }
-            // Try to reinitialize the API if we get a JSON parse error
+            // Handle JSON parse errors silently as they don't affect functionality
             if (error instanceof SyntaxError && error.message.includes("JSON")) {
-                console.log("JSON parse error detected, attempting to reinitialize API...");
-                this.spotify = null; // Clear the invalid instance
-                try {
-                    this.spotify = await spotifyIntegration.getApi();
-                } catch (reinitError) {
-                    console.error("Error reinitializing Spotify API:", reinitError);
-                }
+                // JSON parse errors are expected due to Spotify API response format issues
+                // The API calls work correctly, but the SDK has trouble parsing some responses
+                return;
             }
+            console.error("Error in handleDoublePress:", error);
         }
     }
 
@@ -159,31 +145,16 @@ export default class Spotify extends App {
             return;
         }
 
-        // Ensure we have a valid Spotify API instance
-        if (!(await this.ensureValidSpotifyApi())) {
-            console.log("Cannot perform action - Spotify API not available");
-            return;
-        }
-
         try {
-            console.log("Skipping to previous track...");
-            const result = await this.spotify?.player.skipToPrevious(this.deviceId);
-            console.log("Skip previous result:", result);
+            await this.spotify?.player.skipToPrevious(this.deviceId);
         } catch (error) {
-            console.error("Error in handleTriplePress:", error);
-            if (error instanceof Error) {
-                console.error("Error message:", error.message);
-                console.error("Error stack:", error.stack);
-            }
+            // Handle JSON parse errors silently as they don't affect functionality
             if (error instanceof SyntaxError && error.message.includes("JSON")) {
-                console.log("JSON parse error detected, attempting to reinitialize API...");
-                this.spotify = null; // Clear the invalid instance
-                try {
-                    this.spotify = await spotifyIntegration.getApi();
-                } catch (reinitError) {
-                    console.error("Error reinitializing Spotify API:", reinitError);
-                }
+                // JSON parse errors are expected due to Spotify API response format issues
+                // The API calls work correctly, but the SDK has trouble parsing some responses
+                return;
             }
+            console.error("Error in handleTriplePress:", error);
         }
     }
 
@@ -197,37 +168,20 @@ export default class Spotify extends App {
             return;
         }
 
-        // Ensure we have a valid Spotify API instance
-        if (!(await this.ensureValidSpotifyApi())) {
-            console.log("Cannot perform action - Spotify API not available");
-            return;
-        }
-
         try {
             if (this.isPlaying) {
-                console.log("Pausing playback...");
-                const result = await this.spotify?.player.pausePlayback(this.deviceId);
-                console.log("Pause result:", result);
+                await this.spotify?.player.pausePlayback(this.deviceId);
             } else {
-                console.log("Starting playback...");
-                const result = await this.spotify?.player.startResumePlayback(this.deviceId);
-                console.log("Play result:", result);
+                await this.spotify?.player.startResumePlayback(this.deviceId);
             }
         } catch (error) {
-            console.error("Error in handlePress:", error);
-            if (error instanceof Error) {
-                console.error("Error message:", error.message);
-                console.error("Error stack:", error.stack);
-            }
+            // Handle JSON parse errors silently as they don't affect functionality
             if (error instanceof SyntaxError && error.message.includes("JSON")) {
-                console.log("JSON parse error detected, attempting to reinitialize API...");
-                this.spotify = null; // Clear the invalid instance
-                try {
-                    this.spotify = await spotifyIntegration.getApi();
-                } catch (reinitError) {
-                    console.error("Error reinitializing Spotify API:", reinitError);
-                }
+                // JSON parse errors are expected due to Spotify API response format issues
+                // The API calls work correctly, but the SDK has trouble parsing some responses
+                return;
             }
+            console.error("Error in handlePress:", error);
         }
     }
 
@@ -237,7 +191,8 @@ export default class Spotify extends App {
             return;
         }
         if (this.volume !== null) {
-            await this.setVolumeWithRateLimit(this.volume + 1);
+            const newVolume = Math.min(100, this.volume + 1);
+            await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
         }
     }
 
@@ -247,81 +202,8 @@ export default class Spotify extends App {
             return;
         }
         if (this.volume !== null) {
-            await this.setVolumeWithRateLimit(this.volume - 1);
+            const newVolume = Math.max(0, this.volume - 1);
+            await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
         }
-    }
-
-    private async setVolumeWithRateLimit(newVolume: number) {
-        if (!this.deviceId || !this.spotify) {
-            console.log("No device ID or Spotify API available");
-            return;
-        }
-
-        // Clamp volume to valid range (0-100)
-        const clampedVolume = Math.max(0, Math.min(100, newVolume));
-
-        // Store the pending volume update
-        this.pendingVolumeUpdate = clampedVolume;
-
-        // Clear any existing timeout
-        if (this.volumeUpdateTimeout) {
-            clearTimeout(this.volumeUpdateTimeout);
-        }
-
-        // Set a new timeout to execute the volume update
-        this.volumeUpdateTimeout = setTimeout(async () => {
-            if (this.pendingVolumeUpdate !== null) {
-                try {
-                    await this.spotify?.player.setPlaybackVolume(this.pendingVolumeUpdate, this.deviceId!);
-                    console.log(`Volume set to: ${this.pendingVolumeUpdate}%`);
-                } catch (error) {
-                    console.error("Error setting volume:", error);
-                }
-                this.pendingVolumeUpdate = null;
-            }
-        }, this.VOLUME_UPDATE_DELAY);
-    }
-
-    // Method for immediate volume updates (bypasses rate limiting)
-    public async setVolumeImmediate(newVolume: number) {
-        if (!this.deviceId || !this.spotify) {
-            console.log("No device ID or Spotify API available");
-            return;
-        }
-
-        // Clear any pending rate-limited updates
-        if (this.volumeUpdateTimeout) {
-            clearTimeout(this.volumeUpdateTimeout);
-            this.volumeUpdateTimeout = null;
-        }
-        this.pendingVolumeUpdate = null;
-
-        // Clamp volume to valid range (0-100)
-        const clampedVolume = Math.max(0, Math.min(100, newVolume));
-
-        try {
-            await this.spotify.player.setPlaybackVolume(clampedVolume, this.deviceId);
-            console.log(`Volume set immediately to: ${clampedVolume}%`);
-        } catch (error) {
-            console.error("Error setting volume immediately:", error);
-        }
-    }
-
-    // Helper method to validate and reinitialize Spotify API if needed
-    private async ensureValidSpotifyApi(): Promise<boolean> {
-        if (!this.spotify) {
-            console.log("No Spotify API instance, attempting to initialize...");
-            try {
-                this.spotify = await spotifyIntegration.getApi();
-                if (!this.spotify) {
-                    console.log("Failed to initialize Spotify API");
-                    return false;
-                }
-            } catch (error) {
-                console.error("Error initializing Spotify API:", error);
-                return false;
-            }
-        }
-        return true;
     }
 }

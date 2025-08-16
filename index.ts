@@ -66,6 +66,7 @@ Settings.defaultZone = "America/Indianapolis";
     const MULTI_PRESS_THRESHOLD = 300; // ms between presses
     const LONG_PRESS_THRESHOLD = 500; // ms to trigger long press
     const LONG_PRESS_CHECK_INTERVAL = 50; // ms polling interval while holding
+    const ROTATE_THROTTLE_DELAY = 150; // ms minimum delay between rotate calls
 
     let pressCount = 0;
     let lastPressTime = 0;
@@ -75,6 +76,11 @@ Settings.defaultZone = "America/Indianapolis";
     let pressTimer: NodeJS.Timeout | null = null;
     let releaseTimer: NodeJS.Timeout | null = null;
     let longPressInterval: NodeJS.Timeout | null = null;
+
+    // Rotate throttling variables - prevents rotate functions from being called too frequently
+    // This is especially important for apps that make API calls (like Spotify volume control)
+    let lastRotateLeftTime = 0;
+    let lastRotateRightTime = 0;
 
     const switchNextApp = (): void => {
         enabledApps[currentAppNumber].onStop?.();
@@ -172,26 +178,34 @@ Settings.defaultZone = "America/Indianapolis";
         }
 
         if (key.name === "left") {
-            console.log("\nRotating Left");
-            if (app.handleRotateLeft) {
-                console.log("\nApp handling rotate left");
-                const result = app.handleRotateLeft();
-                if (result instanceof Promise) {
-                    result.catch((error: unknown) => {
-                        console.error("Error in handleRotateLeft:", error);
-                    });
+            const now = Date.now();
+            if (now - lastRotateLeftTime >= ROTATE_THROTTLE_DELAY) {
+                console.log("\nRotating Left");
+                if (app.handleRotateLeft) {
+                    console.log("\nApp handling rotate left");
+                    const result = app.handleRotateLeft();
+                    if (result instanceof Promise) {
+                        result.catch((error: unknown) => {
+                            console.error("Error in handleRotateLeft:", error);
+                        });
+                    }
                 }
+                lastRotateLeftTime = now;
             }
         } else if (key.name === "right") {
-            console.log("\nRotating Right");
-            if (app.handleRotateRight) {
-                console.log("\nApp handling rotate right");
-                const result = app.handleRotateRight();
-                if (result instanceof Promise) {
-                    result.catch((error: unknown) => {
-                        console.error("Error in handleRotateRight:", error);
-                    });
+            const now = Date.now();
+            if (now - lastRotateRightTime >= ROTATE_THROTTLE_DELAY) {
+                console.log("\nRotating Right");
+                if (app.handleRotateRight) {
+                    console.log("\nApp handling rotate right");
+                    const result = app.handleRotateRight();
+                    if (result instanceof Promise) {
+                        result.catch((error: unknown) => {
+                            console.error("Error in handleRotateRight:", error);
+                        });
+                    }
                 }
+                lastRotateRightTime = now;
             }
         }
     });

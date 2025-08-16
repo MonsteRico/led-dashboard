@@ -106,7 +106,6 @@ export class SpotifyAuth {
             throw new Error("No refresh token available");
         }
 
-        console.log("Refreshing Spotify tokens...");
         const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
             method: "POST",
             headers: {
@@ -119,21 +118,12 @@ export class SpotifyAuth {
             }),
         });
 
-        console.log("Token refresh response status:", tokenResponse.status);
-        console.log("Token refresh response headers:", tokenResponse.headers);
-
         if (!tokenResponse.ok) {
             const errorText = await tokenResponse.text();
-            console.error("Token refresh error response:", errorText);
             throw new Error(`Failed to refresh token: ${tokenResponse.statusText} - ${errorText}`);
         }
 
         const tokenData = await tokenResponse.json();
-        console.log("Token refresh successful, new token data:", {
-            access_token: tokenData.access_token ? "***" + tokenData.access_token.slice(-4) : "undefined",
-            expires_in: tokenData.expires_in,
-            token_type: tokenData.token_type,
-        });
 
         this.tokens = {
             ...this.tokens,
@@ -162,7 +152,6 @@ export class SpotifyAuth {
             const file = Bun.file("spotify-tokens.json");
             if (await file.exists()) {
                 const data = await file.text();
-                console.log("Loading tokens from file", data);
                 try {
                     this.tokens = JSON.parse(data);
                 } catch (parseError) {
@@ -215,29 +204,17 @@ export class SpotifyAuth {
     public async getApi(): Promise<SpotifyApi | null> {
         try {
             if (!this.spotifyApi) {
-                console.log("No Spotify API instance, loading tokens...");
                 await this.loadTokens();
             }
 
             // Check if tokens are still valid
             if (this.tokens && Date.now() >= this.tokens.expires_at) {
-                console.log("Token expired, attempting to refresh...");
                 await this.refreshTokens();
             }
 
-            if (!this.spotifyApi) {
-                console.log("Failed to initialize Spotify API - no API instance available");
-                return null;
-            }
-
-            console.log("Spotify API initialized successfully");
             return this.spotifyApi;
         } catch (error) {
             console.error("Error getting Spotify API:", error);
-            if (error instanceof Error) {
-                console.error("Error details:", error.message);
-                console.error("Error stack:", error.stack);
-            }
             return null;
         }
     }
