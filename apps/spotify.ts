@@ -30,15 +30,15 @@ export default class Spotify extends App {
     public update() {
         this.updateStateVariables();
         if (this.isPlaying) {
-            this.drawPause({ x: 48, y: 20 });
+            this.drawPause({ x: 48, y: 15 });
         } else {
-            this.drawPlay({ x: 48, y: 20 });
+            this.drawPlay({ x: 48, y: 15 });
         }
-        this.drawProgress({ x: 40, y: 26 });
+        this.drawProgress({ x: 40, y: 27 });
         this.matrix.font(fonts["9x15"]);
-        this.matrix.drawText(this.currentTrack?.name ?? "", 36, 4);
+        this.matrix.drawText(this.currentTrack?.name ?? "", 36, 0);
         this.matrix.font(fonts["7x13"]);
-        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12);
+        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 15);
     }
 
     public updateStateVariables() {
@@ -170,6 +170,7 @@ export default class Spotify extends App {
             await this.spotify?.player.skipToNext(this.deviceId);
             await this.backgroundUpdate();
             if (!this.isPlaying) {
+                this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
                 await this.backgroundUpdate();
             }
@@ -194,6 +195,7 @@ export default class Spotify extends App {
             await this.spotify?.player.skipToPrevious(this.deviceId);
             await this.backgroundUpdate(); // Force a background update to get the new playback state
             if (!this.isPlaying) {
+                this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
                 await this.backgroundUpdate();
             }
@@ -220,13 +222,13 @@ export default class Spotify extends App {
 
         try {
             if (this.isPlaying) {
+                this.isPlaying = false;
                 await this.spotify?.player.pausePlayback(this.deviceId);
                 await this.backgroundUpdate();
-                this.isPlaying = false;
             } else {
+                this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
                 await this.backgroundUpdate();
-                this.isPlaying = true;
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -246,8 +248,8 @@ export default class Spotify extends App {
         }
         if (this.volume !== null) {
             const newVolume = Math.min(100, Math.round((this.volume + 5) / 5) * 5);
-            await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             this.volume = newVolume;
+            await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             await this.backgroundUpdate();
         }
     }
@@ -259,8 +261,8 @@ export default class Spotify extends App {
         }
         if (this.volume !== null) {
             const newVolume = Math.max(0, Math.round((this.volume - 5) / 5) * 5);
-            await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             this.volume = newVolume;
+            await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             await this.backgroundUpdate();
         }
     }
