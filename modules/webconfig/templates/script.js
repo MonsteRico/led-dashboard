@@ -68,7 +68,7 @@ function showStatus(message, type) {
 }
 
 function loginToSpotify() {
-    fetch("/spotify/login")
+    fetch("/api/spotify/login")
         .then((response) => response.json())
         .then((data) => {
             if (data.authUrl) {

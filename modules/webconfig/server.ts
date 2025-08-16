@@ -49,9 +49,9 @@ export class WebServer {
                     }
                     break;
 
-                case "/spotify/login":
+                case "/api/spotify/login":
                     return this.handleSpotifyLogin();
-                case "/spotify/callback":
+                case "/api/spotify/callback":
                     return await this.handleSpotifyCallback(request);
 
                 default:
