@@ -4,6 +4,7 @@ import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
 import type { Image } from "@/modules/preload/preloadImages";
 import { fonts } from "@/modules/preload/preload";
+import Color from "color";
 
 export default class Spotify extends App {
     private spotify: SpotifyApi | null = null;
@@ -29,9 +30,9 @@ export default class Spotify extends App {
     public update() {
         this.updateStateVariables();
         if (this.isPlaying) {
-            this.drawPause({x: 48, y: 12});
+            this.drawPause({ x: 48, y: 12 });
         } else {
-            this.drawPlay({x: 48, y: 12});
+            this.drawPlay({ x: 48, y: 12 });
         }
     }
 
@@ -124,17 +125,19 @@ export default class Spotify extends App {
     }
 
     // Drawing functions
-    private drawPause({x, y}: {x: number, y: number}) {
-        this.matrix.font(fonts["7x13"]);
-        this.matrix.drawText("⏸︎", x, y);
+    private drawPause({ x, y }: { x: number; y: number }) {
+        this.matrix.font(fonts["scientificaBold-11"]);
+        this.matrix.drawText("⏸︎", x, y, {
+            color: new Color("#ffffff"),
+        });
     }
 
-    private drawPlay({x, y}: {x: number, y: number}) {
-        this.matrix.font(fonts["7x13"]);
-        this.matrix.drawText("⏵︎", x, y);
+    private drawPlay({ x, y }: { x: number; y: number }) {
+        this.matrix.font(fonts["scientificaBold-11"]);
+        this.matrix.drawText("⏵︎", x, y, {
+            color: new Color("#ffffff"),
+        });
     }
-
-
 
     // Handlers
 
