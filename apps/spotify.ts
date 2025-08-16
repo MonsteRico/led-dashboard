@@ -30,10 +30,15 @@ export default class Spotify extends App {
     public update() {
         this.updateStateVariables();
         if (this.isPlaying) {
-            this.drawPause({ x: 48, y: 12 });
+            this.drawPause({ x: 48, y: 20 });
         } else {
-            this.drawPlay({ x: 48, y: 12 });
+            this.drawPlay({ x: 48, y: 20 });
         }
+        this.drawProgress({ x: 40, y: 26 });
+        this.matrix.font(fonts["9x15"]);
+        this.matrix.drawText(this.currentTrack?.name ?? "", 36, 4);
+        this.matrix.font(fonts["7x13"]);
+        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12);
     }
 
     public updateStateVariables() {
@@ -139,6 +144,20 @@ export default class Spotify extends App {
         });
     }
 
+    private drawProgress({ x, y }: { x: number; y: number }) {
+        if (x < 0 || x > this.matrix.width() - 20) {
+            return;
+        }
+        const progress = this.currentPlaybackState?.progress_ms ?? 0;
+        const duration = this.currentTrack?.duration_ms ?? 0;
+        // There are 20 possible pixels
+        const progressPixels = Math.round((progress / duration) * 20);
+        this.matrix.fgColor(new Color("#999999"));
+        this.matrix.drawRect(x, y, 20, 2);
+        this.matrix.fgColor(new Color("#ffffff"));
+        this.matrix.drawRect(x, y, progressPixels, 2);
+    }
+
     // Handlers
 
     public async handleDoublePress() {
@@ -203,9 +222,11 @@ export default class Spotify extends App {
             if (this.isPlaying) {
                 await this.spotify?.player.pausePlayback(this.deviceId);
                 await this.backgroundUpdate();
+                this.isPlaying = false;
             } else {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
                 await this.backgroundUpdate();
+                this.isPlaying = true;
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
