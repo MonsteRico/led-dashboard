@@ -39,7 +39,7 @@ Settings.defaultZone = "America/Indianapolis";
     await weatherService.initialize();
 
     // Register all apps
-    registerAllApps();
+    await registerAllApps();
 
     // Start the web server
     const webServer = new WebServer(3000);

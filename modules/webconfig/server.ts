@@ -1,5 +1,4 @@
 import { serve } from "bun";
-import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { configManager } from "@/modules/config/config-manager";
 import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
@@ -34,13 +33,13 @@ export class WebServer {
         try {
             switch (path) {
                 case "/":
-                    return this.serveHtmlFile("index.html");
+                    return await this.serveHtmlFile("index.html");
 
                 case "/static/styles.css":
-                    return this.serveStaticFile("styles.css", "text/css");
+                    return await this.serveStaticFile("styles.css", "text/css");
 
                 case "/static/script.js":
-                    return this.serveStaticFile("script.js", "application/javascript");
+                    return await this.serveStaticFile("script.js", "application/javascript");
 
                 case "/api/config":
                     if (request.method === "GET") {
@@ -66,11 +65,12 @@ export class WebServer {
         return new Response("Method Not Allowed", { status: 405 });
     }
 
-    private serveHtmlFile(filename: string): Response {
+    private async serveHtmlFile(filename: string): Promise<Response> {
         try {
             const filePath = join(__dirname, "templates", filename);
-            if (existsSync(filePath)) {
-                const content = readFileSync(filePath, "utf-8");
+            const file = Bun.file(filePath);
+            if (await file.exists()) {
+                const content = await file.text();
                 return new Response(content, {
                     headers: { "Content-Type": "text/html" },
                 });
@@ -83,11 +83,12 @@ export class WebServer {
         }
     }
 
-    private serveStaticFile(filename: string, contentType: string): Response {
+    private async serveStaticFile(filename: string, contentType: string): Promise<Response> {
         try {
             const filePath = join(__dirname, "templates", filename);
-            if (existsSync(filePath)) {
-                const content = readFileSync(filePath, "utf-8");
+            const file = Bun.file(filePath);
+            if (await file.exists()) {
+                const content = await file.text();
                 return new Response(content, {
                     headers: { "Content-Type": contentType },
                 });
@@ -110,7 +111,7 @@ export class WebServer {
     private async updateConfig(request: Request): Promise<Response> {
         try {
             const body = await request.json();
-            configManager.updateApps(body.apps);
+            await configManager.updateApps(body.apps);
 
             return new Response(JSON.stringify({ success: true }), {
                 headers: { "Content-Type": "application/json" },

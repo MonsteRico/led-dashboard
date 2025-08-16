@@ -1,5 +1,4 @@
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
-import { writeFileSync, readFileSync, existsSync } from "fs";
 
 export interface SpotifyTokens {
     access_token: string;
@@ -88,7 +87,7 @@ export class SpotifyAuth {
             expires_at: Date.now() + tokenData.expires_in * 1000,
         };
 
-        this.saveTokens();
+        await this.saveTokens();
         this.initializeApi();
 
         return this.tokens;
@@ -130,20 +129,21 @@ export class SpotifyAuth {
             this.tokens.refresh_token = tokenData.refresh_token;
         }
 
-        this.saveTokens();
+        await this.saveTokens();
         this.initializeApi();
 
         return this.tokens;
     }
 
-    public loadTokens(): SpotifyTokens | null {
+    public async loadTokens(): Promise<SpotifyTokens | null> {
         if (this.tokens) {
             return this.tokens;
         }
 
-        if (existsSync("spotify-tokens.json")) {
-            try {
-                const data = readFileSync("spotify-tokens.json", "utf-8");
+        try {
+            const file = Bun.file("spotify-tokens.json");
+            if (await file.exists()) {
+                const data = await file.text();
                 this.tokens = JSON.parse(data);
 
                 // Check if token is expired
@@ -158,19 +158,18 @@ export class SpotifyAuth {
                 }
 
                 return this.tokens;
-            } catch (error) {
-                console.error("Error loading tokens:", error);
-                return null;
             }
+        } catch (error) {
+            console.error("Error loading tokens:", error);
         }
 
         return null;
     }
 
-    private saveTokens(): void {
+    private async saveTokens(): Promise<void> {
         if (this.tokens) {
             try {
-                writeFileSync("spotify-tokens.json", JSON.stringify(this.tokens, null, 2));
+                await Bun.write("spotify-tokens.json", JSON.stringify(this.tokens, null, 2));
             } catch (error) {
                 console.error("Error saving tokens:", error);
             }
@@ -188,9 +187,9 @@ export class SpotifyAuth {
         }
     }
 
-    public getApi(): SpotifyApi | null {
+    public async getApi(): Promise<SpotifyApi | null> {
         if (!this.spotifyApi) {
-            this.loadTokens();
+            await this.loadTokens();
         }
         return this.spotifyApi;
     }

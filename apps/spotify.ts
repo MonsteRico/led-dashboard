@@ -14,10 +14,10 @@ export default class Spotify extends App {
 
     public update() {}
 
-    public onStart() {
+    public async onStart() {
         if (!this.spotify) {
             try {
-                this.spotify = spotifyIntegration.getApi();
+                this.spotify = await spotifyIntegration.getApi();
                 if (this.spotify) {
                     this.spotify.player.getCurrentlyPlayingTrack().then((track) => {
                         this.currentTrack = track;
@@ -38,7 +38,7 @@ export default class Spotify extends App {
 
     public async initialize() {
         try {
-            this.spotify = spotifyIntegration.getApi();
+            this.spotify = await spotifyIntegration.getApi();
             if (this.spotify) {
                 const currentTrack = await this.spotify.player.getCurrentlyPlayingTrack();
                 const currentPlaybackState = await this.spotify.player.getPlaybackState();

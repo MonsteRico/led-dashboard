@@ -20,8 +20,8 @@ class SpotifyIntegration {
         return this.auth.isAuthenticated();
     }
 
-    public getApi(): SpotifyApi | null {
-        return this.auth.getApi();
+    public async getApi(): Promise<SpotifyApi | null> {
+        return await this.auth.getApi();
     }
 }
 

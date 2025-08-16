@@ -22,11 +22,11 @@ class AppRegistry {
         return AppRegistry.instance;
     }
 
-    public registerApp(appDef: AppDefinition): void {
+    public async registerApp(appDef: AppDefinition): Promise<void> {
         this.apps.set(appDef.className, appDef);
 
         // Also register with config manager
-        configManager.addNewApp({
+        await configManager.addNewApp({
             name: appDef.name,
             className: appDef.className,
             enabled: appDef.enabled,

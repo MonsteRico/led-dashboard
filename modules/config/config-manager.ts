@@ -1,5 +1,3 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
-
 export interface AppConfig {
     name: string;
     enabled: boolean;
@@ -24,7 +22,7 @@ class ConfigManager {
     private static instance: ConfigManager;
 
     private constructor() {
-        this.config = this.loadConfig();
+        this.config = DEFAULT_CONFIG;
     }
 
     public static getInstance(): ConfigManager {
@@ -34,27 +32,27 @@ class ConfigManager {
         return ConfigManager.instance;
     }
 
-    private loadConfig(): ConfigData {
-        if (existsSync(CONFIG_FILE)) {
-            try {
-                const data = readFileSync(CONFIG_FILE, "utf-8");
+    private async loadConfig(): Promise<ConfigData> {
+        try {
+            const file = Bun.file(CONFIG_FILE);
+            if (await file.exists()) {
+                const data = await file.text();
                 const loadedConfig = JSON.parse(data);
 
                 return {
                     apps: loadedConfig.apps || [],
                     currentApp: loadedConfig.currentApp || 0,
                 };
-            } catch (error) {
-                console.error("Error loading config:", error);
-                return DEFAULT_CONFIG;
             }
+        } catch (error) {
+            console.error("Error loading config:", error);
         }
         return DEFAULT_CONFIG;
     }
 
-    public saveConfig(): void {
+    public async saveConfig(): Promise<void> {
         try {
-            writeFileSync(CONFIG_FILE, JSON.stringify(this.config, null, 2));
+            await Bun.write(CONFIG_FILE, JSON.stringify(this.config, null, 2));
         } catch (error) {
             console.error("Error saving config:", error);
         }
@@ -64,10 +62,10 @@ class ConfigManager {
         return this.config;
     }
 
-    public updateApps(apps: AppConfig[]): void {
+    public async updateApps(apps: AppConfig[]): Promise<void> {
         this.config.apps = apps;
         this.config.currentApp = 0; // Reset to first app
-        this.saveConfig();
+        await this.saveConfig();
     }
 
     public getEnabledApps(): string[] {
@@ -78,17 +76,17 @@ class ConfigManager {
         return this.config.apps;
     }
 
-    public addNewApp(appConfig: AppConfig): void {
+    public async addNewApp(appConfig: AppConfig): Promise<void> {
         // Check if app already exists in current config
         const existingIndex = this.config.apps.findIndex((app) => app.className === appConfig.className);
         if (existingIndex === -1) {
             this.config.apps.push(appConfig);
-            this.saveConfig();
+            await this.saveConfig();
         }
     }
 
-    public reloadConfig(): void {
-        this.config = this.loadConfig();
+    public async reloadConfig(): Promise<void> {
+        this.config = await this.loadConfig();
     }
 }
 

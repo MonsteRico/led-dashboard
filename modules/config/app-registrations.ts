@@ -7,9 +7,9 @@ import Website from "@/apps/website";
 import Spotify from "@/apps/spotify";
 
 // Register all apps here - this is the ONLY place you need to define apps
-export function registerAllApps(): void {
+export async function registerAllApps(): Promise<void> {
     // Clock App
-    appRegistry.registerApp({
+    await appRegistry.registerApp({
         name: "Clock",
         className: "Clock",
         enabled: true,
@@ -17,7 +17,7 @@ export function registerAllApps(): void {
     });
 
     // Weather App
-    appRegistry.registerApp({
+    await appRegistry.registerApp({
         name: "Weather",
         className: "Weather",
         enabled: true,
@@ -25,7 +25,7 @@ export function registerAllApps(): void {
     });
 
     // Test App
-    appRegistry.registerApp({
+    await appRegistry.registerApp({
         name: "Test",
         className: "Test",
         enabled: true,
@@ -33,7 +33,7 @@ export function registerAllApps(): void {
     });
 
     // Website App
-    appRegistry.registerApp({
+    await appRegistry.registerApp({
         name: "Website",
         className: "Website",
         enabled: true,
@@ -41,7 +41,7 @@ export function registerAllApps(): void {
     });
 
     // Spotify App
-    appRegistry.registerApp({
+    await appRegistry.registerApp({
         name: "Spotify",
         className: "Spotify",
         enabled: true,
