@@ -22,11 +22,6 @@ export default class Spotify extends App {
 
     public update() {
         this.updateStateVariables();
-        console.log({
-            currentTrack: this.currentTrack,
-            isPlaying: this.isPlaying,
-            albumArtUrl: this.albumArtUrl,
-        });
     }
 
     public updateStateVariables() {
@@ -75,6 +70,14 @@ export default class Spotify extends App {
 
     public backgroundUpdate() {
         this.updateCurrentPlaybackState();
+        this.updateStateVariables();
+        console.log({
+            currentTrack: this.currentTrack,
+            isPlaying: this.isPlaying,
+            albumArtUrl: this.albumArtUrl,
+            deviceId: this.deviceId,
+            volume: this.volume,
+        });
     }
 
     public async initialize() {
