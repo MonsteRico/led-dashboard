@@ -5,6 +5,7 @@ import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
 import type { Image } from "@/modules/preload/preloadImages";
 import { fonts } from "@/modules/preload/preload";
 import Color from "color";
+import sharp from "sharp";
 
 export default class Spotify extends App {
     private spotify: SpotifyApi | null = null;
@@ -39,6 +40,9 @@ export default class Spotify extends App {
         this.matrix.drawText(this.currentTrack?.name ?? "", 36, -1);
         this.matrix.font(fonts["5x7"]);
         this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12);
+        if (this.albumArtImage) {
+            this.matrix.drawImage(this.albumArtImage, 0, 0);
+        }
     }
 
     public updateStateVariables() {
@@ -58,6 +62,7 @@ export default class Spotify extends App {
             }
         }
         await this.updateCurrentPlaybackState();
+        await this.setAlbumArt();
         this.updateStateVariables();
         // Cancel the background update interval and replace it with one that updates every 5 seconds
         if (this.backgroundInterval) {
@@ -80,6 +85,20 @@ export default class Spotify extends App {
 
         const refreshTime = 1000 * 10 * 5; // 5 minutes
         this.backgroundInterval = setInterval(() => this.backgroundUpdate(), refreshTime);
+    }
+
+    public backgroundUpdate() {
+        this.updateCurrentPlaybackState().then(() => {
+            this.setAlbumArt();
+        });
+    }
+
+    public async initialize() {
+        try {
+            this.spotify = await spotifyIntegration.getApi();
+        } catch (error) {
+            console.error("Error initializing Spotify:", error);
+        }
     }
 
     public async updateCurrentPlaybackState() {
@@ -107,23 +126,16 @@ export default class Spotify extends App {
         }
     }
 
-    public backgroundUpdate() {
-        this.updateCurrentPlaybackState();
-        this.updateStateVariables();
-        console.log({
-            currentTrack: this.currentTrack,
-            isPlaying: this.isPlaying,
-            albumArtUrl: this.albumArtUrl,
-            deviceId: this.deviceId,
-            volume: this.volume,
-        });
-    }
-
-    public async initialize() {
-        try {
-            this.spotify = await spotifyIntegration.getApi();
-        } catch (error) {
-            console.error("Error initializing Spotify:", error);
+    private async setAlbumArt() {
+        if (this.albumArtUrl) {
+            const albumArt = await fetch(this.albumArtUrl);
+            const albumArtBuffer = await albumArt.arrayBuffer();
+            const albumArtImageData = await sharp(albumArtBuffer).resize(32, 32).toBuffer();
+            this.albumArtImage = {
+                width: 32,
+                height: 32,
+                data: albumArtImageData,
+            };
         }
     }
 
