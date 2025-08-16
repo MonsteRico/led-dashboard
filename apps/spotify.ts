@@ -52,7 +52,7 @@ export default class Spotify extends App {
         }
     }
 
-    public handlePress() {
+    public handleDoublePress() {
         if (this.currentPlaybackState) {
             console.log("Current Playback State", this.currentPlaybackState);
         }
