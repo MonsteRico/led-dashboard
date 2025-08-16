@@ -30,9 +30,9 @@ export default class Spotify extends App {
     public update() {
         this.updateStateVariables();
         if (this.isPlaying) {
-            this.drawPause({ x: 50, y: 15 });
+            this.drawPause({ x: 48, y: 19 });
         } else {
-            this.drawPlay({ x: 50, y: 15 });
+            this.drawPlay({ x: 48, y: 19 });
         }
         this.drawProgress({ x: 40, y: 27 });
         this.matrix.font(fonts["6x13"]);
@@ -44,10 +44,8 @@ export default class Spotify extends App {
     public updateStateVariables() {
         if (this.currentPlaybackState) {
             this.currentTrack = this.currentPlaybackState.item as Track;
-            this.isPlaying = this.currentPlaybackState.is_playing;
             this.albumArtUrl = this.currentTrack.album.images[0].url;
             this.deviceId = this.currentPlaybackState.device.id;
-            this.volume = this.currentPlaybackState.device.volume_percent;
         }
     }
 
@@ -131,15 +129,15 @@ export default class Spotify extends App {
 
     // Drawing functions
     private drawPause({ x, y }: { x: number; y: number }) {
-        this.matrix.font(fonts["scientificaBold-11"]);
-        this.matrix.drawText("⏸︎", x, y, {
+        this.matrix.font(fonts["5x8"]);
+        this.matrix.drawText("\u2225", x, y, {
             color: new Color("#ffffff"),
         });
     }
 
     private drawPlay({ x, y }: { x: number; y: number }) {
-        this.matrix.font(fonts["scientificaBold-11"]);
-        this.matrix.drawText("⏵︎", x, y, {
+        this.matrix.font(fonts["5x8"]);
+        this.matrix.drawText("\u25B6", x, y, {
             color: new Color("#ffffff"),
         });
     }
