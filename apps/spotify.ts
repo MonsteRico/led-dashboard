@@ -2,7 +2,7 @@ import { SpotifyApi, type PlaybackState, type Track, type TrackItem } from "@spo
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
-import type { Image } from "@/modules/preload/preloadImages";
+import { type Image, sharpToUint8Array } from "@/modules/preload/preloadImages";
 import { fonts } from "@/modules/preload/preload";
 import Color from "color";
 import sharp from "sharp";
@@ -130,7 +130,7 @@ export default class Spotify extends App {
         if (this.albumArtUrl) {
             const albumArt = await fetch(this.albumArtUrl);
             const albumArtBuffer = await albumArt.arrayBuffer();
-            const albumArtImageData = await sharp(albumArtBuffer).resize(32, 32).toBuffer();
+            const albumArtImageData = await sharpToUint8Array(sharp(albumArtBuffer).resize(32, 32));
             this.albumArtImage = {
                 width: 32,
                 height: 32,
