@@ -35,9 +35,9 @@ export default class Spotify extends App {
             this.drawPlay({ x: 48, y: 15 });
         }
         this.drawProgress({ x: 40, y: 27 });
-        this.matrix.font(fonts["9x15"]);
+        this.matrix.font(fonts["6x9"]);
         this.matrix.drawText(this.currentTrack?.name ?? "", 36, 0);
-        this.matrix.font(fonts["7x13"]);
+        this.matrix.font(fonts["5x7"]);
         this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 15);
     }
 
