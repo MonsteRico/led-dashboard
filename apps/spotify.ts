@@ -125,6 +125,8 @@ export default class Spotify extends App {
 
         try {
             await this.spotify?.player.skipToNext(this.deviceId);
+            await this.updateCurrentPlaybackState();
+            this.updateStateVariables();
             if (!this.isPlaying) {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
             }
@@ -147,6 +149,12 @@ export default class Spotify extends App {
 
         try {
             await this.spotify?.player.skipToPrevious(this.deviceId);
+            await this.updateCurrentPlaybackState();
+            this.updateStateVariables();
+            if (!this.isPlaying) {
+                await this.spotify?.player.startResumePlayback(this.deviceId);
+                this.isPlaying = true;
+            }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
             if (error instanceof SyntaxError && error.message.includes("JSON")) {
@@ -171,8 +179,10 @@ export default class Spotify extends App {
         try {
             if (this.isPlaying) {
                 await this.spotify?.player.pausePlayback(this.deviceId);
+                this.isPlaying = false;
             } else {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
+                this.isPlaying = true;
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -193,6 +203,7 @@ export default class Spotify extends App {
         if (this.volume !== null) {
             const newVolume = Math.min(100, this.volume + 1);
             await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
+            this.volume = newVolume;
         }
     }
 
@@ -204,6 +215,7 @@ export default class Spotify extends App {
         if (this.volume !== null) {
             const newVolume = Math.max(0, this.volume - 1);
             await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
+            this.volume = newVolume;
         }
     }
 }
