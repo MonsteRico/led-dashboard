@@ -18,19 +18,20 @@ export default class Spotify extends App {
         if (!this.spotify) {
             try {
                 this.spotify = await spotifyIntegration.getApi();
-                if (this.spotify) {
-                    this.spotify.player.getCurrentlyPlayingTrack().then((track) => {
-                        this.currentTrack = track;
-                    });
-                    this.spotify.player.getPlaybackState().then((state) => {
-                        this.currentPlaybackState = state;
-                    });
-                } else {
-                    console.log("Spotify not authenticated. Please login via the web interface.");
-                }
             } catch (error) {
                 console.error("Error initializing Spotify:", error);
             }
+        }
+        if (this.spotify) {
+            this.spotify.player.getCurrentlyPlayingTrack().then((track) => {
+                this.currentTrack = track;
+            });
+            this.spotify.player.getPlaybackState().then((state) => {
+                this.currentPlaybackState = state;
+            });
+            console.log("Spotify app started");
+        } else {
+            console.log("Spotify not authenticated. Please login via the web interface.");
         }
     }
 
