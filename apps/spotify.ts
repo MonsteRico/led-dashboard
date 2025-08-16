@@ -30,15 +30,15 @@ export default class Spotify extends App {
     public update() {
         this.updateStateVariables();
         if (this.isPlaying) {
-            this.drawPause({ x: 48, y: 16 });
+            this.drawPause({ x: 50, y: 15 });
         } else {
-            this.drawPlay({ x: 48, y: 16 });
+            this.drawPlay({ x: 50, y: 15 });
         }
         this.drawProgress({ x: 40, y: 27 });
         this.matrix.font(fonts["6x13"]);
-        this.matrix.drawText(this.currentTrack?.name ?? "", 36, 0);
+        this.matrix.drawText(this.currentTrack?.name ?? "", 36, -1);
         this.matrix.font(fonts["5x7"]);
-        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 13);
+        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12);
     }
 
     public updateStateVariables() {
@@ -172,7 +172,6 @@ export default class Spotify extends App {
             if (!this.isPlaying) {
                 this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
-                await this.backgroundUpdate();
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -197,7 +196,6 @@ export default class Spotify extends App {
             if (!this.isPlaying) {
                 this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
-                await this.backgroundUpdate();
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -224,11 +222,9 @@ export default class Spotify extends App {
             if (this.isPlaying) {
                 this.isPlaying = false;
                 await this.spotify?.player.pausePlayback(this.deviceId);
-                await this.backgroundUpdate();
             } else {
                 this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
-                await this.backgroundUpdate();
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
