@@ -10,6 +10,7 @@ export default abstract class App {
 
     public abstract update(): void;
     public onStart?(): void;
+    public onStop?(): void;
     public backgroundUpdate?(): void;
     public async initialize?(): Promise<void>;
     public handlePress?(): void;

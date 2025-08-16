@@ -77,6 +77,7 @@ Settings.defaultZone = "America/Indianapolis";
     let longPressInterval: NodeJS.Timeout | null = null;
 
     const switchNextApp = (): void => {
+        enabledApps[currentAppNumber].onStop?.();
         currentAppNumber = (currentAppNumber + 1) % enabledApps.length;
         console.log("Switching to app " + currentAppNumber);
         enabledApps[currentAppNumber].onStart?.();
