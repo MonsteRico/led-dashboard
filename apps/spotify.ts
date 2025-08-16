@@ -14,6 +14,11 @@ export default class Spotify extends App {
     private deviceId: string | null = null;
     private volume: number | null = null;
 
+    // Volume control rate limiting
+    private volumeUpdateTimeout: NodeJS.Timeout | null = null;
+    private pendingVolumeUpdate: number | null = null;
+    private readonly VOLUME_UPDATE_DELAY = 200; // 200ms delay between volume updates
+
     constructor(matrix: DevMatrix) {
         super(matrix);
         const refreshTime = 1000 * 10 * 5; // 5 minutes
@@ -55,14 +60,32 @@ export default class Spotify extends App {
         if (this.backgroundInterval) {
             clearInterval(this.backgroundInterval);
         }
+
+        // Clear any pending volume updates
+        if (this.volumeUpdateTimeout) {
+            clearTimeout(this.volumeUpdateTimeout);
+            this.volumeUpdateTimeout = null;
+        }
+        this.pendingVolumeUpdate = null;
+
         const refreshTime = 1000 * 10 * 5; // 5 minutes
         this.backgroundInterval = setInterval(() => this.backgroundUpdate(), refreshTime);
     }
 
     public async updateCurrentPlaybackState() {
         if (this.spotify) {
-            const currentPlaybackState = await this.spotify.player.getPlaybackState();
-            this.currentPlaybackState = currentPlaybackState;
+            try {
+                const currentPlaybackState = await this.spotify.player.getPlaybackState();
+                this.currentPlaybackState = currentPlaybackState;
+            } catch (error) {
+                console.error("Error getting playback state:", error);
+                // If we get an error, try to reinitialize the API
+                try {
+                    this.spotify = await spotifyIntegration.getApi();
+                } catch (reinitError) {
+                    console.error("Error reinitializing Spotify API:", reinitError);
+                }
+            }
         } else {
             console.log("Spotify not authenticated. Please login via the web interface.");
         }
@@ -88,58 +111,126 @@ export default class Spotify extends App {
         }
     }
 
-    public handleDoublePress() {
+    public async handleDoublePress() {
         if (!this.deviceId) {
             console.log("No device ID found");
             return;
         }
-        this.spotify?.player.skipToNext(this.deviceId);
-        if (!this.isPlaying) {
-            this.spotify?.player.startResumePlayback(this.deviceId);
+        try {
+            await this.spotify?.player.skipToNext(this.deviceId);
+            if (!this.isPlaying) {
+                await this.spotify?.player.startResumePlayback(this.deviceId);
+            }
+        } catch (error) {
+            console.error("Error in handleDoublePress:", error);
         }
     }
 
-    public handleTriplePress() {
+    public async handleTriplePress() {
         if (!this.deviceId) {
             console.log("No device ID found");
             return;
         }
-        this.spotify?.player.skipToPrevious(this.deviceId);
+        try {
+            await this.spotify?.player.skipToPrevious(this.deviceId);
+        } catch (error) {
+            console.error("Error in handleTriplePress:", error);
+        }
     }
 
     public handleLongPress() {
         this.toggleOverrideDefaultPress();
     }
 
-    public handlePress() {
+    public async handlePress() {
         if (!this.deviceId) {
             console.log("No device ID found");
             return;
         }
-        if (this.isPlaying) {
-            this.spotify?.player.pausePlayback(this.deviceId);
-        } else {
-            this.spotify?.player.startResumePlayback(this.deviceId);
+        try {
+            if (this.isPlaying) {
+                await this.spotify?.player.pausePlayback(this.deviceId);
+            } else {
+                await this.spotify?.player.startResumePlayback(this.deviceId);
+            }
+        } catch (error) {
+            console.error("Error in handlePress:", error);
         }
     }
 
-    public handleRotateRight() {
+    public async handleRotateRight() {
         if (!this.deviceId) {
             console.log("No device ID found");
             return;
         }
-        if (this.volume) {
-            this.spotify?.player.setPlaybackVolume(this.volume + 1, this.deviceId);
+        if (this.volume !== null) {
+            await this.setVolumeWithRateLimit(this.volume + 1);
         }
     }
 
-    public handleRotateLeft() {
+    public async handleRotateLeft() {
         if (!this.deviceId) {
             console.log("No device ID found");
             return;
         }
-        if (this.volume) {
-            this.spotify?.player.setPlaybackVolume(this.volume - 1, this.deviceId);
+        if (this.volume !== null) {
+            await this.setVolumeWithRateLimit(this.volume - 1);
+        }
+    }
+
+    private async setVolumeWithRateLimit(newVolume: number) {
+        if (!this.deviceId || !this.spotify) {
+            console.log("No device ID or Spotify API available");
+            return;
+        }
+
+        // Clamp volume to valid range (0-100)
+        const clampedVolume = Math.max(0, Math.min(100, newVolume));
+
+        // Store the pending volume update
+        this.pendingVolumeUpdate = clampedVolume;
+
+        // Clear any existing timeout
+        if (this.volumeUpdateTimeout) {
+            clearTimeout(this.volumeUpdateTimeout);
+        }
+
+        // Set a new timeout to execute the volume update
+        this.volumeUpdateTimeout = setTimeout(async () => {
+            if (this.pendingVolumeUpdate !== null) {
+                try {
+                    await this.spotify?.player.setPlaybackVolume(this.pendingVolumeUpdate, this.deviceId!);
+                    console.log(`Volume set to: ${this.pendingVolumeUpdate}%`);
+                } catch (error) {
+                    console.error("Error setting volume:", error);
+                }
+                this.pendingVolumeUpdate = null;
+            }
+        }, this.VOLUME_UPDATE_DELAY);
+    }
+
+    // Method for immediate volume updates (bypasses rate limiting)
+    public async setVolumeImmediate(newVolume: number) {
+        if (!this.deviceId || !this.spotify) {
+            console.log("No device ID or Spotify API available");
+            return;
+        }
+
+        // Clear any pending rate-limited updates
+        if (this.volumeUpdateTimeout) {
+            clearTimeout(this.volumeUpdateTimeout);
+            this.volumeUpdateTimeout = null;
+        }
+        this.pendingVolumeUpdate = null;
+
+        // Clamp volume to valid range (0-100)
+        const clampedVolume = Math.max(0, Math.min(100, newVolume));
+
+        try {
+            await this.spotify.player.setPlaybackVolume(clampedVolume, this.deviceId);
+            console.log(`Volume set immediately to: ${clampedVolume}%`);
+        } catch (error) {
+            console.error("Error setting volume immediately:", error);
         }
     }
 }

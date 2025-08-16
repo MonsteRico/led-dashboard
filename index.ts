@@ -132,7 +132,12 @@ Settings.defaultZone = "America/Indianapolis";
                         console.log("\nSingle Press");
                         if (app.overrideDefaultPressOn && app.handlePress) {
                             console.log("\nApp handling press");
-                            app.handlePress();
+                            const result = app.handlePress();
+                            if (result instanceof Promise) {
+                                result.catch((error: unknown) => {
+                                    console.error("Error in handlePress:", error);
+                                });
+                            }
                         } else {
                             console.log("\nSwitching apps");
                             switchNextApp();
@@ -141,13 +146,23 @@ Settings.defaultZone = "America/Indianapolis";
                         console.log("\nDouble Press");
                         if (app.handleDoublePress) {
                             console.log("\nApp handling double press");
-                            app.handleDoublePress();
+                            const result = app.handleDoublePress();
+                            if (result instanceof Promise) {
+                                result.catch((error: unknown) => {
+                                    console.error("Error in handleDoublePress:", error);
+                                });
+                            }
                         }
                     } else if (pressCount >= 3 && !keyIsDown) {
                         console.log("Triple Press");
                         if (app.handleTriplePress) {
                             console.log("\nApp handling triple press");
-                            app.handleTriplePress();
+                            const result = app.handleTriplePress();
+                            if (result instanceof Promise) {
+                                result.catch((error: unknown) => {
+                                    console.error("Error in handleTriplePress:", error);
+                                });
+                            }
                         }
                     }
                 }
@@ -160,13 +175,23 @@ Settings.defaultZone = "America/Indianapolis";
             console.log("\nRotating Left");
             if (app.handleRotateLeft) {
                 console.log("\nApp handling rotate left");
-                app.handleRotateLeft();
+                const result = app.handleRotateLeft();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handleRotateLeft:", error);
+                    });
+                }
             }
         } else if (key.name === "right") {
             console.log("\nRotating Right");
             if (app.handleRotateRight) {
                 console.log("\nApp handling rotate right");
-                app.handleRotateRight();
+                const result = app.handleRotateRight();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handleRotateRight:", error);
+                    });
+                }
             }
         }
     });

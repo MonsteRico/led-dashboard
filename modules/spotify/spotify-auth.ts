@@ -152,7 +152,13 @@ export class SpotifyAuth {
             if (await file.exists()) {
                 const data = await file.text();
                 console.log("Loading tokens from file", data);
-                this.tokens = JSON.parse(data);
+                try {
+                    this.tokens = JSON.parse(data);
+                } catch (parseError) {
+                    console.error("Error parsing tokens JSON:", parseError);
+                    console.log("Invalid token file detected. Please delete spotify-tokens.json manually and re-authenticate.");
+                    return null;
+                }
 
                 // Check if token is expired
                 if (this.tokens && Date.now() >= this.tokens.expires_at) {
@@ -196,10 +202,22 @@ export class SpotifyAuth {
     }
 
     public async getApi(): Promise<SpotifyApi | null> {
-        if (!this.spotifyApi) {
-            await this.loadTokens();
+        try {
+            if (!this.spotifyApi) {
+                await this.loadTokens();
+            }
+
+            // Check if tokens are still valid
+            if (this.tokens && Date.now() >= this.tokens.expires_at) {
+                console.log("Token expired, attempting to refresh...");
+                await this.refreshTokens();
+            }
+
+            return this.spotifyApi;
+        } catch (error) {
+            console.error("Error getting Spotify API:", error);
+            return null;
         }
-        return this.spotifyApi;
     }
 
     public isAuthenticated(): boolean {

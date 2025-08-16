@@ -13,12 +13,12 @@ export default abstract class App {
     public onStop?(): void;
     public backgroundUpdate?(): void;
     public async initialize?(): Promise<void>;
-    public handlePress?(): void;
+    public handlePress?(): Promise<void> | void;
     public handleLongPress?(): void;
-    public handleDoublePress?(): void;
-    public handleTriplePress?(): void;
-    public handleRotateRight?(): void;
-    public handleRotateLeft?(): void;
+    public handleDoublePress?(): Promise<void> | void;
+    public handleTriplePress?(): Promise<void> | void;
+    public handleRotateRight?(): Promise<void> | void;
+    public handleRotateLeft?(): Promise<void> | void;
 
     public toggleOverrideDefaultPress() {
         this.overrideDefaultPressOn = !this.overrideDefaultPressOn;
