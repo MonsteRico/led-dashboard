@@ -116,13 +116,40 @@ export default class Spotify extends App {
             console.log("No device ID found");
             return;
         }
+
+        // Ensure we have a valid Spotify API instance
+        if (!(await this.ensureValidSpotifyApi())) {
+            console.log("Cannot perform action - Spotify API not available");
+            return;
+        }
+
         try {
-            await this.spotify?.player.skipToNext(this.deviceId);
+            console.log("Skipping to next track...");
+            const skipResult = await this.spotify?.player.skipToNext(this.deviceId);
+            console.log("Skip result:", skipResult);
+
             if (!this.isPlaying) {
-                await this.spotify?.player.startResumePlayback(this.deviceId);
+                console.log("Starting playback...");
+                const playResult = await this.spotify?.player.startResumePlayback(this.deviceId);
+                console.log("Play result:", playResult);
             }
         } catch (error) {
             console.error("Error in handleDoublePress:", error);
+            // Log additional error details
+            if (error instanceof Error) {
+                console.error("Error message:", error.message);
+                console.error("Error stack:", error.stack);
+            }
+            // Try to reinitialize the API if we get a JSON parse error
+            if (error instanceof SyntaxError && error.message.includes("JSON")) {
+                console.log("JSON parse error detected, attempting to reinitialize API...");
+                this.spotify = null; // Clear the invalid instance
+                try {
+                    this.spotify = await spotifyIntegration.getApi();
+                } catch (reinitError) {
+                    console.error("Error reinitializing Spotify API:", reinitError);
+                }
+            }
         }
     }
 
@@ -131,10 +158,32 @@ export default class Spotify extends App {
             console.log("No device ID found");
             return;
         }
+
+        // Ensure we have a valid Spotify API instance
+        if (!(await this.ensureValidSpotifyApi())) {
+            console.log("Cannot perform action - Spotify API not available");
+            return;
+        }
+
         try {
-            await this.spotify?.player.skipToPrevious(this.deviceId);
+            console.log("Skipping to previous track...");
+            const result = await this.spotify?.player.skipToPrevious(this.deviceId);
+            console.log("Skip previous result:", result);
         } catch (error) {
             console.error("Error in handleTriplePress:", error);
+            if (error instanceof Error) {
+                console.error("Error message:", error.message);
+                console.error("Error stack:", error.stack);
+            }
+            if (error instanceof SyntaxError && error.message.includes("JSON")) {
+                console.log("JSON parse error detected, attempting to reinitialize API...");
+                this.spotify = null; // Clear the invalid instance
+                try {
+                    this.spotify = await spotifyIntegration.getApi();
+                } catch (reinitError) {
+                    console.error("Error reinitializing Spotify API:", reinitError);
+                }
+            }
         }
     }
 
@@ -147,14 +196,38 @@ export default class Spotify extends App {
             console.log("No device ID found");
             return;
         }
+
+        // Ensure we have a valid Spotify API instance
+        if (!(await this.ensureValidSpotifyApi())) {
+            console.log("Cannot perform action - Spotify API not available");
+            return;
+        }
+
         try {
             if (this.isPlaying) {
-                await this.spotify?.player.pausePlayback(this.deviceId);
+                console.log("Pausing playback...");
+                const result = await this.spotify?.player.pausePlayback(this.deviceId);
+                console.log("Pause result:", result);
             } else {
-                await this.spotify?.player.startResumePlayback(this.deviceId);
+                console.log("Starting playback...");
+                const result = await this.spotify?.player.startResumePlayback(this.deviceId);
+                console.log("Play result:", result);
             }
         } catch (error) {
             console.error("Error in handlePress:", error);
+            if (error instanceof Error) {
+                console.error("Error message:", error.message);
+                console.error("Error stack:", error.stack);
+            }
+            if (error instanceof SyntaxError && error.message.includes("JSON")) {
+                console.log("JSON parse error detected, attempting to reinitialize API...");
+                this.spotify = null; // Clear the invalid instance
+                try {
+                    this.spotify = await spotifyIntegration.getApi();
+                } catch (reinitError) {
+                    console.error("Error reinitializing Spotify API:", reinitError);
+                }
+            }
         }
     }
 
@@ -232,5 +305,23 @@ export default class Spotify extends App {
         } catch (error) {
             console.error("Error setting volume immediately:", error);
         }
+    }
+
+    // Helper method to validate and reinitialize Spotify API if needed
+    private async ensureValidSpotifyApi(): Promise<boolean> {
+        if (!this.spotify) {
+            console.log("No Spotify API instance, attempting to initialize...");
+            try {
+                this.spotify = await spotifyIntegration.getApi();
+                if (!this.spotify) {
+                    console.log("Failed to initialize Spotify API");
+                    return false;
+                }
+            } catch (error) {
+                console.error("Error initializing Spotify API:", error);
+                return false;
+            }
+        }
+        return true;
     }
 }
