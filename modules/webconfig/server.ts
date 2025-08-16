@@ -3,12 +3,27 @@ import { join } from "path";
 import { configManager } from "@/modules/config/config-manager";
 import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
 
+export interface ServerConfig {
+    port: number;
+    useHttps: boolean;
+    certPath?: string;
+    keyPath?: string;
+}
+
 export class WebServer {
-    private port: number;
+    private config: ServerConfig;
     private spotifyIntegration: SpotifyIntegration | null;
 
-    constructor(port: number = 3000) {
-        this.port = port;
+    constructor(config: ServerConfig | number = 3000) {
+        if (typeof config === "number") {
+            this.config = {
+                port: config,
+                useHttps: false,
+            };
+        } else {
+            this.config = config;
+        }
+
         try {
             this.spotifyIntegration = spotifyIntegration;
         } catch (error) {
@@ -18,12 +33,35 @@ export class WebServer {
     }
 
     public start(): void {
-        console.log(`Starting web server on port ${this.port}`);
+        const protocol = this.config.useHttps ? "HTTPS" : "HTTP";
+        console.log(`Starting ${protocol} server on port ${this.config.port}`);
 
-        serve({
-            port: this.port,
+        const serverOptions: any = {
+            port: this.config.port,
             fetch: this.handleRequest.bind(this),
-        });
+        };
+
+        // Add HTTPS configuration if enabled
+        if (this.config.useHttps && this.config.certPath && this.config.keyPath) {
+            try {
+                const cert = Bun.file(this.config.certPath);
+                const key = Bun.file(this.config.keyPath);
+
+                serverOptions.tls = {
+                    cert: cert,
+                    key: key,
+                };
+
+                console.log(`HTTPS enabled with certificates:`);
+                console.log(`  Certificate: ${this.config.certPath}`);
+                console.log(`  Private Key: ${this.config.keyPath}`);
+            } catch (error) {
+                console.error("Failed to load SSL certificates:", error);
+                console.log("Falling back to HTTP...");
+            }
+        }
+
+        serve(serverOptions);
     }
 
     private async handleRequest(request: Request): Promise<Response> {

@@ -42,7 +42,14 @@ Settings.defaultZone = "America/Indianapolis";
     await registerAllApps();
 
     // Start the web server
-    const webServer = new WebServer(3000);
+    const serverConfig = {
+        port: 3000,
+        useHttps: process.env.USE_HTTPS === "true",
+        certPath: process.env.SSL_CERT_PATH || "ssl/certificate.pem",
+        keyPath: process.env.SSL_KEY_PATH || "ssl/private-key.pem",
+    };
+
+    const webServer = new WebServer(serverConfig);
     webServer.start();
 
     // Create enabled apps using the registry

@@ -16,8 +16,16 @@ This module handles Spotify authentication and API interactions for the LED Dash
 
 #### For Local Development (same device):
 
+**HTTP:**
+
 ```
 http://127.0.0.1:3000/api/spotify/callback
+```
+
+**HTTPS (recommended for Spotify):**
+
+```
+https://127.0.0.1:3000/api/spotify/callback
 ```
 
 #### For Network Access (from other devices):
@@ -33,14 +41,22 @@ ip addr show
 
 Then use the IP address in your redirect URI:
 
+**HTTP:**
+
 ```
 http://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback
+```
+
+**HTTPS (recommended for Spotify):**
+
+```
+https://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback
 ```
 
 **Example**: If your Pi's IP is `192.168.1.100`:
 
 ```
-http://192.168.1.100:3000/api/spotify/callback
+https://192.168.1.100:3000/api/spotify/callback
 ```
 
 ### 3. Environment Variables
@@ -50,8 +66,10 @@ Set these environment variables on your Raspberry Pi:
 ```bash
 export SPOTIFY_CLIENT_ID="your_spotify_client_id_here"
 export SPOTIFY_CLIENT_SECRET="your_spotify_client_secret_here"
-export SPOTIFY_REDIRECT_URI="http://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback"
+export SPOTIFY_REDIRECT_URI="https://YOUR_PI_IP_ADDRESS:3000/api/spotify/callback"
 ```
+
+**Note**: For HTTPS setup, see `HTTPS_SETUP.md` for complete instructions.
 
 ### 4. Spotify App Configuration
 
