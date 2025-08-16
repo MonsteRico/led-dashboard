@@ -151,6 +151,7 @@ export class SpotifyAuth {
             const file = Bun.file("spotify-tokens.json");
             if (await file.exists()) {
                 const data = await file.text();
+                console.log("Loading tokens from file", data);
                 this.tokens = JSON.parse(data);
 
                 // Check if token is expired
