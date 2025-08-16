@@ -125,10 +125,10 @@ export default class Spotify extends App {
 
         try {
             await this.spotify?.player.skipToNext(this.deviceId);
-            await this.updateCurrentPlaybackState();
-            this.updateStateVariables();
+            await this.backgroundUpdate();
             if (!this.isPlaying) {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
+                await this.backgroundUpdate();
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -149,11 +149,10 @@ export default class Spotify extends App {
 
         try {
             await this.spotify?.player.skipToPrevious(this.deviceId);
-            await this.updateCurrentPlaybackState();
-            this.updateStateVariables();
+            await this.backgroundUpdate(); // Force a background update to get the new playback state
             if (!this.isPlaying) {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
-                this.isPlaying = true;
+                await this.backgroundUpdate();
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -179,10 +178,10 @@ export default class Spotify extends App {
         try {
             if (this.isPlaying) {
                 await this.spotify?.player.pausePlayback(this.deviceId);
-                this.isPlaying = false;
+                await this.backgroundUpdate();
             } else {
                 await this.spotify?.player.startResumePlayback(this.deviceId);
-                this.isPlaying = true;
+                await this.backgroundUpdate();
             }
         } catch (error) {
             // Handle JSON parse errors silently as they don't affect functionality
@@ -204,6 +203,7 @@ export default class Spotify extends App {
             const newVolume = Math.min(100, this.volume + 1);
             await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             this.volume = newVolume;
+            await this.backgroundUpdate();
         }
     }
 
@@ -216,6 +216,7 @@ export default class Spotify extends App {
             const newVolume = Math.max(0, this.volume - 1);
             await this.spotify?.player.setPlaybackVolume(newVolume, this.deviceId);
             this.volume = newVolume;
+            await this.backgroundUpdate();
         }
     }
 }
