@@ -1,17 +1,15 @@
 import { SpotifyApi, type PlaybackState, type Track } from "@spotify/web-api-ts-sdk";
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
-import { SpotifyIntegration } from "@/modules/spotify/spotify-integration";
+import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
 
 export default class Spotify extends App {
-    private spotifyIntegration: SpotifyIntegration;
     private spotify: SpotifyApi | null = null;
     private currentTrack: PlaybackState | null = null;
     private currentPlaybackState: PlaybackState | null = null;
 
     constructor(matrix: DevMatrix) {
         super(matrix);
-        this.spotifyIntegration = new SpotifyIntegration();
     }
 
     public update() {}
@@ -19,7 +17,7 @@ export default class Spotify extends App {
     public onStart() {
         if (!this.spotify) {
             try {
-                this.spotify = this.spotifyIntegration.getApi();
+                this.spotify = spotifyIntegration.getApi();
                 if (this.spotify) {
                     this.spotify.player.getCurrentlyPlayingTrack().then((track) => {
                         this.currentTrack = track;
@@ -40,7 +38,7 @@ export default class Spotify extends App {
 
     public async initialize() {
         try {
-            this.spotify = this.spotifyIntegration.getApi();
+            this.spotify = spotifyIntegration.getApi();
             if (this.spotify) {
                 const currentTrack = await this.spotify.player.getCurrentlyPlayingTrack();
                 const currentPlaybackState = await this.spotify.player.getPlaybackState();

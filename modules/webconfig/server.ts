@@ -1,8 +1,8 @@
 import { serve } from "bun";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
-import { SpotifyIntegration } from "@/modules/spotify/spotify-integration";
 import { configManager } from "@/modules/config/config-manager";
+import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
 
 export class WebServer {
     private port: number;
@@ -11,7 +11,7 @@ export class WebServer {
     constructor(port: number = 3000) {
         this.port = port;
         try {
-            this.spotifyIntegration = new SpotifyIntegration();
+            this.spotifyIntegration = spotifyIntegration;
         } catch (error) {
             console.warn("Spotify integration not available:", (error as Error).message);
             this.spotifyIntegration = null;

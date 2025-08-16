@@ -1,10 +1,6 @@
 import Color from "color";
-import { LedMatrix } from "rpi-led-matrix";
-import type { FontInstance, LedMatrixInstance, MatrixOptions, RuntimeOptions } from "rpi-led-matrix/dist/types";
-import { promises as fs } from "fs";
-import path from "path";
-import sharp from "sharp";
-import type { Image } from "./preloadImages";
+import { LedMatrix, type FontInstance, type LedMatrixInstance, type MatrixOptions, type RuntimeOptions } from "rpi-led-matrix";
+import type { Image } from "./modules/preload/preloadImages";
 export default class DevMatrix {
     private ledMatrix: LedMatrixInstance;
 
@@ -80,29 +76,32 @@ export default class DevMatrix {
         return this;
     }
 
-    drawText(text: string, x: number, y: number, options?: { kerning?: number; color?: Color; leftShadow?: boolean; rightShadow?: boolean }): this {
+    drawText(
+        text: string,
+        x: number,
+        y: number,
+        options?: { kerning?: number; color?: Color; leftShadow?: boolean; rightShadow?: boolean },
+    ): this {
         let ogColor = this.fgColor() as Color;
         if (options?.color) {
             this.fgColor(options.color);
         }
 
-      if (options?.leftShadow) {
-          const fgColor = this.fgColor() as Color;
-          this.fgColor(fgColor.darken(0.5));
-          this.ledMatrix!.drawText(text, x - 1, y, options?.kerning ?? 0);
-          this.fgColor(fgColor);
-      }
+        if (options?.leftShadow) {
+            const fgColor = this.fgColor() as Color;
+            this.fgColor(fgColor.darken(0.5));
+            this.ledMatrix!.drawText(text, x - 1, y, options?.kerning ?? 0);
+            this.fgColor(fgColor);
+        }
 
-      if (options?.rightShadow) {
-          const fgColor = this.fgColor() as Color;
-          this.fgColor(fgColor.darken(0.5));
-          this.ledMatrix!.drawText(text, x + 1, y, options?.kerning ?? 0);
-          this.fgColor(fgColor);
-      }
+        if (options?.rightShadow) {
+            const fgColor = this.fgColor() as Color;
+            this.fgColor(fgColor.darken(0.5));
+            this.ledMatrix!.drawText(text, x + 1, y, options?.kerning ?? 0);
+            this.fgColor(fgColor);
+        }
 
         this.ledMatrix!.drawText(text, x, y, options?.kerning ?? 0);
-
-  
 
         this.fgColor(ogColor);
 

@@ -1,7 +1,7 @@
 import { SpotifyAuth } from "./spotify-auth";
 import { SpotifyApi, type PlaybackState } from "@spotify/web-api-ts-sdk";
 
-export class SpotifyIntegration {
+class SpotifyIntegration {
     private auth: SpotifyAuth;
 
     constructor() {
@@ -23,5 +23,8 @@ export class SpotifyIntegration {
     public getApi(): SpotifyApi | null {
         return this.auth.getApi();
     }
-
 }
+
+export type { SpotifyIntegration };
+
+export const spotifyIntegration = new SpotifyIntegration();

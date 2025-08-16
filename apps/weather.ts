@@ -1,18 +1,21 @@
 import { DateTime } from "luxon";
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
-import { fonts, images } from "../preload";
-import { getWeatherCodeIcon, getWeatherData, type WeatherData } from "../weather";
+import { fonts, images } from "../modules/preload/preload";
+import { weatherService } from "../modules/weather/weather-service";
 import Color from "color";
 
 export default class Weather extends App {
     private time = DateTime.now();
     private weatherCode: number;
     private temperature: number;
+    private isDay: boolean;
+
     constructor(matrix: DevMatrix) {
         super(matrix);
         this.weatherCode = 0;
         this.temperature = 0;
+        this.isDay = true;
         const refreshTime = 1000 * 60 * 5; // 5 minutes
         this.backgroundInterval = setInterval(() => this.backgroundUpdate(), refreshTime);
     }
@@ -20,7 +23,7 @@ export default class Weather extends App {
     public update() {
         this.matrix.font(fonts["7x13"]);
         this.matrix.drawImage(images["spaceManatee.png"], this.matrix.width() - 18, 1);
-        const weatherImage = getWeatherCodeIcon(this.weatherCode);
+        const weatherImage = weatherService.getWeatherCodeIcon(this.weatherCode, this.isDay);
         if (weatherImage) {
             this.matrix.drawImage(images[weatherImage], 1, 4);
         } else {
@@ -34,22 +37,25 @@ export default class Weather extends App {
     }
 
     public onStart() {
-        getWeatherData().then((weatherData) => {
+        weatherService.getWeatherData().then((weatherData) => {
             this.weatherCode = weatherData.current.weatherCode;
             this.temperature = Math.round(weatherData.current.temperature2m);
+            this.isDay = weatherData.current.isDay === 1;
         });
     }
 
     public backgroundUpdate() {
-        getWeatherData().then((weatherData) => {
+        weatherService.getWeatherData().then((weatherData) => {
             this.weatherCode = weatherData.current.weatherCode;
             this.temperature = Math.round(weatherData.current.temperature2m);
+            this.isDay = weatherData.current.isDay === 1;
         });
     }
 
     public async initialize() {
-        const weatherData = await getWeatherData();
+        const weatherData = await weatherService.getWeatherData();
         this.weatherCode = weatherData.current.weatherCode;
         this.temperature = Math.round(weatherData.current.temperature2m);
+        this.isDay = weatherData.current.isDay === 1;
     }
 }

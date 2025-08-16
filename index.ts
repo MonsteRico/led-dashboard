@@ -2,11 +2,12 @@ import { GpioMapping, LedMatrix, RuntimeFlag } from "rpi-led-matrix";
 import { Settings } from "luxon";
 import readline from "readline";
 import DevMatrix from "./DevMatrix";
-import { fonts } from "./preload";
+import { fonts } from "./modules/preload/preload";
 import type App from "@/apps/app";
 import { WebServer } from "@/modules/webconfig/server";
 import { appRegistry } from "@/modules/config/app-registry";
 import { registerAllApps } from "@/modules/config/app-registrations";
+import { weatherService } from "@/modules/weather/weather-service";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -33,6 +34,9 @@ Settings.defaultZone = "America/Indianapolis";
     // Set default font and clear the matrix
     matrix.font(fonts["7x13"]);
     matrix.clear().sync();
+
+    // Initialize weather service
+    await weatherService.initialize();
 
     // Register all apps
     registerAllApps();

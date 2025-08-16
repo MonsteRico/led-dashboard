@@ -1,7 +1,7 @@
 import Color from "color";
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
-import { fonts } from "../preload";
+import { fonts } from "../modules/preload/preload";
 
 export default class Test extends App {
     private text = "";
