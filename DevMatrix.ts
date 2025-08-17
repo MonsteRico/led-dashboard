@@ -24,7 +24,7 @@ interface ScrollingTextState {
     options: ScrollingTextOptions;
     currentX: number;
     textWidth: number;
-    state: "waiting" | "scrolling" | "paused";
+    state: "waiting" | "scrolling" | "paused" | "centered";
     frameCount: number;
     pauseStartFrames: number;
     pauseEndFrames: number;
@@ -251,7 +251,6 @@ export default class DevMatrix {
         // Calculate text width using the provided pixel width per character
         const textWidth = text.length * mergedOptions.pixelWidthPerChar;
 
-
         const scrollingText: ScrollingTextState = {
             text,
             x,
@@ -313,12 +312,29 @@ export default class DevMatrix {
             this.fgColor(color);
         }
 
+        // Check if text fits within bounds and should be centered
+        const boundsWidth = (xBounds?.end ?? this.widthValue) - (xBounds?.start ?? 0);
+        const shouldCenter = textWidth <= boundsWidth;
+
+        // Calculate centered position if text should be centered
+        let centeredX = scrollingText.x;
+        if (shouldCenter) {
+            const boundsStart = xBounds?.start ?? 0;
+            centeredX = boundsStart + (boundsWidth - textWidth) / 2;
+        }
+
         switch (scrollingText.state) {
             case "waiting":
                 scrollingText.frameCount++;
                 if (scrollingText.frameCount >= pauseBeforeStart) {
-                    scrollingText.state = "scrolling";
-                    scrollingText.frameCount = 0;
+                    if (shouldCenter) {
+                        // If text fits, just display it centered without scrolling
+                        scrollingText.state = "centered";
+                        scrollingText.currentX = centeredX;
+                    } else {
+                        scrollingText.state = "scrolling";
+                        scrollingText.frameCount = 0;
+                    }
                 }
                 break;
 
@@ -348,6 +364,16 @@ export default class DevMatrix {
                 }
 
                 // Draw the text at current position
+                this.drawText(text, Math.round(scrollingText.currentX), y, {
+                    kerning,
+                    color,
+                    leftShadow,
+                    rightShadow,
+                });
+                break;
+
+            case "centered":
+                // Draw the text centered without clearing (since it's static)
                 this.drawText(text, Math.round(scrollingText.currentX), y, {
                     kerning,
                     color,
@@ -400,6 +426,35 @@ export default class DevMatrix {
      */
     hasScrollingText(id: string): boolean {
         return this.scrollingTexts.has(id);
+    }
+
+    /**
+     * Update the text content of an existing scrolling text
+     * @param id Scrolling text identifier
+     * @param newText New text content
+     */
+    updateScrollingTextContent(id: string, newText: string): this {
+        const scrollingText = this.scrollingTexts.get(id);
+        if (!scrollingText) {
+            return this;
+        }
+
+        // Update the text
+        scrollingText.text = newText;
+
+        // Recalculate text width with new text
+        scrollingText.textWidth = newText.length * scrollingText.options.pixelWidthPerChar;
+
+        // Check if new text fits within bounds
+        const boundsWidth = (scrollingText.options.xBounds?.end ?? this.widthValue) - (scrollingText.options.xBounds?.start ?? 0);
+        const shouldCenter = scrollingText.textWidth <= boundsWidth;
+
+        // Reset to initial state
+        scrollingText.currentX = scrollingText.x;
+        scrollingText.state = "waiting";
+        scrollingText.frameCount = 0;
+
+        return this;
     }
 
     /**
@@ -483,13 +538,30 @@ export default class DevMatrix {
             this.fgColor(color);
         }
 
+        // Check if text fits within bounds and should be centered
+        const boundsWidth = (xBounds?.end ?? this.widthValue) - (xBounds?.start ?? 0);
+        const shouldCenter = (currentState.textWidth ?? 0) <= boundsWidth;
+
+        // Calculate centered position if text should be centered
+        let centeredX = x;
+        if (shouldCenter) {
+            const boundsStart = xBounds?.start ?? 0;
+            centeredX = boundsStart + (boundsWidth - (currentState.textWidth ?? 0)) / 2;
+        }
+
         // Handle state transitions
         switch (currentState.state) {
             case "waiting":
                 currentState.frameCount = (currentState.frameCount ?? 0) + 1;
                 if ((currentState.frameCount ?? 0) >= pauseBeforeStart) {
-                    currentState.state = "scrolling";
-                    currentState.frameCount = 0;
+                    if (shouldCenter) {
+                        // If text fits, just display it centered without scrolling
+                        currentState.state = "centered";
+                        currentState.currentX = centeredX;
+                    } else {
+                        currentState.state = "scrolling";
+                        currentState.frameCount = 0;
+                    }
                 }
                 break;
 
@@ -517,6 +589,16 @@ export default class DevMatrix {
                 }
 
                 // Draw the text
+                this.drawText(text, Math.round(currentState.currentX ?? x), y, {
+                    kerning,
+                    color,
+                    leftShadow,
+                    rightShadow,
+                });
+                break;
+
+            case "centered":
+                // Draw the text centered without clearing (since it's static)
                 this.drawText(text, Math.round(currentState.currentX ?? x), y, {
                     kerning,
                     color,
