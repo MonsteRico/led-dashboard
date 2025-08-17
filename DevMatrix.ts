@@ -14,6 +14,7 @@ interface ScrollingTextOptions {
     kerning?: number;
     leftShadow?: boolean;
     rightShadow?: boolean;
+    pixelWidthPerChar: number; // Required: pixel width per character for text width calculation
 }
 
 interface ScrollingTextState {
@@ -232,7 +233,7 @@ export default class DevMatrix {
      * @param y Y position
      * @param options Scrolling options
      */
-    createScrollingText(id: string, text: string, x: number, y: number, options: ScrollingTextOptions = {}): this {
+    createScrollingText(id: string, text: string, x: number, y: number, options: ScrollingTextOptions): this {
         const defaultOptions: ScrollingTextOptions = {
             direction: "left",
             speed: 1,
@@ -242,25 +243,14 @@ export default class DevMatrix {
             kerning: 0,
             leftShadow: false,
             rightShadow: false,
+            pixelWidthPerChar: 6, // Default 6 pixels per character
         };
 
         const mergedOptions = { ...defaultOptions, ...options };
 
-        // Calculate text width - estimate based on character count and font
-        let textWidth = text.length * 6; // Default estimate of 6 pixels per character
-        if (mergedOptions.font) {
-            this.font(mergedOptions.font);
-            // Try to get actual width from the underlying matrix
-            try {
-                const result = this.ledMatrix!.drawText(text, -1000, -1000, mergedOptions.kerning);
-                if (result && typeof result === "object" && "width" in result) {
-                    textWidth = (result as any).width;
-                }
-            } catch (e) {
-                // Fallback to character estimation
-                textWidth = text.length * 6;
-            }
-        }
+        // Calculate text width using the provided pixel width per character
+        const textWidth = text.length * mergedOptions.pixelWidthPerChar;
+
 
         const scrollingText: ScrollingTextState = {
             text,
@@ -424,7 +414,7 @@ export default class DevMatrix {
         text: string,
         x: number,
         y: number,
-        options: ScrollingTextOptions = {},
+        options: ScrollingTextOptions,
         state?: Partial<ScrollingTextState>,
     ): Partial<ScrollingTextState> {
         const defaultOptions: ScrollingTextOptions = {
@@ -436,6 +426,7 @@ export default class DevMatrix {
             kerning: 0,
             leftShadow: false,
             rightShadow: false,
+            pixelWidthPerChar: 6, // Default 6 pixels per character
         };
 
         const mergedOptions = { ...defaultOptions, ...options };
@@ -471,16 +462,16 @@ export default class DevMatrix {
             if (font) {
                 this.font(font);
             }
-            // Estimate text width based on character count
-            currentState.textWidth = text.length * 6; // Default estimate
+            // Estimate text width based on character count using provided pixel width
+            currentState.textWidth = text.length * mergedOptions.pixelWidthPerChar;
             try {
                 const result = this.ledMatrix!.drawText(text, -1000, -1000, kerning);
                 if (result && typeof result === "object" && "width" in result) {
                     currentState.textWidth = (result as any).width;
                 }
             } catch (e) {
-                // Fallback to character estimation
-                currentState.textWidth = text.length * 6;
+                // Fallback to character estimation using provided pixel width
+                currentState.textWidth = text.length * mergedOptions.pixelWidthPerChar;
             }
         }
 

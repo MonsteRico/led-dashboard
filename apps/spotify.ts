@@ -47,6 +47,7 @@ export default class Spotify extends App {
                 pauseAfterEnd: 30,
                 speed: 1,
                 xBounds: { start: 36, end: this.matrix.width() },
+                pixelWidthPerChar: 6,
             });
         }
         if (this.matrix.hasScrollingText("artistName")) {
@@ -60,6 +61,7 @@ export default class Spotify extends App {
                 pauseAfterEnd: 30,
                 speed: 1,
                 xBounds: { start: 36, end: this.matrix.width() },
+                pixelWidthPerChar: 5,
             });
         }
 
