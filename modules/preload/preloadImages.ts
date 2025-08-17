@@ -68,13 +68,21 @@ interface ColorCount {
   color: Color;
   count: number;
 }
+/**
+ * The output structure for the top three colors.
+ */
+interface TopThreeColors {
+  primary: Color;
+  secondary: Color;
+  tertiary: Color;
+}
 
 /**
  * Finds the top three dominant colors in a 32x32 image pixel data array.
  * @param pixelData A Uint8Array containing the pixel data (32x32 pixels, 4 channels: R, G, B, Alpha).
- * @returns An array of the top three dominant colors.
+ * @returns An object with the top three dominant colors.
  */
-export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primary: Color; secondary: Color; tertiary: Color }> {
+export async function getTopThreeColors(pixelData: Uint8Array): Promise<TopThreeColors> {
   const colorMap = new Map<string, number>();
   const totalPixels = 32 * 32;
 
@@ -84,7 +92,7 @@ export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primar
     const r = pixelData[i];
     const g = pixelData[i + 1];
     const b = pixelData[i + 2];
-    
+
     // Ignore transparent pixels based on the alpha channel.
     if (pixelData[i + 3] === 0) {
       continue;
@@ -107,7 +115,6 @@ export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primar
     let assignedToGroup = false;
     for (const group of groupedColors) {
       // Use the first color of the group as the representative.
-      // Color-js doesn't have a direct distance function, so we'll use a manual Euclidean distance.
       const representativeColor = group[0];
       const r_dist = representativeColor.red() - color.red();
       const g_dist = representativeColor.green() - color.green();
@@ -140,8 +147,6 @@ export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primar
   for (let i = 0; i < Math.min(3, groupedColors.length); i++) {
     const group = groupedColors[i];
     if (group.length > 0) {
-      // Use the Color library's mix function to find the average color.
-      // We can also manually average the RGB values. Let's do that for simplicity.
       let totalR = 0;
       let totalG = 0;
       let totalB = 0;
@@ -159,5 +164,9 @@ export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primar
     }
   }
 
-  return { primary: topThreeColors[0], secondary: topThreeColors[1], tertiary: topThreeColors[2] };
+  const primary = topThreeColors[0] || Color("#ffffff");
+  const secondary = topThreeColors[1] || Color("#ffffff");
+  const tertiary = topThreeColors[2] || Color("#ffffff");
+
+  return { primary, secondary, tertiary };
 }
