@@ -161,13 +161,12 @@ export default class Spotify extends App {
                     .toBuffer();
                 const sharpImage = sharp(resized);
                 const albumArtImageData = await sharpToUint8Array(sharpImage, false);
-                await albumArtFile.delete();
                 this.albumArtImage = {
                     width: 32,
                     height: 32,
                     data: albumArtImageData,
                 };
-                const palette = await Vibrant.from(Buffer.from(albumArtImageData)).getPalette();
+                const palette = await Vibrant.from("albumArt.png").getPalette();
                 console.log("Vibrant", palette.Vibrant?.hex);
                 console.log("Muted", palette.Muted?.hex);
                 console.log("DarkVibrant", palette.DarkVibrant?.hex);
@@ -178,6 +177,7 @@ export default class Spotify extends App {
                 this.secondaryColor = palette.Muted ? new Color(palette.Muted.hex) : new Color("#ffffff");
                 console.log("Main", this.mainColor?.hex());
                 console.log("Secondary", this.secondaryColor?.hex());
+                await albumArtFile.delete();
             } catch (error) {
                 console.error("Error setting album art:", error);
             }
