@@ -1,6 +1,7 @@
 import Color from "color";
 import { basename } from "path";
 import sharp, { type Sharp } from "sharp";
+import { getPaletteFromURL } from "color-thief-node";
 
 export type Image = {
     width: number;
@@ -62,70 +63,81 @@ export async function sharpToUint8Array(sharpImage: Sharp, hasAlpha: boolean = t
     return rgbArray;
 }
 
-export async function topColors(
-    image: Image,
-    colorDistanceThreshold: number = 32
-): Promise<{ primary: Color; secondary: Color; tertiary: Color }> {
-    // Helper to compute Euclidean distance between two colors
-    function colorDistance(a: [number, number, number], b: [number, number, number]): number {
-        const dr = a[0] - b[0];
-        const dg = a[1] - b[1];
-        const db = a[2] - b[2];
-        return Math.sqrt(dr * dr + dg * dg + db * db);
-    }
+/**
+ * Calculates the Euclidean distance between two RGB colors.
+ * @param color1 The first RGB color.
+ * @param color2 The second RGB color.
+ * @returns The Euclidean distance.
+ */
+function colorDistance(color1: Color, color2: Color): number {
+    return Math.sqrt(
+        Math.pow(color1.red() - color2.red(), 2) +
+            Math.pow(color1.green() - color2.green(), 2) +
+            Math.pow(color1.blue() - color2.blue(), 2),
+    );
+}
 
-    const clusters: { center: [number, number, number]; sum: [number, number, number]; count: number }[] = [];
+/**
+ * Finds the top three dominant colors in a pixel data array with some leniency.
+ * @param pixelData A Uint8Array containing the pixel data.
+ * @param width The width of the image.
+ * @param height The height of the image.
+ * @param tolerance The tolerance for color similarity (e.g., 50 for a lenient match).
+ * @returns An array of the top three dominant colors in RGB format.
+ */
+export async function getTopThreeColors(imageUrl: string, tolerance: number = 50): Promise<{ primary: Color; secondary: Color; tertiary: Color }> {
+    // Use a library to get a palette of colors, which is faster than manual iteration.
+    const palette = await getPaletteFromURL(imageUrl, 10); // Get top 10 colors to account for variations
 
-    for (let i = 0; i < image.data.length; i += 3) {
-        const r = image.data[i];
-        const g = image.data[i + 1];
-        const b = image.data[i + 2];
-        let found = false;
-        for (const cluster of clusters) {
-            if (colorDistance([r, g, b], cluster.center) <= colorDistanceThreshold) {
-                // Add to this cluster
-                cluster.sum[0] += r;
-                cluster.sum[1] += g;
-                cluster.sum[2] += b;
-                cluster.count += 1;
-                found = true;
+    // Convert the palette to RGB objects for easier processing
+    const rgbPalette: Color[] = palette.map(([r, g, b]) => new Color({ r, g, b }));
+
+    // Group similar colors within the tolerance
+    const groupedColors: Color[][] = [];
+    rgbPalette.forEach((color) => {
+        let foundGroup = false;
+        for (const group of groupedColors) {
+            // Compare the color to the first color of each group
+            if (colorDistance(color, group[0]) < tolerance) {
+                group.push(color);
+                foundGroup = true;
                 break;
             }
         }
-        if (!found) {
-            clusters.push({
-                center: [r, g, b],
-                sum: [r, g, b],
-                count: 1,
-            });
+        if (!foundGroup) {
+            groupedColors.push([color]);
         }
-    }
-
-    // Compute average color for each cluster
-    const averagedClusters = clusters.map((cluster) => {
-        const avg: [number, number, number] = [
-            Math.round(cluster.sum[0] / cluster.count),
-            Math.round(cluster.sum[1] / cluster.count),
-            Math.round(cluster.sum[2] / cluster.count),
-        ];
-        return {
-            color: avg,
-            count: cluster.count,
-        };
     });
 
-    // Sort clusters by count descending
-    averagedClusters.sort((a, b) => b.count - a.count);
+    // Sort groups by size to find the dominant colors
+    groupedColors.sort((a, b) => b.length - a.length);
 
-    // Fallback to black if not enough colors
-    const getColor = (idx: number) =>
-        averagedClusters[idx]
-            ? new Color({ r: averagedClusters[idx].color[0], g: averagedClusters[idx].color[1], b: averagedClusters[idx].color[2] })
-            : new Color("#ffffff");
+    // Take the top three groups and calculate the average color of each group
+    const dominantColors: Color[] = [];
+    for (let i = 0; i < Math.min(3, groupedColors.length); i++) {
+        const group = groupedColors[i];
+        const avgColor = group.reduce(
+            (acc, c) => {
+                acc.r += c.red();
+                acc.g += c.green();
+                acc.b += c.blue();
+                return acc;
+            },
+            { r: 0, g: 0, b: 0 },
+        );
+
+        dominantColors.push(
+            new Color({
+                r: Math.round(avgColor.r / group.length),
+                g: Math.round(avgColor.g / group.length),
+                b: Math.round(avgColor.b / group.length),
+            }),
+        );
+    }
 
     return {
-        primary: getColor(0),
-        secondary: getColor(1),
-        tertiary: getColor(2),
+        primary: dominantColors[0],
+        secondary: dominantColors[1],
+        tertiary: dominantColors[2],
     };
 }

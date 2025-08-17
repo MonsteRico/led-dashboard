@@ -2,7 +2,7 @@ import { SpotifyApi, type PlaybackState, type Track, type TrackItem } from "@spo
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
-import { type Image, sharpToUint8Array, topColors } from "@/modules/preload/preloadImages";
+import { getTopThreeColors, type Image, sharpToUint8Array } from "@/modules/preload/preloadImages";
 import { fonts } from "@/modules/preload/preload";
 import Color from "color";
 import sharp from "sharp";
@@ -166,19 +166,13 @@ export default class Spotify extends App {
                     height: 32,
                     data: albumArtImageData,
                 };
-                const { primary, secondary, tertiary } = await topColors(this.albumArtImage, 16);
+                const { primary, secondary, tertiary } = await getTopThreeColors(this.albumArtUrl);
                 console.log("Primary", primary.hex());
                 console.log("Secondary", secondary.hex());
                 console.log("Tertiary", tertiary.hex());
                 // Set this.mainColor to the brightest of the top 3 colors, and this.secondaryColor to the second brightest
-                this.mainColor = !primary.lighten(0.25).isLight() ? primary : !secondary.lighten(0.25).isLight() ? secondary : tertiary;
-                this.secondaryColor = !secondary.lighten(0.25).isLight()
-                    ? secondary
-                    : !tertiary.lighten(0.25).isLight()
-                      ? tertiary
-                      : new Color("#ffffff");
-                console.log("Main", this.mainColor?.hex());
-                console.log("Secondary", this.secondaryColor?.hex());
+                this.mainColor = primary;
+                this.secondaryColor = secondary;
             } catch (error) {
                 console.error("Error setting album art:", error);
             }
