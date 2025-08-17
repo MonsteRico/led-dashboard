@@ -35,7 +35,7 @@ export default class Spotify extends App {
         } else {
             this.drawPlay({ x: 48, y: 19 });
         }
-        this.drawProgress({ x: 40, y: 27 });
+        this.drawProgress({ x: 36, y: 27, width: 24 });
         if (this.matrix.hasScrollingText("trackName")) {
             this.matrix.updateScrollingTextContent("trackName", this.currentTrack?.name ?? "");
         } else {
@@ -93,11 +93,11 @@ export default class Spotify extends App {
             this.isPlaying = this.currentPlaybackState.is_playing;
         }
         await this.setAlbumArt();
-        // Cancel the background update interval and replace it with one that updates every 5 seconds
+        // Cancel the background update interval and replace it with one that updates every 1 second
         if (this.backgroundInterval) {
             clearInterval(this.backgroundInterval);
         }
-        this.backgroundInterval = setInterval(() => this.backgroundUpdate(), 1000 * 5);
+        this.backgroundInterval = setInterval(() => this.backgroundUpdate(), 1000 * 1);
     }
 
     public async onStop() {
@@ -123,6 +123,7 @@ export default class Spotify extends App {
 
     public backgroundUpdate() {
         this.updateCurrentPlaybackState().then(() => {
+            this.isPlaying = this.currentPlaybackState?.is_playing ?? false;
             if (this.albumArtUrl !== this.currentTrack?.album.images[0].url || !this.albumArtImage) {
                 this.albumArtUrl = this.currentTrack?.album.images[0].url ?? null;
                 this.setAlbumArt();
@@ -220,16 +221,16 @@ export default class Spotify extends App {
         });
     }
 
-    private drawProgress({ x, y }: { x: number; y: number }) {
+    private drawProgress({ x, y, width = 20 }: { x: number; y: number; width?: number }) {
         if (x < 0 || x > this.matrix.width() - 20) {
             return;
         }
         const progress = this.currentPlaybackState?.progress_ms ?? 0;
         const duration = this.currentTrack?.duration_ms ?? 0;
         // There are 20 possible pixels
-        const progressPixels = Math.round((progress / duration) * 20);
+        const progressPixels = Math.round((progress / duration) * width);
         this.matrix.fgColor(this.secondaryColor?.darken(0.5) ?? new Color("#999999"));
-        this.matrix.fill(x, y, x + 20, y + 2);
+        this.matrix.fill(x, y, x + width, y + 2);
         this.matrix.fgColor(this.secondaryColor ?? new Color("#ffffff"));
         this.matrix.fill(x, y, x + progressPixels, y + 2);
     }
