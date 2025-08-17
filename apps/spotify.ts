@@ -166,7 +166,7 @@ export default class Spotify extends App {
                     height: 32,
                     data: albumArtImageData,
                 };
-                const { primary, secondary, tertiary } = await getTopThreeColors(this.albumArtUrl);
+                const { primary, secondary, tertiary } = await getTopThreeColors(this.albumArtImage.data);
                 console.log("Primary", primary.hex());
                 console.log("Secondary", secondary.hex());
                 console.log("Tertiary", tertiary.hex());

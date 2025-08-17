@@ -1,7 +1,6 @@
 import Color from "color";
 import { basename } from "path";
 import sharp, { type Sharp } from "sharp";
-import { getPaletteFromURL } from "color-thief-node";
 
 export type Image = {
     width: number;
@@ -62,82 +61,103 @@ export async function sharpToUint8Array(sharpImage: Sharp, hasAlpha: boolean = t
     }
     return rgbArray;
 }
-
 /**
- * Calculates the Euclidean distance between two RGB colors.
- * @param color1 The first RGB color.
- * @param color2 The second RGB color.
- * @returns The Euclidean distance.
+ * Represents a color with its count.
  */
-function colorDistance(color1: Color, color2: Color): number {
-    return Math.sqrt(
-        Math.pow(color1.red() - color2.red(), 2) +
-            Math.pow(color1.green() - color2.green(), 2) +
-            Math.pow(color1.blue() - color2.blue(), 2),
-    );
+interface ColorCount {
+  color: Color;
+  count: number;
 }
 
 /**
- * Finds the top three dominant colors in a pixel data array with some leniency.
- * @param pixelData A Uint8Array containing the pixel data.
- * @param width The width of the image.
- * @param height The height of the image.
- * @param tolerance The tolerance for color similarity (e.g., 50 for a lenient match).
- * @returns An array of the top three dominant colors in RGB format.
+ * Finds the top three dominant colors in a 32x32 image pixel data array.
+ * @param pixelData A Uint8Array containing the pixel data (32x32 pixels, 4 channels: R, G, B, Alpha).
+ * @returns An array of the top three dominant colors.
  */
-export async function getTopThreeColors(imageUrl: string, tolerance: number = 50): Promise<{ primary: Color; secondary: Color; tertiary: Color }> {
-    // Use a library to get a palette of colors, which is faster than manual iteration.
-    const palette = await getPaletteFromURL(imageUrl, 10); // Get top 10 colors to account for variations
+export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primary: Color; secondary: Color; tertiary: Color }> {
+  const colorMap = new Map<string, number>();
+  const totalPixels = 32 * 32;
 
-    // Convert the palette to RGB objects for easier processing
-    const rgbPalette: Color[] = palette.map(([r, g, b]) => new Color({ r, g, b }));
-
-    // Group similar colors within the tolerance
-    const groupedColors: Color[][] = [];
-    rgbPalette.forEach((color) => {
-        let foundGroup = false;
-        for (const group of groupedColors) {
-            // Compare the color to the first color of each group
-            if (colorDistance(color, group[0]) < tolerance) {
-                group.push(color);
-                foundGroup = true;
-                break;
-            }
-        }
-        if (!foundGroup) {
-            groupedColors.push([color]);
-        }
-    });
-
-    // Sort groups by size to find the dominant colors
-    groupedColors.sort((a, b) => b.length - a.length);
-
-    // Take the top three groups and calculate the average color of each group
-    const dominantColors: Color[] = [];
-    for (let i = 0; i < Math.min(3, groupedColors.length); i++) {
-        const group = groupedColors[i];
-        const avgColor = group.reduce(
-            (acc, c) => {
-                acc.r += c.red();
-                acc.g += c.green();
-                acc.b += c.blue();
-                return acc;
-            },
-            { r: 0, g: 0, b: 0 },
-        );
-
-        dominantColors.push(
-            new Color({
-                r: Math.round(avgColor.r / group.length),
-                g: Math.round(avgColor.g / group.length),
-                b: Math.round(avgColor.b / group.length),
-            }),
-        );
+  // 1. Count each unique color in the pixel data.
+  // The image is 32x32 with 4 channels (RGBA), so each pixel is 4 bytes.
+  for (let i = 0; i < totalPixels * 4; i += 4) {
+    const r = pixelData[i];
+    const g = pixelData[i + 1];
+    const b = pixelData[i + 2];
+    
+    // Ignore transparent pixels based on the alpha channel.
+    if (pixelData[i + 3] === 0) {
+      continue;
     }
 
-    return {
-        primary: dominantColors[0],
-        secondary: dominantColors[1],
-        tertiary: dominantColors[2],
-    };
+    const key = `${r},${g},${b}`;
+    colorMap.set(key, (colorMap.get(key) || 0) + 1);
+  }
+
+  // 2. Group similar colors to account for "leniency".
+  const colorCounts: ColorCount[] = Array.from(colorMap.entries()).map(([key, count]) => {
+    const [r, g, b] = key.split(',').map(Number);
+    return { color: Color({ r, g, b }), count };
+  });
+
+  const groupedColors: Color[][] = [];
+  const tolerance = 20; // A reasonable tolerance for color similarity.
+
+  for (const { color, count } of colorCounts) {
+    let assignedToGroup = false;
+    for (const group of groupedColors) {
+      // Use the first color of the group as the representative.
+      // Color-js doesn't have a direct distance function, so we'll use a manual Euclidean distance.
+      const representativeColor = group[0];
+      const r_dist = representativeColor.red() - color.red();
+      const g_dist = representativeColor.green() - color.green();
+      const b_dist = representativeColor.blue() - color.blue();
+      const distance = Math.sqrt(r_dist * r_dist + g_dist * g_dist + b_dist * b_dist);
+
+      if (distance <= tolerance) {
+        // Add the color to the group a number of times equal to its count.
+        for (let i = 0; i < count; i++) {
+          group.push(color);
+        }
+        assignedToGroup = true;
+        break;
+      }
+    }
+    if (!assignedToGroup) {
+      // Create a new group for this color and add it based on its count.
+      const newGroup: Color[] = [];
+      for (let i = 0; i < count; i++) {
+        newGroup.push(color);
+      }
+      groupedColors.push(newGroup);
+    }
+  }
+
+  // 3. Find the average color of the top three largest groups.
+  groupedColors.sort((a, b) => b.length - a.length);
+
+  const topThreeColors: Color[] = [];
+  for (let i = 0; i < Math.min(3, groupedColors.length); i++) {
+    const group = groupedColors[i];
+    if (group.length > 0) {
+      // Use the Color library's mix function to find the average color.
+      // We can also manually average the RGB values. Let's do that for simplicity.
+      let totalR = 0;
+      let totalG = 0;
+      let totalB = 0;
+
+      for (const c of group) {
+        totalR += c.red();
+        totalG += c.green();
+        totalB += c.blue();
+      }
+
+      const avgR = Math.round(totalR / group.length);
+      const avgG = Math.round(totalG / group.length);
+      const avgB = Math.round(totalB / group.length);
+      topThreeColors.push(Color({ r: avgR, g: avgG, b: avgB }));
+    }
+  }
+
+  return { primary: topThreeColors[0], secondary: topThreeColors[1], tertiary: topThreeColors[2] };
 }
