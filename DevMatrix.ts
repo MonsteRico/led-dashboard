@@ -1,11 +1,40 @@
 import Color from "color";
 import { LedMatrix, type FontInstance, type LedMatrixInstance, type MatrixOptions, type RuntimeOptions } from "rpi-led-matrix";
 import type { Image } from "./modules/preload/preloadImages";
+
+// Scrolling text interfaces
+interface ScrollingTextOptions {
+    direction?: "left" | "right";
+    font?: FontInstance;
+    speed?: number; // pixels per frame
+    xBounds?: { start: number; end: number };
+    pauseBeforeStart?: number; // frames to wait before starting
+    pauseAfterEnd?: number; // frames to wait after ending before reset
+    color?: Color;
+    kerning?: number;
+    leftShadow?: boolean;
+    rightShadow?: boolean;
+}
+
+interface ScrollingTextState {
+    text: string;
+    x: number;
+    y: number;
+    options: ScrollingTextOptions;
+    currentX: number;
+    textWidth: number;
+    state: "waiting" | "scrolling" | "paused";
+    frameCount: number;
+    pauseStartFrames: number;
+    pauseEndFrames: number;
+}
+
 export default class DevMatrix {
     private ledMatrix: LedMatrixInstance;
 
     private heightValue: number;
     private widthValue: number;
+    private scrollingTexts: Map<string, ScrollingTextState> = new Map();
 
     constructor(matrixOptions: MatrixOptions, runtimeOptions: RuntimeOptions) {
         this.ledMatrix = new LedMatrix(matrixOptions, runtimeOptions);
@@ -193,5 +222,328 @@ export default class DevMatrix {
 
     sync(): void {
         this.ledMatrix!.sync();
+    }
+
+    /**
+     * Create a scrolling text that will automatically scroll every frame
+     * @param id Unique identifier for this scrolling text
+     * @param text Text to scroll
+     * @param x Initial x position
+     * @param y Y position
+     * @param options Scrolling options
+     */
+    createScrollingText(id: string, text: string, x: number, y: number, options: ScrollingTextOptions = {}): this {
+        const defaultOptions: ScrollingTextOptions = {
+            direction: "left",
+            speed: 1,
+            xBounds: { start: 0, end: this.widthValue },
+            pauseBeforeStart: 30,
+            pauseAfterEnd: 30,
+            kerning: 0,
+            leftShadow: false,
+            rightShadow: false,
+        };
+
+        const mergedOptions = { ...defaultOptions, ...options };
+
+        // Calculate text width - estimate based on character count and font
+        let textWidth = text.length * 6; // Default estimate of 6 pixels per character
+        if (mergedOptions.font) {
+            this.font(mergedOptions.font);
+            // Try to get actual width from the underlying matrix
+            try {
+                const result = this.ledMatrix!.drawText(text, -1000, -1000, mergedOptions.kerning);
+                if (result && typeof result === "object" && "width" in result) {
+                    textWidth = (result as any).width;
+                }
+            } catch (e) {
+                // Fallback to character estimation
+                textWidth = text.length * 6;
+            }
+        }
+
+        const scrollingText: ScrollingTextState = {
+            text,
+            x,
+            y,
+            options: mergedOptions,
+            currentX: x,
+            textWidth,
+            state: "waiting",
+            frameCount: 0,
+            pauseStartFrames: 0,
+            pauseEndFrames: 0,
+        };
+
+        this.scrollingTexts.set(id, scrollingText);
+        return this;
+    }
+
+    /**
+     * Update all scrolling texts - call this every frame
+     */
+    updateScrollingTexts(): this {
+        for (const [id, scrollingText] of this.scrollingTexts) {
+            this.updateScrollingText(id);
+        }
+        return this;
+    }
+
+    /**
+     * Update a specific scrolling text
+     * @param id Scrolling text identifier
+     */
+    updateScrollingText(id: string): this {
+        const scrollingText = this.scrollingTexts.get(id);
+        if (!scrollingText) {
+            return this;
+        }
+
+        const { text, y, options, textWidth } = scrollingText;
+        const {
+            direction,
+            speed = 1,
+            xBounds,
+            pauseBeforeStart = 30,
+            pauseAfterEnd = 30,
+            font,
+            color,
+            kerning,
+            leftShadow,
+            rightShadow,
+        } = options;
+
+        // Set font if specified
+        if (font) {
+            this.font(font);
+        }
+
+        // Set color if specified
+        if (color) {
+            this.fgColor(color);
+        }
+
+        switch (scrollingText.state) {
+            case "waiting":
+                scrollingText.frameCount++;
+                if (scrollingText.frameCount >= pauseBeforeStart) {
+                    scrollingText.state = "scrolling";
+                    scrollingText.frameCount = 0;
+                }
+                break;
+
+            case "scrolling":
+                // Clear the previous text area
+                const clearX = Math.floor(scrollingText.currentX);
+                const clearWidth = Math.ceil(textWidth) + 2; // Add padding for shadows
+                this.clear(clearX, y, clearX + clearWidth, y + 20); // Assuming max font height of 20
+
+                // Update position
+                if (direction === "left") {
+                    scrollingText.currentX -= speed;
+
+                    // Check if text has scrolled completely off screen
+                    if (scrollingText.currentX + textWidth < (xBounds?.start ?? 0)) {
+                        scrollingText.state = "paused";
+                        scrollingText.frameCount = 0;
+                    }
+                } else {
+                    scrollingText.currentX += speed;
+
+                    // Check if text has scrolled completely off screen
+                    if (scrollingText.currentX > (xBounds?.end ?? this.widthValue)) {
+                        scrollingText.state = "paused";
+                        scrollingText.frameCount = 0;
+                    }
+                }
+
+                // Draw the text at current position
+                this.drawText(text, Math.round(scrollingText.currentX), y, {
+                    kerning,
+                    color,
+                    leftShadow,
+                    rightShadow,
+                });
+                break;
+
+            case "paused":
+                scrollingText.frameCount++;
+                if (scrollingText.frameCount >= pauseAfterEnd) {
+                    // Reset to initial position
+                    scrollingText.currentX = scrollingText.x;
+                    scrollingText.state = "waiting";
+                    scrollingText.frameCount = 0;
+                }
+                break;
+        }
+
+        return this;
+    }
+
+    /**
+     * Remove a scrolling text
+     * @param id Scrolling text identifier
+     */
+    removeScrollingText(id: string): this {
+        this.scrollingTexts.delete(id);
+        return this;
+    }
+
+    /**
+     * Clear all scrolling texts
+     */
+    clearScrollingTexts(): this {
+        this.scrollingTexts.clear();
+        return this;
+    }
+
+    /**
+     * Get all active scrolling text IDs
+     */
+    getScrollingTextIds(): string[] {
+        return Array.from(this.scrollingTexts.keys());
+    }
+
+    /**
+     * Check if a scrolling text exists
+     * @param id Scrolling text identifier
+     */
+    hasScrollingText(id: string): boolean {
+        return this.scrollingTexts.has(id);
+    }
+
+    /**
+     * Update scrolling text in a single function call (alternative to createScrollingText + updateScrollingTexts)
+     * @param text Text to scroll
+     * @param x Current x position
+     * @param y Y position
+     * @param options Scrolling options
+     * @param state Optional state object for tracking position and timing
+     */
+    scrollText(
+        text: string,
+        x: number,
+        y: number,
+        options: ScrollingTextOptions = {},
+        state?: Partial<ScrollingTextState>,
+    ): Partial<ScrollingTextState> {
+        const defaultOptions: ScrollingTextOptions = {
+            direction: "left",
+            speed: 1,
+            xBounds: { start: 0, end: this.widthValue },
+            pauseBeforeStart: 30,
+            pauseAfterEnd: 30,
+            kerning: 0,
+            leftShadow: false,
+            rightShadow: false,
+        };
+
+        const mergedOptions = { ...defaultOptions, ...options };
+        const {
+            direction,
+            speed = 1,
+            xBounds,
+            pauseBeforeStart = 30,
+            pauseAfterEnd = 30,
+            font,
+            color,
+            kerning,
+            leftShadow,
+            rightShadow,
+        } = mergedOptions;
+
+        // Initialize state if not provided
+        const currentState: Partial<ScrollingTextState> = {
+            text,
+            x,
+            y,
+            options: mergedOptions,
+            currentX: state?.currentX ?? x,
+            textWidth: state?.textWidth ?? 0,
+            state: state?.state ?? "waiting",
+            frameCount: state?.frameCount ?? 0,
+            pauseStartFrames: state?.pauseStartFrames ?? 0,
+            pauseEndFrames: state?.pauseEndFrames ?? 0,
+        };
+
+        // Calculate text width if not already calculated
+        if (currentState.textWidth === 0) {
+            if (font) {
+                this.font(font);
+            }
+            // Estimate text width based on character count
+            currentState.textWidth = text.length * 6; // Default estimate
+            try {
+                const result = this.ledMatrix!.drawText(text, -1000, -1000, kerning);
+                if (result && typeof result === "object" && "width" in result) {
+                    currentState.textWidth = (result as any).width;
+                }
+            } catch (e) {
+                // Fallback to character estimation
+                currentState.textWidth = text.length * 6;
+            }
+        }
+
+        // Set font and color
+        if (font) {
+            this.font(font);
+        }
+        if (color) {
+            this.fgColor(color);
+        }
+
+        // Handle state transitions
+        switch (currentState.state) {
+            case "waiting":
+                currentState.frameCount = (currentState.frameCount ?? 0) + 1;
+                if ((currentState.frameCount ?? 0) >= pauseBeforeStart) {
+                    currentState.state = "scrolling";
+                    currentState.frameCount = 0;
+                }
+                break;
+
+            case "scrolling":
+                // Clear the previous text area
+                const clearX = Math.floor(currentState.currentX ?? x);
+                const clearWidth = Math.ceil(currentState.textWidth ?? 0) + 2;
+                this.clear(clearX, y, clearX + clearWidth, y + 20);
+
+                // Update position
+                if (direction === "left") {
+                    currentState.currentX = (currentState.currentX ?? x) - speed;
+
+                    if ((currentState.currentX ?? 0) + (currentState.textWidth ?? 0) < (xBounds?.start ?? 0)) {
+                        currentState.state = "paused";
+                        currentState.frameCount = 0;
+                    }
+                } else {
+                    currentState.currentX = (currentState.currentX ?? x) + speed;
+
+                    if ((currentState.currentX ?? 0) > (xBounds?.end ?? this.widthValue)) {
+                        currentState.state = "paused";
+                        currentState.frameCount = 0;
+                    }
+                }
+
+                // Draw the text
+                this.drawText(text, Math.round(currentState.currentX ?? x), y, {
+                    kerning,
+                    color,
+                    leftShadow,
+                    rightShadow,
+                });
+                break;
+
+            case "paused":
+                currentState.frameCount = (currentState.frameCount ?? 0) + 1;
+                if ((currentState.frameCount ?? 0) >= pauseAfterEnd) {
+                    currentState.currentX = x;
+                    currentState.state = "waiting";
+                    currentState.frameCount = 0;
+                }
+                break;
+        }
+
+        return currentState;
     }
 }

@@ -36,14 +36,33 @@ export default class Spotify extends App {
             this.drawPlay({ x: 48, y: 19 });
         }
         this.drawProgress({ x: 40, y: 27 });
-        this.matrix.font(fonts["6x13"]);
-        this.matrix.drawText(this.currentTrack?.name ?? "", 36, -1, {
-            color: this.mainColor ?? new Color("#ffffff"),
-        });
-        this.matrix.font(fonts["5x7"]);
-        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12, {
-            color: this.secondaryColor ?? new Color("#ffffff"),
-        });
+        if (this.matrix.hasScrollingText("trackName")) {
+            this.matrix.updateScrollingText("trackName");
+        } else {
+            this.matrix.createScrollingText("trackName", this.currentTrack?.name ?? "", 36, -1, {
+                color: this.mainColor ?? new Color("#ffffff"),
+                direction: "left",
+                font: fonts["6x13"],
+                pauseBeforeStart: 30,
+                pauseAfterEnd: 30,
+                speed: 1,
+                xBounds: { start: 36, end: this.matrix.width() },
+            });
+        }
+        if (this.matrix.hasScrollingText("artistName")) {
+            this.matrix.updateScrollingText("artistName");
+        } else {
+            this.matrix.createScrollingText("artistName", this.currentTrack?.artists[0].name ?? "", 36, 12, {
+                color: this.secondaryColor ?? new Color("#ffffff"),
+                direction: "left",
+                font: fonts["5x7"],
+                pauseBeforeStart: 30,
+                pauseAfterEnd: 30,
+                speed: 1,
+                xBounds: { start: 36, end: this.matrix.width() },
+            });
+        }
+
         if (this.albumArtImage) {
             this.matrix.drawImage(this.albumArtImage, 0, 0);
         }
@@ -167,16 +186,8 @@ export default class Spotify extends App {
                     data: albumArtImageData,
                 };
                 const palette = await Vibrant.from("albumArt.png").getPalette();
-                console.log("Vibrant", palette.Vibrant?.hex);
-                console.log("Muted", palette.Muted?.hex);
-                console.log("DarkVibrant", palette.DarkVibrant?.hex);
-                console.log("LightVibrant", palette.LightVibrant?.hex);
-                console.log("DarkMuted", palette.DarkMuted?.hex);
-                console.log("LightMuted", palette.LightMuted?.hex);
                 this.mainColor = palette.Vibrant ? new Color(palette.Vibrant.hex) : new Color("#ffffff");
                 this.secondaryColor = palette.Muted ? new Color(palette.Muted.hex) : new Color("#ffffff");
-                console.log("Main", this.mainColor?.hex());
-                console.log("Secondary", this.secondaryColor?.hex());
                 await albumArtFile.delete();
             } catch (error) {
                 console.error("Error setting album art:", error);
