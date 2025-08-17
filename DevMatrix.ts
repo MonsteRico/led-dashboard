@@ -302,6 +302,8 @@ export default class DevMatrix {
             rightShadow,
         } = options;
 
+        console.log("Updating scrolling text", id, text, scrollingText.state, scrollingText.currentX);
+
         // Set font if specified
         if (font) {
             this.font(font);
