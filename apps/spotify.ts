@@ -144,14 +144,15 @@ export default class Spotify extends App {
                 const albumArtBuffer = await albumArt.arrayBuffer();
                 const albumArtFile = await Bun.file("albumArt.png");
                 await albumArtFile.write(albumArtBuffer);
-                const resized = sharp("albumArt.png").resize({
+                const resized = await sharp("albumArt.png").resize({
                     width: 32,
                     height: 32,
                     fit: "contain",
-                });
+                }).toBuffer();
+                const resizedMetadata = await sharp(resized).metadata();
                 console.log("RESIZED");
-                console.log((await resized.metadata()).width, (await resized.metadata()).height);
-                const albumArtImageData = await sharpToUint8Array(resized);
+                console.log(resizedMetadata.width, resizedMetadata.height);
+                const albumArtImageData = await sharpToUint8Array(sharp(resized));
                 console.log("ALBUM ART IMAGE DATA");
                 console.log(albumArtImageData);
                 console.log(albumArtImageData.length);
