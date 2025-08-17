@@ -350,16 +350,16 @@ export default class DevMatrix {
                 if (direction === "left") {
                     scrollingText.currentX -= speed;
 
-                    // Check if rightmost pixel has reached the leftmost bound
-                    if (scrollingText.currentX + textWidth <= (xBounds?.start ?? 0)) {
+                    // Check if rightmost pixel has reached the rightmost bound
+                    if (scrollingText.currentX + textWidth <= (xBounds?.end ?? this.widthValue)) {
                         scrollingText.state = "paused";
                         scrollingText.frameCount = 0;
                     }
                 } else {
                     scrollingText.currentX += speed;
 
-                    // Check if leftmost pixel has reached the rightmost bound
-                    if (scrollingText.currentX >= (xBounds?.end ?? this.widthValue)) {
+                    // Check if leftmost pixel has reached the leftmost bound
+                    if (scrollingText.currentX <= (xBounds?.start ?? 0)) {
                         scrollingText.state = "paused";
                         scrollingText.frameCount = 0;
                     }
