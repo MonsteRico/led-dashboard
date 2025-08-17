@@ -40,29 +40,31 @@ export default class Spotify extends App {
             this.matrix.updateScrollingTextContent("trackName", this.currentTrack?.name ?? "");
         } else {
             const trackName = this.currentTrack?.name ?? "";
-            this.matrix.createScrollingText("trackName", trackName, 64, -1, {
+            this.matrix.createScrollingText("trackName", trackName, 36, -1, {
                 color: this.mainColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["6x13"],
-                pauseBeforeStart: 30,
-                pauseAfterEnd: 30,
-                speed: 1,
+                pauseBeforeStart: 300,
+                pauseAfterEnd: 300,
+                speed: 0.1,
                 xBounds: { start: 36, end: 72 },
                 pixelWidthPerChar: 6,
+                fontHeight: 13
             });
         }
         if (this.matrix.hasScrollingText("artistName")) {
             this.matrix.updateScrollingTextContent("artistName", this.currentTrack?.artists[0].name ?? "");
         } else {
-            this.matrix.createScrollingText("artistName", this.currentTrack?.artists[0].name ?? "", 64, 12, {
+            this.matrix.createScrollingText("artistName", this.currentTrack?.artists[0].name ?? "", 36, 12, {
                 color: this.secondaryColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["5x7"],
-                pauseBeforeStart: 30,
-                pauseAfterEnd: 30,
-                speed: 1,
+                pauseBeforeStart: 300,
+                pauseAfterEnd: 300,
+                speed: 0.1,
                 xBounds: { start: 36, end: 72 },
                 pixelWidthPerChar: 5,
+                fontHeight: 7
             });
         }
 

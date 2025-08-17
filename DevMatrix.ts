@@ -15,6 +15,7 @@ interface ScrollingTextOptions {
     leftShadow?: boolean;
     rightShadow?: boolean;
     pixelWidthPerChar: number; // Required: pixel width per character for text width calculation
+    fontHeight: number; // Required: font height in pixels for clearing text area
 }
 
 interface ScrollingTextState {
@@ -244,6 +245,7 @@ export default class DevMatrix {
             leftShadow: false,
             rightShadow: false,
             pixelWidthPerChar: 6, // Default 6 pixels per character
+            fontHeight: 13, // Default 13 pixels height
         };
 
         const mergedOptions = { ...defaultOptions, ...options };
@@ -342,7 +344,7 @@ export default class DevMatrix {
                 // Clear the previous text area
                 const clearX = Math.floor(scrollingText.currentX);
                 const clearWidth = Math.ceil(textWidth) + 2; // Add padding for shadows
-                this.clear(clearX, y, clearX + clearWidth, y + 20); // Assuming max font height of 20
+                this.clear(clearX, y, clearX + clearWidth, y + scrollingText.options.fontHeight);
 
                 // Update position
                 if (direction === "left") {
@@ -487,6 +489,7 @@ export default class DevMatrix {
             leftShadow: false,
             rightShadow: false,
             pixelWidthPerChar: 6, // Default 6 pixels per character
+            fontHeight: 13, // Default 13 pixels height
         };
 
         const mergedOptions = { ...defaultOptions, ...options };
@@ -574,7 +577,7 @@ export default class DevMatrix {
                 // Clear the previous text area
                 const clearX = Math.floor(currentState.currentX ?? x);
                 const clearWidth = Math.ceil(currentState.textWidth ?? 0) + 2;
-                this.clear(clearX, y, clearX + clearWidth, y + 20);
+                this.clear(clearX, y, clearX + clearWidth, y + mergedOptions.fontHeight);
 
                 // Update position
                 if (direction === "left") {
