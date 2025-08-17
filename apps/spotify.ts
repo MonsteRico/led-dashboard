@@ -149,6 +149,8 @@ export default class Spotify extends App {
                     height: 32,
                     fit: "contain",
                 });
+                console.log("RESIZED");
+                console.log((await resized.metadata()).width, (await resized.metadata()).height);
                 const albumArtImageData = await sharpToUint8Array(resized);
                 console.log("ALBUM ART IMAGE DATA");
                 console.log(albumArtImageData);
