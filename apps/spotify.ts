@@ -44,12 +44,12 @@ export default class Spotify extends App {
                 color: this.mainColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["6x13"],
-                pauseBeforeStart: 300,
-                pauseAfterEnd: 300,
+                pauseBeforeStart: 200,
+                pauseAfterEnd: 200,
                 speed: 0.1,
-                xBounds: { start: 36, end: 72 },
+                xBounds: { start: 36, end: 64 },
                 pixelWidthPerChar: 6,
-                fontHeight: 13
+                fontHeight: 13,
             });
         }
         if (this.matrix.hasScrollingText("artistName")) {
@@ -59,12 +59,12 @@ export default class Spotify extends App {
                 color: this.secondaryColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["5x7"],
-                pauseBeforeStart: 300,
-                pauseAfterEnd: 300,
+                pauseBeforeStart: 200,
+                pauseAfterEnd: 200,
                 speed: 0.1,
-                xBounds: { start: 36, end: 72 },
+                xBounds: { start: 36, end: 64 },
                 pixelWidthPerChar: 5,
-                fontHeight: 7
+                fontHeight: 7,
             });
         }
 
