@@ -152,9 +152,9 @@ export async function getTopThreeColors(pixelData: Uint8Array): Promise<{ primar
         totalB += c.blue();
       }
 
-      const avgR = Math.round(totalR / group.length);
-      const avgG = Math.round(totalG / group.length);
-      const avgB = Math.round(totalB / group.length);
+      const avgR = Math.max(0, Math.min(255, Math.round(totalR / group.length)));
+      const avgG = Math.max(0, Math.min(255, Math.round(totalG / group.length)));
+      const avgB = Math.max(0, Math.min(255, Math.round(totalB / group.length)));
       topThreeColors.push(Color({ r: avgR, g: avgG, b: avgB }));
     }
   }
