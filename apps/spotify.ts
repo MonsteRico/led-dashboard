@@ -166,10 +166,14 @@ export default class Spotify extends App {
                     height: 32,
                     data: albumArtImageData,
                 };
-                const { primary, secondary, tertiary } = await topColors(this.albumArtImage);
+                const { primary, secondary, tertiary } = await topColors(this.albumArtImage, 16);
                 // Set this.mainColor to the brightest of the top 3 colors, and this.secondaryColor to the second brightest
-                this.mainColor = primary.isLight() ? primary : secondary.isLight() ? secondary : tertiary;
-                this.secondaryColor = secondary.isLight() ? secondary : tertiary.isLight() ? tertiary : new Color("#ffffff");
+                this.mainColor = !primary.lighten(0.25).isLight() ? primary : !secondary.lighten(0.25).isLight() ? secondary : tertiary;
+                this.secondaryColor = !secondary.lighten(0.25).isLight()
+                    ? secondary
+                    : !tertiary.lighten(0.25).isLight()
+                      ? tertiary
+                      : new Color("#ffffff");
             } catch (error) {
                 console.error("Error setting album art:", error);
             }
