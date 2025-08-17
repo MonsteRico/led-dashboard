@@ -252,6 +252,7 @@ Settings.defaultZone = "America/Indianapolis";
     matrix.afterSync((mat, dt, t) => {
         matrix.clear();
         enabledApps[currentAppNumber].update();
+        enabledApps[currentAppNumber].drawOverrideSymbol();
         setTimeout(() => matrix.sync(), 0);
     });
 
