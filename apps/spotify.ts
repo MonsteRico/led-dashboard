@@ -16,6 +16,7 @@ export default class Spotify extends App {
     private albumArtImage: Image | null = null;
     private deviceId: string | null = null;
     private volume: number | null = null;
+    private dominantColor: Color | null = null;
 
     // Volume control rate limiting
     private volumeUpdateTimeout: NodeJS.Timeout | null = null;
@@ -36,9 +37,13 @@ export default class Spotify extends App {
         }
         this.drawProgress({ x: 40, y: 27 });
         this.matrix.font(fonts["6x13"]);
-        this.matrix.drawText(this.currentTrack?.name ?? "", 36, -1);
+        this.matrix.drawText(this.currentTrack?.name ?? "", 36, -1, {
+            color: this.dominantColor ?? new Color("#ffffff"),
+        });
         this.matrix.font(fonts["5x7"]);
-        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12);
+        this.matrix.drawText(this.currentTrack?.artists[0].name ?? "", 36, 12, {
+            color: this.dominantColor?.darken(0.5) ?? new Color("#ffffff"),
+        });
         if (this.albumArtImage) {
             this.matrix.drawImage(this.albumArtImage, 0, 0);
         }
@@ -155,13 +160,15 @@ export default class Spotify extends App {
                         fit: "contain",
                     })
                     .toBuffer();
-                const albumArtImageData = await sharpToUint8Array(sharp(resized), false);
+                const sharpImage = sharp(resized);
+                const albumArtImageData = await sharpToUint8Array(sharpImage, false);
                 await albumArtFile.delete();
                 this.albumArtImage = {
                     width: 32,
                     height: 32,
                     data: albumArtImageData,
                 };
+                this.dominantColor = new Color((await sharpImage.stats()).dominant);
             } catch (error) {
                 console.error("Error setting album art:", error);
             }
@@ -172,14 +179,14 @@ export default class Spotify extends App {
     private drawPause({ x, y }: { x: number; y: number }) {
         this.matrix.font(fonts["5x8"]);
         this.matrix.drawText("\u2225", x, y, {
-            color: new Color("#ffffff"),
+            color: this.dominantColor ?? new Color("#ffffff"),
         });
     }
 
     private drawPlay({ x, y }: { x: number; y: number }) {
         this.matrix.font(fonts["5x8"]);
         this.matrix.drawText("\u25B6", x, y, {
-            color: new Color("#ffffff"),
+            color: this.dominantColor ?? new Color("#ffffff"),
         });
     }
 
@@ -191,10 +198,10 @@ export default class Spotify extends App {
         const duration = this.currentTrack?.duration_ms ?? 0;
         // There are 20 possible pixels
         const progressPixels = Math.round((progress / duration) * 20);
-        this.matrix.fgColor(new Color("#999999"));
-        this.matrix.drawRect(x, y, 20, 2);
-        this.matrix.fgColor(new Color("#ffffff"));
-        this.matrix.drawRect(x, y, progressPixels, 2);
+        this.matrix.fgColor(this.dominantColor?.darken(0.5) ?? new Color("#999999"));
+        this.matrix.fill(x, y, x + 20, y + 2);
+        this.matrix.fgColor(this.dominantColor ?? new Color("#ffffff"));
+        this.matrix.fill(x, y, x + progressPixels, y + 2);
     }
 
     // Handlers
