@@ -302,8 +302,6 @@ export default class DevMatrix {
             rightShadow,
         } = options;
 
-        console.log("Updating scrolling text", id, text, scrollingText.state, scrollingText.currentX);
-
         // Set font if specified
         if (font) {
             this.font(font);
@@ -323,16 +321,6 @@ export default class DevMatrix {
         if (shouldCenter) {
             const boundsStart = xBounds?.start ?? 0;
             centeredX = boundsStart + (boundsWidth - textWidth) / 2;
-        }
-
-        // Debug logging
-        if (scrollingText.state === "waiting" && scrollingText.frameCount % 60 === 0) {
-            // Log every 60 frames
-            console.log(`Scrolling text "${scrollingText.text}":`);
-            console.log(`  Text width: ${textWidth}, Bounds width: ${boundsWidth}`);
-            console.log(`  Should center: ${shouldCenter}`);
-            console.log(`  Current state: ${scrollingText.state}, Frame count: ${scrollingText.frameCount}`);
-            console.log(`  Current X: ${scrollingText.currentX}, Initial X: ${scrollingText.x}`);
         }
 
         switch (scrollingText.state) {
@@ -451,6 +439,11 @@ export default class DevMatrix {
             return this;
         }
 
+        // Only update if the text has actually changed
+        if (scrollingText.text === newText) {
+            return this;
+        }
+
         // Update the text
         scrollingText.text = newText;
 
@@ -461,7 +454,7 @@ export default class DevMatrix {
         const boundsWidth = (scrollingText.options.xBounds?.end ?? this.widthValue) - (scrollingText.options.xBounds?.start ?? 0);
         const shouldCenter = scrollingText.textWidth <= boundsWidth;
 
-        // Reset to initial state
+        // Reset to initial state only when text changes
         scrollingText.currentX = scrollingText.x;
         scrollingText.state = "waiting";
         scrollingText.frameCount = 0;
