@@ -95,7 +95,9 @@ export default class Spotify extends App {
 
     public backgroundUpdate() {
         this.updateCurrentPlaybackState().then(() => {
-            this.setAlbumArt();
+            if (this.albumArtUrl !== this.currentTrack?.album.images[0].url) {
+                this.setAlbumArt();
+            }
         });
     }
 
@@ -144,11 +146,13 @@ export default class Spotify extends App {
                 const albumArtBuffer = await albumArt.arrayBuffer();
                 const albumArtFile = await Bun.file("albumArt.png");
                 await albumArtFile.write(albumArtBuffer);
-                const resized = await sharp("albumArt.png").resize({
-                    width: 32,
-                    height: 32,
-                    fit: "contain",
-                }).toBuffer();
+                const resized = await sharp("albumArt.png")
+                    .resize({
+                        width: 32,
+                        height: 32,
+                        fit: "contain",
+                    })
+                    .toBuffer();
                 const resizedMetadata = await sharp(resized).metadata();
                 console.log("RESIZED");
                 console.log(resizedMetadata.width, resizedMetadata.height);

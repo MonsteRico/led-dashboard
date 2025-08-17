@@ -30,7 +30,7 @@ export default async function preloadImages(imagePaths: string[]): Promise<Recor
     return imagesObject;
 }
 
-export async function sharpToUint8Array(sharpImage: Sharp): Promise<Uint8Array> {
+export async function sharpToUint8Array(sharpImage: Sharp, hasAlpha: boolean = true): Promise<Uint8Array> {
     const { width, height } = await sharpImage.metadata();
     console.log("SHARP IMAGE TO UINT8 ARRAY");
     console.log("WIDTH", width);
@@ -46,7 +46,7 @@ export async function sharpToUint8Array(sharpImage: Sharp): Promise<Uint8Array> 
     for (let py = 0; py < height; py++) {
         for (let px = 0; px < width; px++) {
             // Calculate the index of the pixel in the image data
-            const i = (py * width + px) * 4;
+            const i = (py * width + px) * (hasAlpha ? 4 : 3);
 
             // Extract the RGB values from the image data
             const r = imageBuffer[i];
