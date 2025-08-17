@@ -31,11 +31,11 @@ export default class Spotify extends App {
 
     public update() {
         if (this.isPlaying) {
-            this.drawPause({ x: 48, y: 19 });
+            this.drawPause({ x: 46, y: 18 });
         } else {
-            this.drawPlay({ x: 48, y: 19 });
+            this.drawPlay({ x: 46, y: 18 });
         }
-        this.drawProgress({ x: 36, y: 27, width: 24 });
+        this.drawProgress({ x: 35, y: 27, width: 25 });
         if (this.matrix.hasScrollingText("trackName")) {
             this.matrix.updateScrollingTextContent("trackName", this.currentTrack?.name ?? "");
         } else {
@@ -49,7 +49,7 @@ export default class Spotify extends App {
                 speed: 0.05,
                 xBounds: { start: 34, end: 64 },
                 pixelWidthPerChar: 6,
-                fontHeight: 13,
+                fontHeight: 12,
             });
         }
         if (this.matrix.hasScrollingText("artistName")) {
@@ -64,7 +64,7 @@ export default class Spotify extends App {
                 speed: 0.05,
                 xBounds: { start: 34, end: 63 },
                 pixelWidthPerChar: 5,
-                fontHeight: 7,
+                fontHeight: 6,
             });
         }
 
@@ -208,14 +208,14 @@ export default class Spotify extends App {
 
     // Drawing functions
     private drawPause({ x, y }: { x: number; y: number }) {
-        this.matrix.font(fonts["5x8"]);
+        this.matrix.font(fonts["6x9"]);
         this.matrix.drawText("\u2225", x, y, {
             color: this.mainColor ?? new Color("#ffffff"),
         });
     }
 
     private drawPlay({ x, y }: { x: number; y: number }) {
-        this.matrix.font(fonts["5x8"]);
+        this.matrix.font(fonts["6x9"]);
         this.matrix.drawText("\u25B6", x, y, {
             color: this.mainColor ?? new Color("#ffffff"),
         });
@@ -247,7 +247,6 @@ export default class Spotify extends App {
             await this.spotify?.player.skipToNext(this.deviceId);
             await this.backgroundUpdate();
             if (!this.isPlaying) {
-                this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
             }
         } catch (error) {
@@ -271,7 +270,6 @@ export default class Spotify extends App {
             await this.spotify?.player.skipToPrevious(this.deviceId);
             await this.backgroundUpdate(); // Force a background update to get the new playback state
             if (!this.isPlaying) {
-                this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
             }
         } catch (error) {
@@ -297,10 +295,8 @@ export default class Spotify extends App {
 
         try {
             if (this.isPlaying) {
-                this.isPlaying = false;
                 await this.spotify?.player.pausePlayback(this.deviceId);
             } else {
-                this.isPlaying = true;
                 await this.spotify?.player.startResumePlayback(this.deviceId);
             }
         } catch (error) {
