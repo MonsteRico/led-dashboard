@@ -466,6 +466,30 @@ export default class DevMatrix {
     }
 
     /**
+     * Update the text content of an existing scrolling text
+     * @param id Scrolling text identifier
+     * @param newText New text content
+     */
+    updateScrollingTextColor(id: string, color: Color): this {
+        const scrollingText = this.scrollingTexts.get(id);
+        if (!scrollingText) {
+            return this;
+        }
+
+        if (scrollingText.options.color === color) {
+            return this;
+        }
+
+        scrollingText.options.color = color;
+
+        scrollingText.currentX = scrollingText.x;
+        scrollingText.state = "waiting";
+        scrollingText.frameCount = 0;
+
+        return this;
+    }
+
+    /**
      * Update scrolling text in a single function call (alternative to createScrollingText + updateScrollingTexts)
      * @param text Text to scroll
      * @param x Current x position

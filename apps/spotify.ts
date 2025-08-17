@@ -38,6 +38,7 @@ export default class Spotify extends App {
         this.drawProgress({ x: 40, y: 27 });
         if (this.matrix.hasScrollingText("trackName")) {
             this.matrix.updateScrollingTextContent("trackName", this.currentTrack?.name ?? "");
+            this.matrix.updateScrollingTextColor("trackName", this.mainColor ?? new Color("#ffffff"));
         } else {
             const trackName = this.currentTrack?.name ?? "";
             this.matrix.createScrollingText("trackName", trackName, 34, -1, {
@@ -54,6 +55,7 @@ export default class Spotify extends App {
         }
         if (this.matrix.hasScrollingText("artistName")) {
             this.matrix.updateScrollingTextContent("artistName", this.currentTrack?.artists[0].name ?? "");
+            this.matrix.updateScrollingTextColor("artistName", this.secondaryColor ?? new Color("#ffffff"));
         } else {
             this.matrix.createScrollingText("artistName", this.currentTrack?.artists[0].name ?? "", 34, 12, {
                 color: this.secondaryColor ?? new Color("#ffffff"),
