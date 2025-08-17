@@ -32,9 +32,6 @@ export default async function preloadImages(imagePaths: string[]): Promise<Recor
 
 export async function sharpToUint8Array(sharpImage: Sharp, hasAlpha: boolean = true): Promise<Uint8Array> {
     const { width, height } = await sharpImage.metadata();
-    console.log("SHARP IMAGE TO UINT8 ARRAY");
-    console.log("WIDTH", width);
-    console.log("HEIGHT", height);
     if (!width || !height) {
         throw new Error("Invalid image dimensions");
     }

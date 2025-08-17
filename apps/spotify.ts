@@ -29,7 +29,6 @@ export default class Spotify extends App {
     }
 
     public update() {
-        this.updateStateVariables();
         if (this.isPlaying) {
             this.drawPause({ x: 48, y: 19 });
         } else {
@@ -45,14 +44,6 @@ export default class Spotify extends App {
         }
     }
 
-    public updateStateVariables() {
-        if (this.currentPlaybackState) {
-            this.currentTrack = this.currentPlaybackState.item as Track;
-            this.albumArtUrl = this.currentTrack.album.images[0].url;
-            this.deviceId = this.currentPlaybackState.device.id;
-        }
-    }
-
     public async onStart() {
         if (!this.spotify) {
             try {
@@ -62,7 +53,13 @@ export default class Spotify extends App {
             }
         }
         await this.updateCurrentPlaybackState();
-        this.updateStateVariables();
+        if (this.currentPlaybackState) {
+            this.currentTrack = this.currentPlaybackState.item as Track;
+            this.albumArtUrl = this.currentTrack.album.images[0].url;
+            this.deviceId = this.currentPlaybackState.device.id;
+            this.volume = this.currentPlaybackState.device.volume_percent;
+            this.isPlaying = this.currentPlaybackState.is_playing;
+        }
         await this.setAlbumArt();
         // Cancel the background update interval and replace it with one that updates every 5 seconds
         if (this.backgroundInterval) {
@@ -96,6 +93,7 @@ export default class Spotify extends App {
     public backgroundUpdate() {
         this.updateCurrentPlaybackState().then(() => {
             if (this.albumArtUrl !== this.currentTrack?.album.images[0].url || !this.albumArtImage) {
+                this.albumArtUrl = this.currentTrack?.album.images[0].url ?? null;
                 this.setAlbumArt();
             }
         });
@@ -114,6 +112,10 @@ export default class Spotify extends App {
             try {
                 const currentPlaybackState = await this.spotify.player.getPlaybackState();
                 this.currentPlaybackState = currentPlaybackState;
+                if (this.currentPlaybackState) {
+                    this.currentTrack = this.currentPlaybackState.item as Track;
+                    this.deviceId = this.currentPlaybackState.device.id;
+                }
             } catch (error) {
                 // Handle JSON parse errors silently as they don't affect functionality
                 if (error instanceof SyntaxError && error.message.includes("JSON")) {
@@ -153,14 +155,7 @@ export default class Spotify extends App {
                         fit: "contain",
                     })
                     .toBuffer();
-                const resizedMetadata = await sharp(resized).metadata();
-                console.log("RESIZED");
-                console.log(resizedMetadata.width, resizedMetadata.height);
                 const albumArtImageData = await sharpToUint8Array(sharp(resized));
-                console.log("ALBUM ART IMAGE DATA");
-                console.log(albumArtImageData);
-                console.log(albumArtImageData.length);
-
                 await albumArtFile.delete();
                 this.albumArtImage = {
                     width: 32,
