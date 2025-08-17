@@ -139,7 +139,7 @@ export default class Spotify extends App {
     private async setAlbumArt() {
         if (this.albumArtUrl) {
             try {
-                const albumArt = await fetch(this.albumArtUrl);
+                const albumArt = await fetch(this.albumArtUrl); 
                 if (!albumArt.ok) {
                     console.error("Failed to fetch album art:", albumArt.status, albumArt.statusText);
                     return;
@@ -155,7 +155,7 @@ export default class Spotify extends App {
                         fit: "contain",
                     })
                     .toBuffer();
-                const albumArtImageData = await sharpToUint8Array(sharp(resized));
+                const albumArtImageData = await sharpToUint8Array(sharp(resized), false);
                 await albumArtFile.delete();
                 this.albumArtImage = {
                     width: 32,
