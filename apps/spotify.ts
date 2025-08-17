@@ -2,10 +2,11 @@ import { SpotifyApi, type PlaybackState, type Track, type TrackItem } from "@spo
 import type DevMatrix from "../DevMatrix";
 import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
-import { getTopThreeColors, type Image, sharpToUint8Array } from "@/modules/preload/preloadImages";
+import { type Image, sharpToUint8Array } from "@/modules/preload/preloadImages";
 import { fonts } from "@/modules/preload/preload";
 import Color from "color";
 import sharp from "sharp";
+import { Vibrant } from "node-vibrant/node";
 
 export default class Spotify extends App {
     private spotify: SpotifyApi | null = null;
@@ -166,13 +167,17 @@ export default class Spotify extends App {
                     height: 32,
                     data: albumArtImageData,
                 };
-                const { primary, secondary, tertiary } = await getTopThreeColors(this.albumArtImage.data);
-                console.log("Primary", primary.hex());
-                console.log("Secondary", secondary.hex());
-                console.log("Tertiary", tertiary.hex());
-                // Set this.mainColor to the brightest of the top 3 colors, and this.secondaryColor to the second brightest
-                this.mainColor = primary;
-                this.secondaryColor = secondary;
+                const palette = await Vibrant.from(Buffer.from(albumArtImageData)).getPalette();
+                console.log("Vibrant", palette.Vibrant?.hex);
+                console.log("Muted", palette.Muted?.hex);
+                console.log("DarkVibrant", palette.DarkVibrant?.hex);
+                console.log("LightVibrant", palette.LightVibrant?.hex);
+                console.log("DarkMuted", palette.DarkMuted?.hex);
+                console.log("LightMuted", palette.LightMuted?.hex);
+                this.mainColor = palette.Vibrant ? new Color(palette.Vibrant.hex) : new Color("#ffffff");
+                this.secondaryColor = palette.Muted ? new Color(palette.Muted.hex) : new Color("#ffffff");
+                console.log("Main", this.mainColor?.hex());
+                console.log("Secondary", this.secondaryColor?.hex());
             } catch (error) {
                 console.error("Error setting album art:", error);
             }
