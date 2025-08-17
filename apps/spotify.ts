@@ -39,7 +39,12 @@ export default class Spotify extends App {
         if (this.matrix.hasScrollingText("trackName")) {
             this.matrix.updateScrollingTextContent("trackName", this.currentTrack?.name ?? "");
         } else {
-            this.matrix.createScrollingText("trackName", this.currentTrack?.name ?? "", 64, -1, {
+            const trackName = this.currentTrack?.name ?? "";
+            console.log(`Creating track name scrolling text: "${trackName}"`);
+            console.log(`Text length: ${trackName.length}, Estimated width: ${trackName.length * 6}`);
+            console.log(`Bounds: 36 to 72 (width: ${72 - 36})`);
+
+            this.matrix.createScrollingText("trackName", trackName, 64, -1, {
                 color: this.mainColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["6x13"],

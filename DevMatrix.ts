@@ -325,6 +325,16 @@ export default class DevMatrix {
             centeredX = boundsStart + (boundsWidth - textWidth) / 2;
         }
 
+        // Debug logging
+        if (scrollingText.state === "waiting" && scrollingText.frameCount % 60 === 0) {
+            // Log every 60 frames
+            console.log(`Scrolling text "${scrollingText.text}":`);
+            console.log(`  Text width: ${textWidth}, Bounds width: ${boundsWidth}`);
+            console.log(`  Should center: ${shouldCenter}`);
+            console.log(`  Current state: ${scrollingText.state}, Frame count: ${scrollingText.frameCount}`);
+            console.log(`  Current X: ${scrollingText.currentX}, Initial X: ${scrollingText.x}`);
+        }
+
         switch (scrollingText.state) {
             case "waiting":
                 scrollingText.frameCount++;
