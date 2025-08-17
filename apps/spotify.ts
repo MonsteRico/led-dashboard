@@ -71,7 +71,7 @@ export default class Spotify extends App {
         this.backgroundInterval = setInterval(() => this.backgroundUpdate(), 1000 * 5);
     }
 
-    public onStop() {
+    public async onStop() {
         if (this.backgroundInterval) {
             clearInterval(this.backgroundInterval);
         }
@@ -85,6 +85,12 @@ export default class Spotify extends App {
 
         const refreshTime = 1000 * 10 * 5; // 5 minutes
         this.backgroundInterval = setInterval(() => this.backgroundUpdate(), refreshTime);
+    }
+
+    public async onExit() {
+        if (Bun.file("albumArt.png")) {
+            await Bun.file("albumArt.png").delete();
+        }
     }
 
     public backgroundUpdate() {
@@ -136,9 +142,10 @@ export default class Spotify extends App {
                 }
 
                 const albumArtBuffer = await albumArt.arrayBuffer();
-                await Bun.write("albumArt.png", albumArtBuffer);
+                const albumArtFile = await Bun.file("albumArt.png");
+                await albumArtFile.write(albumArtBuffer);
                 const albumArtImageData = await sharpToUint8Array(sharp("albumArt.png").resize(32, 32));
-                await Bun.file("albumArt.png").delete();
+                await albumArtFile.delete();
                 this.albumArtImage = {
                     width: 32,
                     height: 32,

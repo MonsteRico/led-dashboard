@@ -259,12 +259,15 @@ Settings.defaultZone = "America/Indianapolis";
     matrix.sync();
 })();
 
-function exit(apps: App[]) {
+async function exit(apps: App[]) {
     // Stop the background intervals for good measure
     for (const app of apps) {
         if (app.backgroundInterval) {
             clearInterval(app.backgroundInterval);
             app.backgroundInterval = null;
+        }
+        if (app.onExit) {
+            await app.onExit();
         }
     }
 

@@ -11,6 +11,7 @@ export default abstract class App {
     public abstract update(): void;
     public onStart?(): void;
     public onStop?(): void;
+    public onExit?(): Promise<void>;
     public backgroundUpdate?(): void;
     public async initialize?(): Promise<void>;
     public handlePress?(): Promise<void> | void;
