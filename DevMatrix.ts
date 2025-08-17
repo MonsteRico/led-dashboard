@@ -350,16 +350,16 @@ export default class DevMatrix {
                 if (direction === "left") {
                     scrollingText.currentX -= speed;
 
-                    // Check if text has scrolled completely off screen
-                    if (scrollingText.currentX + textWidth < (xBounds?.start ?? 0)) {
+                    // Check if rightmost pixel has reached the leftmost bound
+                    if (scrollingText.currentX + textWidth <= (xBounds?.start ?? 0)) {
                         scrollingText.state = "paused";
                         scrollingText.frameCount = 0;
                     }
                 } else {
                     scrollingText.currentX += speed;
 
-                    // Check if text has scrolled completely off screen
-                    if (scrollingText.currentX > (xBounds?.end ?? this.widthValue)) {
+                    // Check if leftmost pixel has reached the rightmost bound
+                    if (scrollingText.currentX >= (xBounds?.end ?? this.widthValue)) {
                         scrollingText.state = "paused";
                         scrollingText.frameCount = 0;
                     }
@@ -583,14 +583,16 @@ export default class DevMatrix {
                 if (direction === "left") {
                     currentState.currentX = (currentState.currentX ?? x) - speed;
 
-                    if ((currentState.currentX ?? 0) + (currentState.textWidth ?? 0) < (xBounds?.start ?? 0)) {
+                    // Check if rightmost pixel has reached the leftmost bound
+                    if ((currentState.currentX ?? 0) + (currentState.textWidth ?? 0) <= (xBounds?.start ?? 0)) {
                         currentState.state = "paused";
                         currentState.frameCount = 0;
                     }
                 } else {
                     currentState.currentX = (currentState.currentX ?? x) + speed;
 
-                    if ((currentState.currentX ?? 0) > (xBounds?.end ?? this.widthValue)) {
+                    // Check if leftmost pixel has reached the rightmost bound
+                    if ((currentState.currentX ?? 0) >= (xBounds?.end ?? this.widthValue)) {
                         currentState.state = "paused";
                         currentState.frameCount = 0;
                     }
