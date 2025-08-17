@@ -365,13 +365,6 @@ export default class DevMatrix {
                     }
                 }
 
-                // Draw the text at current position
-                this.drawText(text, Math.round(scrollingText.currentX), y, {
-                    kerning,
-                    color,
-                    leftShadow,
-                    rightShadow,
-                });
                 break;
 
             case "centered":
@@ -394,6 +387,14 @@ export default class DevMatrix {
                 }
                 break;
         }
+
+        // Draw the text at current position
+        this.drawText(text, Math.round(scrollingText.currentX), y, {
+            kerning,
+            color,
+            leftShadow,
+            rightShadow,
+        });
 
         return this;
     }
