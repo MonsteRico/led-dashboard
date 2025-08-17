@@ -40,14 +40,14 @@ export default class Spotify extends App {
             this.matrix.updateScrollingTextContent("trackName", this.currentTrack?.name ?? "");
         } else {
             const trackName = this.currentTrack?.name ?? "";
-            this.matrix.createScrollingText("trackName", trackName, 36, -1, {
+            this.matrix.createScrollingText("trackName", trackName, 34, -1, {
                 color: this.mainColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["6x13"],
-                pauseBeforeStart: 200,
-                pauseAfterEnd: 200,
-                speed: 0.1,
-                xBounds: { start: 36, end: 64 },
+                pauseBeforeStart: 500,
+                pauseAfterEnd: 500,
+                speed: 0.05,
+                xBounds: { start: 34, end: 64 },
                 pixelWidthPerChar: 6,
                 fontHeight: 13,
             });
@@ -55,14 +55,14 @@ export default class Spotify extends App {
         if (this.matrix.hasScrollingText("artistName")) {
             this.matrix.updateScrollingTextContent("artistName", this.currentTrack?.artists[0].name ?? "");
         } else {
-            this.matrix.createScrollingText("artistName", this.currentTrack?.artists[0].name ?? "", 36, 12, {
+            this.matrix.createScrollingText("artistName", this.currentTrack?.artists[0].name ?? "", 34, 12, {
                 color: this.secondaryColor ?? new Color("#ffffff"),
                 direction: "left",
                 font: fonts["5x7"],
-                pauseBeforeStart: 200,
-                pauseAfterEnd: 200,
-                speed: 0.1,
-                xBounds: { start: 36, end: 64 },
+                pauseBeforeStart: 500,
+                pauseAfterEnd: 500,
+                speed: 0.05,
+                xBounds: { start: 34, end: 63 },
                 pixelWidthPerChar: 5,
                 fontHeight: 7,
             });
