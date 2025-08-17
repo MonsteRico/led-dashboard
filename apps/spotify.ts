@@ -62,8 +62,8 @@ export default class Spotify extends App {
             }
         }
         await this.updateCurrentPlaybackState();
-        await this.setAlbumArt();
         this.updateStateVariables();
+        await this.setAlbumArt();
         // Cancel the background update interval and replace it with one that updates every 5 seconds
         if (this.backgroundInterval) {
             clearInterval(this.backgroundInterval);
@@ -95,7 +95,7 @@ export default class Spotify extends App {
 
     public backgroundUpdate() {
         this.updateCurrentPlaybackState().then(() => {
-            if (this.albumArtUrl !== this.currentTrack?.album.images[0].url) {
+            if (this.albumArtUrl !== this.currentTrack?.album.images[0].url || !this.albumArtImage) {
                 this.setAlbumArt();
             }
         });
