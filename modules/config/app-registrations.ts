@@ -3,8 +3,8 @@ import type DevMatrix from "@/DevMatrix";
 import Clock from "@/apps/clock";
 import Weather from "@/apps/weather";
 import Test from "@/apps/test";
-import Website from "@/apps/website";
 import Spotify from "@/apps/spotify";
+import Canvas from "@/apps/canvas";
 
 // Register all apps here - this is the ONLY place you need to define apps
 export async function registerAllApps(): Promise<void> {
@@ -34,10 +34,10 @@ export async function registerAllApps(): Promise<void> {
 
     // Website App
     await appRegistry.registerApp({
-        name: "Website",
-        className: "Website",
+        name: "Canvas",
+        className: "Canvas",
         enabled: true,
-        factory: (matrix: DevMatrix) => new Website(matrix),
+        factory: (matrix: DevMatrix) => new Canvas(matrix),
     });
 
     // Spotify App

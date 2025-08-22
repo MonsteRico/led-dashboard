@@ -2,6 +2,7 @@ import { serve } from "bun";
 import { join } from "path";
 import { configManager } from "@/modules/config/config-manager";
 import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
+import { wifiService } from "../wifi/wifi-service";
 
 export interface ServerConfig {
     port: number;
@@ -91,6 +92,15 @@ export class WebServer {
                     return this.handleSpotifyLogin();
                 case "/api/spotify/callback":
                     return await this.handleSpotifyCallback(request);
+
+                case "/api/network/status":
+                    return await this.getNetworkStatus();
+
+                case "/api/network/configure":
+                    if (request.method === "POST") {
+                        return await this.configureWifi(request);
+                    }
+                    break;
 
                 default:
                     return new Response("Not Found", { status: 404 });
@@ -254,6 +264,46 @@ export class WebServer {
                     headers: { "Content-Type": "text/html" },
                 },
             );
+        }
+    }
+
+    private async getNetworkStatus(): Promise<Response> {
+        try {
+            const networkConfig = await wifiService.updateNetworkStatus();
+            return new Response(JSON.stringify(networkConfig), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error getting network status:", error);
+            return new Response(JSON.stringify({ error: "Failed to get network status" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async configureWifi(request: Request): Promise<Response> {
+        try {
+            const body = await request.json();
+            const { ssid, password } = body;
+
+            if (!ssid || !password) {
+                return new Response(JSON.stringify({ success: false, message: "SSID and password are required" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const result = await wifiService.configureWifiAndReboot({ ssid, password });
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error configuring WiFi:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to configure WiFi" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
         }
     }
 

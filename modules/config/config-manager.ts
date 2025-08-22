@@ -4,9 +4,17 @@ export interface AppConfig {
     className: string;
 }
 
+export interface NetworkConfig {
+    hasInternet: boolean;
+    localIp: string;
+    currentSSID: string;
+    lastChecked: string;
+}
+
 export interface ConfigData {
     apps: AppConfig[];
     currentApp: number;
+    network: NetworkConfig;
 }
 
 const CONFIG_FILE = "config.json";
@@ -15,6 +23,12 @@ const CONFIG_FILE = "config.json";
 const DEFAULT_CONFIG: ConfigData = {
     apps: [],
     currentApp: 0,
+    network: {
+        hasInternet: false,
+        localIp: "",
+        currentSSID: "",
+        lastChecked: new Date().toISOString(),
+    },
 };
 
 class ConfigManager {
@@ -42,6 +56,7 @@ class ConfigManager {
                 return {
                     apps: loadedConfig.apps || [],
                     currentApp: loadedConfig.currentApp || 0,
+                    network: loadedConfig.network || DEFAULT_CONFIG.network,
                 };
             }
         } catch (error) {
@@ -83,6 +98,15 @@ class ConfigManager {
             this.config.apps.push(appConfig);
             await this.saveConfig();
         }
+    }
+
+    public async updateNetworkConfig(networkConfig: Partial<NetworkConfig>): Promise<void> {
+        this.config.network = { ...this.config.network, ...networkConfig };
+        await this.saveConfig();
+    }
+
+    public getNetworkConfig(): NetworkConfig {
+        return this.config.network;
     }
 
     public async reloadConfig(): Promise<void> {
