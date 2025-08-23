@@ -123,12 +123,21 @@ If required environment variables are missing, the corresponding app will be aut
 
 ## File Operations
 
-The service reads and writes to the `.env` file in the project root directory. The file format follows standard environment variable syntax:
+The service reads and writes to the `.env` file in the project root directory. If the file doesn't exist, it will be created automatically with a helpful header comment. The file format follows standard environment variable syntax:
 
 ```
+# LED Dashboard Environment Variables
+# This file contains environment variables for the LED Dashboard application
+# Edit these values through the web interface or manually
+#
+# Generated on: 2024-01-01T00:00:00.000Z
+#
+
 VARIABLE_NAME=value
 ANOTHER_VARIABLE=another_value
 ```
+
+**Note**: The `.env` file is automatically ignored by git (as specified in `.gitignore`), so your sensitive environment variables will not be committed to version control.
 
 ## Usage
 

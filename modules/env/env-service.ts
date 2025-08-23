@@ -1,5 +1,3 @@
-import { Bun } from "bun";
-
 export interface EnvVariable {
     name: string;
     value: string;
@@ -98,7 +96,7 @@ export class EnvService {
     public getEnvVariables(): EnvVariable[] {
         return this.envConfig.variables.map((variable) => ({
             ...variable,
-            value: process.env[variable.name] || variable.value,
+            value: process.env[variable.name] || "",
         }));
     }
 
@@ -133,7 +131,7 @@ export class EnvService {
         }
 
         try {
-            // Read existing .env file
+            // Read existing .env file or start with empty content
             let envContent = "";
             try {
                 const envFile = Bun.file(this.envFile);
@@ -164,13 +162,30 @@ export class EnvService {
                 existingVars.set(update.name, update.value);
             }
 
-            // Write back to .env file
+            // Write back to .env file (creates new file if it doesn't exist)
             const newEnvContent =
                 Array.from(existingVars.entries())
                     .map(([name, value]) => `${name}=${value}`)
                     .join("\n") + "\n";
 
-            await Bun.write(this.envFile, newEnvContent);
+            // If this is a new .env file, add a header comment
+            const envFile = Bun.file(this.envFile);
+            const isNewFile = !(await envFile.exists());
+
+            let finalContent = newEnvContent;
+            if (isNewFile) {
+                const header = `# LED Dashboard Environment Variables
+# This file contains environment variables for the LED Dashboard application
+# Edit these values through the web interface or manually
+# 
+# Generated on: ${new Date().toISOString()}
+#
+
+`;
+                finalContent = header + newEnvContent;
+            }
+
+            await Bun.write(this.envFile, finalContent);
 
             return { success: true, message: "Environment variables updated successfully" };
         } catch (error) {
