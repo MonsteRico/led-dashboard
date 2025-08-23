@@ -50,7 +50,7 @@ export class WifiService {
      */
     public async getCurrentSSID(): Promise<string> {
         try {
-            const result = await Bun.$`iwgetid -r`;
+            const result = await Bun.$`iw dev wlan0 link | sed -n 's/.*SSID: \(.*\)/\1/p'`
             return result.stdout.toString().trim();
         } catch (error) {
             console.error("Error getting current SSID:", error);
