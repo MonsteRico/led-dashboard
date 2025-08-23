@@ -8,6 +8,7 @@ import { WebServer } from "@/modules/webconfig/server";
 import { appRegistry } from "@/modules/config/app-registry";
 import { registerAllApps } from "@/modules/config/app-registrations";
 import { weatherService } from "@/modules/weather/weather-service";
+import { controlService } from "@/modules/control/control-service";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -65,6 +66,83 @@ Settings.defaultZone = "America/Indianapolis";
 
     let currentAppNumber = 0;
 
+    // Register control handlers with the control service
+    controlService.registerHandlers({
+        singlePress: () => {
+            const app = enabledApps[currentAppNumber];
+            if (app.overrideDefaultPressOn && app.handlePress) {
+                console.log("App handling press");
+                const result = app.handlePress();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handlePress:", error);
+                    });
+                }
+            } else {
+                console.log("Switching apps");
+                switchNextApp();
+            }
+        },
+        doublePress: () => {
+            const app = enabledApps[currentAppNumber];
+            if (app.handleDoublePress) {
+                console.log("App handling double press");
+                const result = app.handleDoublePress();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handleDoublePress:", error);
+                    });
+                }
+            }
+        },
+        triplePress: () => {
+            const app = enabledApps[currentAppNumber];
+            if (app.handleTriplePress) {
+                console.log("App handling triple press");
+                const result = app.handleTriplePress();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handleTriplePress:", error);
+                    });
+                }
+            }
+        },
+        longPress: () => {
+            const app = enabledApps[currentAppNumber];
+            if (app.handleLongPress) {
+                console.log("App handling long press");
+                app.handleLongPress();
+            }
+        },
+        rotateLeft: () => {
+            const app = enabledApps[currentAppNumber];
+            if (app.handleRotateLeft) {
+                console.log("App handling rotate left");
+                const result = app.handleRotateLeft();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handleRotateLeft:", error);
+                    });
+                }
+            }
+        },
+        rotateRight: () => {
+            const app = enabledApps[currentAppNumber];
+            if (app.handleRotateRight) {
+                console.log("App handling rotate right");
+                const result = app.handleRotateRight();
+                if (result instanceof Promise) {
+                    result.catch((error: unknown) => {
+                        console.error("Error in handleRotateRight:", error);
+                    });
+                }
+            }
+        },
+    });
+
+    // Update app info in control service
+    controlService.updateAppInfo(currentAppNumber, enabledApps.length, enabledApps[currentAppNumber]?.constructor.name);
+
     // Keypress handling for the terminal
     const MULTI_PRESS_THRESHOLD = 300; // ms between presses
     const LONG_PRESS_THRESHOLD = 500; // ms to trigger long press
@@ -90,6 +168,9 @@ Settings.defaultZone = "America/Indianapolis";
         currentAppNumber = (currentAppNumber + 1) % enabledApps.length;
         console.log("Switching to app " + currentAppNumber);
         enabledApps[currentAppNumber].onStart?.();
+
+        // Update control service with new app info
+        controlService.updateAppInfo(currentAppNumber, enabledApps.length, enabledApps[currentAppNumber]?.constructor.name);
     };
 
     readline.emitKeypressEvents(process.stdin);

@@ -4,6 +4,7 @@ import { configManager } from "@/modules/config/config-manager";
 import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
 import { wifiService } from "../wifi/wifi-service";
 import { envService } from "../env/env-service";
+import { controlService } from "../control/control-service";
 
 export interface ServerConfig {
     port: number;
@@ -120,6 +121,48 @@ export class WebServer {
                 case "/api/env/reboot":
                     if (request.method === "POST") {
                         return await this.rebootDevice();
+                    }
+                    break;
+
+                case "/api/control/status":
+                    if (request.method === "GET") {
+                        return this.getControlStatus();
+                    }
+                    break;
+
+                case "/api/control/single-press":
+                    if (request.method === "POST") {
+                        return await this.triggerSinglePress();
+                    }
+                    break;
+
+                case "/api/control/double-press":
+                    if (request.method === "POST") {
+                        return await this.triggerDoublePress();
+                    }
+                    break;
+
+                case "/api/control/triple-press":
+                    if (request.method === "POST") {
+                        return await this.triggerTriplePress();
+                    }
+                    break;
+
+                case "/api/control/long-press":
+                    if (request.method === "POST") {
+                        return await this.triggerLongPress();
+                    }
+                    break;
+
+                case "/api/control/rotate-left":
+                    if (request.method === "POST") {
+                        return await this.triggerRotateLeft();
+                    }
+                    break;
+
+                case "/api/control/rotate-right":
+                    if (request.method === "POST") {
+                        return await this.triggerRotateRight();
                     }
                     break;
 
@@ -385,6 +428,111 @@ export class WebServer {
         } catch (error) {
             console.error("Error scheduling reboot:", error);
             return new Response(JSON.stringify({ success: false, message: "Failed to schedule reboot" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private getControlStatus(): Response {
+        try {
+            const appInfo = controlService.getCurrentAppInfo();
+            return new Response(JSON.stringify(appInfo), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error getting control status:", error);
+            return new Response(JSON.stringify({ error: "Failed to get control status" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async triggerSinglePress(): Promise<Response> {
+        try {
+            const result = await controlService.triggerSinglePress();
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error triggering single press:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to trigger single press" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async triggerDoublePress(): Promise<Response> {
+        try {
+            const result = await controlService.triggerDoublePress();
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error triggering double press:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to trigger double press" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async triggerTriplePress(): Promise<Response> {
+        try {
+            const result = await controlService.triggerTriplePress();
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error triggering triple press:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to trigger triple press" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async triggerLongPress(): Promise<Response> {
+        try {
+            const result = await controlService.triggerLongPress();
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error triggering long press:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to trigger long press" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async triggerRotateLeft(): Promise<Response> {
+        try {
+            const result = await controlService.triggerRotateLeft();
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error triggering rotate left:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to trigger rotate left" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async triggerRotateRight(): Promise<Response> {
+        try {
+            const result = await controlService.triggerRotateRight();
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error triggering rotate right:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to trigger rotate right" }), {
                 status: 500,
                 headers: { "Content-Type": "application/json" },
             });

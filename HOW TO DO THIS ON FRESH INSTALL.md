@@ -38,6 +38,9 @@ Reboot the pi
 
 -   Install unzip, its required for bun `sudo apt-get install unzip`
 -   Install gcc/g++/make `sudo apt install build-essential`
+-   Install hostapd and dnsmasq `sudo apt install hostapd` and `sudo apt install dnsmasq`
+    -  Copy the `wifi-check.sh` and `/systemConfigs` and `/systemdServices` to the appropriate places (comment at top of file)
+    - `sudo systemctl daemon-reload` to reload systemd, `sudo systemctl enable {service name}` to enable (or disable) service `sudo systemctl status {service name}` to check status
 -   Install bun `curl -fsSL https://bun.sh/install | bash`
     -   Add bun to sudo path
     -   `sudo visudo`

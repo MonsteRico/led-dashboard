@@ -65,6 +65,38 @@
                 </div>
             </div>
 
+            <div class="control-section">
+                <h2>Dashboard Controls</h2>
+                <div class="control-status" id="controlStatus">
+                    <div class="status-item">
+                        <span class="label">Current App:</span>
+                        <span class="value" id="currentAppName">Loading...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">App Position:</span>
+                        <span class="value" id="appPosition">-</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="refreshControlStatus()">Refresh Status</button>
+                </div>
+
+                <div class="control-buttons">
+                    <h3>Press Controls</h3>
+                    <div class="button-grid">
+                        <button class="btn btn-control" onclick="triggerSinglePress()">Single Press</button>
+                        <button class="btn btn-control" onclick="triggerDoublePress()">Double Press</button>
+                        <button class="btn btn-control" onclick="triggerTriplePress()">Triple Press</button>
+                        <button class="btn btn-control" onclick="triggerLongPress()">Long Press</button>
+                    </div>
+
+                    <h3>Rotation Controls</h3>
+                    <div class="button-grid">
+                        <button class="btn btn-control" onclick="triggerRotateLeft()">Rotate Left</button>
+                        <button class="btn btn-control" onclick="triggerRotateRight()">Rotate Right</button>
+                    </div>
+                </div>
+                <div id="controlStatus" class="control-status-message"></div>
+            </div>
+
             <div class="app-list" id="appList">
                 <!-- Apps will be populated here -->
             </div>

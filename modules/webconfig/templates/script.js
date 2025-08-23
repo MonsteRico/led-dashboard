@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadConfig();
     loadNetworkStatus();
     loadEnvVariables();
+    loadControlStatus();
 });
 
 // WiFi Configuration Functions
@@ -367,4 +368,173 @@ function rebootDevice() {
             console.error("Error rebooting device:", error);
             showEnvStatus("Error rebooting device", "error");
         });
+}
+
+// Dashboard Control Functions
+function loadControlStatus() {
+    fetch("/api/control/status")
+        .then((response) => response.json())
+        .then((data) => {
+            updateControlStatusUI(data);
+        })
+        .catch((error) => {
+            console.error("Error loading control status:", error);
+            showControlStatus("Error loading control status", "error");
+        });
+}
+
+function updateControlStatusUI(appInfo) {
+    const currentAppName = document.getElementById("currentAppName");
+    const appPosition = document.getElementById("appPosition");
+
+    currentAppName.textContent = appInfo.appName || "Unknown";
+    appPosition.textContent = `${appInfo.currentApp + 1} of ${appInfo.totalApps}`;
+}
+
+function refreshControlStatus() {
+    loadControlStatus();
+}
+
+function triggerSinglePress() {
+    fetch("/api/control/single-press", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showControlStatus(data.message, "success");
+                // Refresh status after a short delay
+                setTimeout(() => {
+                    loadControlStatus();
+                }, 500);
+            } else {
+                showControlStatus(data.message || "Failed to trigger single press", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error triggering single press:", error);
+            showControlStatus("Error triggering single press", "error");
+        });
+}
+
+function triggerDoublePress() {
+    fetch("/api/control/double-press", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showControlStatus(data.message, "success");
+            } else {
+                showControlStatus(data.message || "Failed to trigger double press", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error triggering double press:", error);
+            showControlStatus("Error triggering double press", "error");
+        });
+}
+
+function triggerTriplePress() {
+    fetch("/api/control/triple-press", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showControlStatus(data.message, "success");
+            } else {
+                showControlStatus(data.message || "Failed to trigger triple press", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error triggering triple press:", error);
+            showControlStatus("Error triggering triple press", "error");
+        });
+}
+
+function triggerLongPress() {
+    fetch("/api/control/long-press", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showControlStatus(data.message, "success");
+            } else {
+                showControlStatus(data.message || "Failed to trigger long press", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error triggering long press:", error);
+            showControlStatus("Error triggering long press", "error");
+        });
+}
+
+function triggerRotateLeft() {
+    fetch("/api/control/rotate-left", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showControlStatus(data.message, "success");
+            } else {
+                showControlStatus(data.message || "Failed to trigger rotate left", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error triggering rotate left:", error);
+            showControlStatus("Error triggering rotate left", "error");
+        });
+}
+
+function triggerRotateRight() {
+    fetch("/api/control/rotate-right", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showControlStatus(data.message, "success");
+            } else {
+                showControlStatus(data.message || "Failed to trigger rotate right", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error triggering rotate right:", error);
+            showControlStatus("Error triggering rotate right", "error");
+        });
+}
+
+function showControlStatus(message, type) {
+    const controlStatus = document.querySelector(".control-status-message");
+    controlStatus.textContent = message;
+    controlStatus.className = `control-status-message ${type}`;
+    controlStatus.style.display = "block";
+
+    // Auto-hide success messages after 3 seconds
+    if (type === "success") {
+        setTimeout(() => {
+            controlStatus.style.display = "none";
+        }, 3000);
+    }
 }
