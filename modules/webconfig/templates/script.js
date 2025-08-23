@@ -86,6 +86,7 @@ function loginToSpotify() {
 document.addEventListener("DOMContentLoaded", function () {
     loadConfig();
     loadNetworkStatus();
+    loadEnvVariables();
 });
 
 // WiFi Configuration Functions
@@ -196,4 +197,174 @@ function showWifiStatus(message, type) {
             wifiStatus.style.display = "none";
         }, 5000);
     }
+}
+
+// Environment Variables Functions
+function loadEnvVariables() {
+    fetch("/api/env/variables")
+        .then((response) => response.json())
+        .then((data) => {
+            updateEnvVariablesUI(data);
+        })
+        .catch((error) => {
+            console.error("Error loading environment variables:", error);
+            showEnvStatus("Error loading environment variables", "error");
+        });
+}
+
+function updateEnvVariablesUI(variables) {
+    const envVariablesList = document.getElementById("envVariablesList");
+    envVariablesList.innerHTML = "";
+
+    variables.forEach((variable) => {
+        const envVariableDiv = document.createElement("div");
+        envVariableDiv.className = "env-variable";
+
+        const headerDiv = document.createElement("div");
+        headerDiv.className = "env-variable-header";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "env-variable-name";
+        nameSpan.textContent = variable.name;
+
+        const toggleButton = document.createElement("button");
+        toggleButton.type = "button";
+        toggleButton.className = "env-variable-toggle";
+        toggleButton.textContent = variable.isHidden ? "Show" : "Hide";
+        toggleButton.onclick = () => toggleEnvVariableVisibility(variable.name);
+
+        headerDiv.appendChild(nameSpan);
+        headerDiv.appendChild(toggleButton);
+
+        const descriptionDiv = document.createElement("div");
+        descriptionDiv.className = "env-variable-description";
+        descriptionDiv.textContent = variable.description || "";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = `env-variable-input ${variable.isHidden ? "hidden" : ""}`;
+        input.name = variable.name;
+        input.value = variable.value;
+        input.placeholder = `Enter ${variable.name}`;
+
+        envVariableDiv.appendChild(headerDiv);
+        envVariableDiv.appendChild(descriptionDiv);
+        envVariableDiv.appendChild(input);
+
+        envVariablesList.appendChild(envVariableDiv);
+    });
+}
+
+function toggleEnvVariableVisibility(variableName) {
+    const input = document.querySelector(`input[name="${variableName}"]`);
+    const toggleButton = input.parentElement.querySelector(".env-variable-toggle");
+
+    if (input.classList.contains("hidden")) {
+        input.classList.remove("hidden");
+        toggleButton.textContent = "Hide";
+    } else {
+        input.classList.add("hidden");
+        toggleButton.textContent = "Show";
+    }
+}
+
+function saveEnvVariables(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const inputs = form.querySelectorAll("input[type='text']");
+    const variables = [];
+
+    inputs.forEach((input) => {
+        variables.push({
+            name: input.name,
+            value: input.value,
+        });
+    });
+
+    showEnvStatus("Saving environment variables...", "info");
+
+    fetch("/api/env/variables", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ variables }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showEnvStatus(data.message, "success");
+
+                // Show validation errors if any
+                if (data.errors && data.errors.length > 0) {
+                    showEnvErrors(data.errors);
+                } else {
+                    // Schedule reboot after successful save
+                    setTimeout(() => {
+                        rebootDevice();
+                    }, 2000);
+                }
+            } else {
+                showEnvStatus(data.message || "Failed to save environment variables", "error");
+                if (data.errors && data.errors.length > 0) {
+                    showEnvErrors(data.errors);
+                }
+            }
+        })
+        .catch((error) => {
+            console.error("Error saving environment variables:", error);
+            showEnvStatus("Error saving environment variables", "error");
+        });
+}
+
+function showEnvStatus(message, type) {
+    const envStatus = document.getElementById("envStatus");
+    envStatus.textContent = message;
+    envStatus.className = `env-status ${type}`;
+    envStatus.style.display = "block";
+
+    // Auto-hide success messages after 5 seconds
+    if (type === "success") {
+        setTimeout(() => {
+            envStatus.style.display = "none";
+        }, 5000);
+    }
+}
+
+function showEnvErrors(errors) {
+    const envStatus = document.getElementById("envStatus");
+    const errorsDiv = document.createElement("div");
+    errorsDiv.className = "env-errors";
+
+    const errorsList = document.createElement("ul");
+    errors.forEach((error) => {
+        const li = document.createElement("li");
+        li.textContent = error;
+        errorsList.appendChild(li);
+    });
+
+    errorsDiv.appendChild(errorsList);
+    envStatus.appendChild(errorsDiv);
+}
+
+function rebootDevice() {
+    fetch("/api/env/reboot", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showEnvStatus(data.message, "info");
+            } else {
+                showEnvStatus(data.message || "Failed to reboot device", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error rebooting device:", error);
+            showEnvStatus("Error rebooting device", "error");
+        });
 }

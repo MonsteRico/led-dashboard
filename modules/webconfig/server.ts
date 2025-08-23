@@ -3,6 +3,7 @@ import { join } from "path";
 import { configManager } from "@/modules/config/config-manager";
 import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
 import { wifiService } from "../wifi/wifi-service";
+import { envService } from "../env/env-service";
 
 export interface ServerConfig {
     port: number;
@@ -25,8 +26,14 @@ export class WebServer {
             this.config = config;
         }
 
+        // Initialize Spotify integration only if required environment variables are set
         try {
-            this.spotifyIntegration = spotifyIntegration;
+            if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
+                this.spotifyIntegration = spotifyIntegration;
+            } else {
+                console.warn("Spotify integration not available: Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET");
+                this.spotifyIntegration = null;
+            }
         } catch (error) {
             console.warn("Spotify integration not available:", (error as Error).message);
             this.spotifyIntegration = null;
@@ -99,6 +106,20 @@ export class WebServer {
                 case "/api/network/configure":
                     if (request.method === "POST") {
                         return await this.configureWifi(request);
+                    }
+                    break;
+
+                case "/api/env/variables":
+                    if (request.method === "GET") {
+                        return this.getEnvVariables();
+                    } else if (request.method === "POST") {
+                        return await this.updateEnvVariables(request);
+                    }
+                    break;
+
+                case "/api/env/reboot":
+                    if (request.method === "POST") {
+                        return await this.rebootDevice();
                     }
                     break;
 
@@ -301,6 +322,69 @@ export class WebServer {
         } catch (error) {
             console.error("Error configuring WiFi:", error);
             return new Response(JSON.stringify({ success: false, message: "Failed to configure WiFi" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private getEnvVariables(): Response {
+        try {
+            const variables = envService.getEnvVariables();
+            return new Response(JSON.stringify(variables), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error getting environment variables:", error);
+            return new Response(JSON.stringify({ error: "Failed to get environment variables" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async updateEnvVariables(request: Request): Promise<Response> {
+        try {
+            const body = await request.json();
+            const { variables } = body;
+
+            if (!Array.isArray(variables)) {
+                return new Response(JSON.stringify({ success: false, message: "Invalid request format" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const result = await envService.updateEnvVariables(variables);
+            return new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error updating environment variables:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to update environment variables" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async rebootDevice(): Promise<Response> {
+        try {
+            // Schedule reboot after a short delay
+            setTimeout(async () => {
+                try {
+                    await envService.rebootDevice();
+                } catch (error) {
+                    console.error("Failed to reboot:", error);
+                }
+            }, 3000);
+
+            return new Response(JSON.stringify({ success: true, message: "Device will reboot in 3 seconds" }), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error scheduling reboot:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to schedule reboot" }), {
                 status: 500,
                 headers: { "Content-Type": "application/json" },
             });

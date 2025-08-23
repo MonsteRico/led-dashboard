@@ -41,6 +41,9 @@ Settings.defaultZone = "America/Indianapolis";
     // Register all apps
     await registerAllApps();
 
+    // Check and update app status based on environment variables
+    await appRegistry.updateAppStatusBasedOnEnvVars();
+
     // Start the web server
     const serverConfig = {
         port: 3000,

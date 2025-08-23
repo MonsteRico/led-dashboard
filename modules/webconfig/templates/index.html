@@ -49,6 +49,22 @@
                 </div>
             </div>
 
+            <div class="env-section">
+                <h2>Environment Variables</h2>
+                <div class="env-form" id="envForm">
+                    <form id="envVariablesForm" onsubmit="saveEnvVariables(event)">
+                        <div id="envVariablesList">
+                            <!-- Environment variables will be populated here -->
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">Save & Reboot</button>
+                            <button type="button" class="btn btn-secondary" onclick="loadEnvVariables()">Refresh</button>
+                        </div>
+                    </form>
+                    <div id="envStatus" class="env-status"></div>
+                </div>
+            </div>
+
             <div class="app-list" id="appList">
                 <!-- Apps will be populated here -->
             </div>

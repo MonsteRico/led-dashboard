@@ -300,3 +300,125 @@ input:checked + .slider:before {
     color: #0c5460;
     border: 1px solid #bee5eb;
 }
+
+.env-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.env-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.env-form {
+    margin-bottom: 20px;
+}
+
+.env-variable {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+}
+
+.env-variable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.env-variable-name {
+    font-weight: bold;
+    color: #333;
+    font-family: monospace;
+}
+
+.env-variable-toggle {
+    background: none;
+    border: none;
+    color: #2196f3;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: underline;
+}
+
+.env-variable-toggle:hover {
+    color: #1976d2;
+}
+
+.env-variable-description {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.env-variable-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: monospace;
+    box-sizing: border-box;
+}
+
+.env-variable-input:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.env-variable-input.hidden {
+    -webkit-text-security: disc;
+    text-security: disc;
+}
+
+.env-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-align: center;
+    display: none;
+}
+
+.env-status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.env-status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.env-status.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.env-errors {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.env-errors ul {
+    margin: 0;
+    padding-left: 20px;
+}

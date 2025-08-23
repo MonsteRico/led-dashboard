@@ -38,6 +38,7 @@ export async function registerAllApps(): Promise<void> {
         className: "Canvas",
         enabled: true,
         factory: (matrix: DevMatrix) => new Canvas(matrix),
+        requiredEnvVars: ["LED_DASHBOARD_WEB_KEY"],
     });
 
     // Spotify App
@@ -46,6 +47,7 @@ export async function registerAllApps(): Promise<void> {
         className: "Spotify",
         enabled: true,
         factory: (matrix: DevMatrix) => new Spotify(matrix),
+        requiredEnvVars: ["SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET"],
     });
 }
 
