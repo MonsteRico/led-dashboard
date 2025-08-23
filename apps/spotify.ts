@@ -3,7 +3,7 @@ import type DevMatrix from "../DevMatrix";
 import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
 import { type Image, sharpToUint8Array } from "@/modules/preload/preloadImages";
-import { fonts } from "@/modules/preload/preload";
+import { fonts, images } from "@/modules/preload/preload";
 import Color from "color";
 import sharp from "sharp";
 import { Vibrant } from "node-vibrant/node";
@@ -30,6 +30,14 @@ export default class Spotify extends App {
     }
 
     public update() {
+        if (!this.currentTrack || !this.currentPlaybackState) {
+            this.drawPlay({ x: 46, y: 18 });
+            this.drawProgress({ x: 35, y: 27, width: 25 });
+            this.matrix.drawText("Spotify", 34, 12, { color: this.mainColor ?? new Color("#ffffff") });
+            this.matrix.drawText("Not playing", 34, 27, { color: this.secondaryColor ?? new Color("#ffffff") });
+            this.matrix.drawImage(images["spotifyLogo.png"], 0, 0);
+            return;
+        }
         if (this.isPlaying) {
             this.drawPause({ x: 46, y: 18 });
         } else {
