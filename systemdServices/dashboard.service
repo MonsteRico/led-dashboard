@@ -1,0 +1,14 @@
+[Unit]
+Description=LED Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/dashboard/current
+ExecStart=/usr/local/bin/bun index.ts
+Restart=always
+EnvironmentFile=/opt/dashboard/.env
+
+[Install]
+WantedBy=multi-user.target

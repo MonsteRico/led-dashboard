@@ -1,0 +1,13 @@
+[Unit]
+Description=Wi-Fi Connectivity Check and AP Fallback
+After=network-pre.target
+Before=dashboard.service
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wifi-check.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
