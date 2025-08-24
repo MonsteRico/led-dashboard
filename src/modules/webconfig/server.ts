@@ -1,11 +1,11 @@
 import { serve } from "bun";
 import { join } from "path";
 import { configManager } from "@/modules/config/config-manager";
-import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-integration";
-import { wifiService } from "../wifi/wifi-service";
-import { envService } from "../env/env-service";
-import { controlService } from "../control/control-service";
-import { updateService } from "../update/update-service";
+import { spotifyIntegration, type SpotifyIntegration } from "@/modules/spotify/spotify-integration";
+import { wifiService } from "@/modules/wifi/wifi-service";
+import { envService } from "@/modules/env/env-service";
+import { controlService } from "@/modules/control/control-service";
+import { updateService } from "@/modules/update/update-service";
 
 export interface ServerConfig {
     port: number;

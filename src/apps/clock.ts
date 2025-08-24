@@ -1,8 +1,8 @@
 import { DateTime } from "luxon";
 import App from "./app";
 import Color from "color";
-import { fonts, images } from "../modules/preload/preload";
-import type DevMatrix from "../DevMatrix";
+import { fonts, images } from "@/modules/preload/preload";
+import type DevMatrix from "@/DevMatrix";
 
 export default class Clock extends App {
     private time: DateTime = DateTime.now();

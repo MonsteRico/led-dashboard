@@ -1,4 +1,4 @@
-import type DevMatrix from "../DevMatrix";
+import type DevMatrix from "@/DevMatrix";
 import App from "./app";
 
 export default class Canvas extends App {

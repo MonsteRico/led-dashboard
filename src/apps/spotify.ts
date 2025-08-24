@@ -1,5 +1,5 @@
 import { SpotifyApi, type PlaybackState, type Track, type TrackItem } from "@spotify/web-api-ts-sdk";
-import type DevMatrix from "../DevMatrix";
+import type DevMatrix from "@/DevMatrix";
 import App from "./app";
 import { spotifyIntegration } from "@/modules/spotify/spotify-integration";
 import { type Image, sharpToUint8Array } from "@/modules/preload/preloadImages";

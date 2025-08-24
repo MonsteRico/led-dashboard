@@ -1,5 +1,5 @@
 import Color from "color";
-import type DevMatrix from "../DevMatrix";
+import type DevMatrix from "@/DevMatrix";
 import App from "./app";
 
 export default class Wifi extends App {

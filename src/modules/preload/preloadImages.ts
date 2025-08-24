@@ -1,4 +1,3 @@
-import Color from "color";
 import { basename } from "path";
 import sharp, { type Sharp } from "sharp";
 

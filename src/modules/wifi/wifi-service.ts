@@ -1,4 +1,4 @@
-import { configManager, type NetworkConfig } from "../config/config-manager";
+import { configManager, type NetworkConfig } from "@/modules/config/config-manager";
 
 export interface WifiCredentials {
     ssid: string;

@@ -1,5 +1,5 @@
 import { images } from "@/modules/preload/preload";
-import type DevMatrix from "../DevMatrix";
+import type DevMatrix from "@/DevMatrix";
 
 export default abstract class App {
     public matrix: DevMatrix;

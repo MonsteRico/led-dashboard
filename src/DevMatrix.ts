@@ -1,6 +1,6 @@
 import Color from "color";
 import { LedMatrix, type FontInstance, type LedMatrixInstance, type MatrixOptions, type RuntimeOptions } from "rpi-led-matrix";
-import type { Image } from "./modules/preload/preloadImages";
+import type { Image } from "@/modules/preload/preloadImages";
 
 // Scrolling text interfaces
 interface ScrollingTextOptions {

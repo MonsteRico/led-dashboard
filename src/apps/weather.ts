@@ -1,8 +1,8 @@
 import { DateTime } from "luxon";
-import type DevMatrix from "../DevMatrix";
+import type DevMatrix from "@/DevMatrix";
 import App from "./app";
-import { fonts, images } from "../modules/preload/preload";
-import { weatherService } from "../modules/weather/weather-service";
+import { fonts, images } from "@/modules/preload/preload";
+import { weatherService } from "@/modules/weather/weather-service";
 import Color from "color";
 
 export default class Weather extends App {
