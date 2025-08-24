@@ -107,14 +107,41 @@ fi
 
 # Create symlink to Bun in /usr/bin for systemd service
 echo "Creating symlink to Bun in /usr/bin..."
+BUN_PATH=""
+
+# Check multiple possible locations for Bun
 if [ -f "/root/.bun/bin/bun" ]; then
-    sudo ln -sf /root/.bun/bin/bun /usr/bin/bun
-    echo "Symlink created: /usr/bin/bun -> /root/.bun/bin/bun"
+    BUN_PATH="/root/.bun/bin/bun"
+    echo "Found Bun at: $BUN_PATH"
 elif [ -f "$HOME/.bun/bin/bun" ]; then
-    sudo ln -sf "$HOME/.bun/bin/bun" /usr/bin/bun
-    echo "Symlink created: /usr/bin/bun -> $HOME/.bun/bin/bun"
+    BUN_PATH="$HOME/.bun/bin/bun"
+    echo "Found Bun at: $BUN_PATH"
+elif command_exists bun; then
+    BUN_PATH=$(which bun)
+    echo "Found Bun in PATH at: $BUN_PATH"
+elif [ -f "/usr/bin/bun" ]; then
+    BUN_PATH="/usr/bin/bun"
+    echo "Found Bun already at: $BUN_PATH"
 else
     echo "ERROR: Could not find Bun binary to create symlink"
+    echo "Expected locations:"
+    echo "  - /root/.bun/bin/bun"
+    echo "  - $HOME/.bun/bin/bun"
+    echo "  - In PATH"
+    echo "  - /usr/bin/bun"
+    exit 1
+fi
+
+# Create the symlink
+sudo ln -sf "$BUN_PATH" /usr/bin/bun
+echo "Symlink created: /usr/bin/bun -> $BUN_PATH"
+
+# Verify the symlink works
+if [ -L "/usr/bin/bun" ] && [ -e "/usr/bin/bun" ]; then
+    echo "Symlink verified successfully"
+    echo "Bun version: $(/usr/bin/bun --version)"
+else
+    echo "ERROR: Failed to create working symlink"
     exit 1
 fi
 
