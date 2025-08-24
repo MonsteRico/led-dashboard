@@ -122,8 +122,7 @@ fi
 source ~/.bashrc
 
 echo "[2.5/8] Running local build..."
-bun install
-bun build src/index.ts --outdir dist --target bun
+./scripts/build.sh
 
 echo "[3/8] Creating install dir..."
 sudo mkdir -p "$INSTALL_DIR"
