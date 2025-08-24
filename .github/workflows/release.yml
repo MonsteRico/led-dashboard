@@ -2,47 +2,47 @@ name: Build & Release
 
 # Trigger on tags only (vX.Y.Z)
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+    push:
+        tags:
+            - "v*.*.*"
 
 jobs:
-  build_and_release:
-    runs-on: ubuntu-latest
+    build_and_release:
+        runs-on: ubuntu-latest
 
-    steps:
-      # 1️⃣ Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+        steps:
+            # 1️⃣ Checkout repo
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      # 2️⃣ Install Bun
-      - name: Install Bun
-        run: curl -fsSL https://bun.sh/install | bash
-      - name: Add Bun to PATH
-        run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
+            # 2️⃣ Install Bun
+            - name: Install Bun
+              run: curl -fsSL https://bun.sh/install | bash
+            - name: Add Bun to PATH
+              run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
-      # 3️⃣ Install dependencies
-      - name: Install dependencies
-        run: bun install
+            # 3️⃣ Install dependencies
+            - name: Install dependencies
+              run: bun install
 
-      # 4️⃣ Build the project
-      - name: Build project
-        run: bun build src/index.ts --outdir dist --target bun
+            # 4️⃣ Build the project
+            - name: Build project
+              run: bun build src/index.ts --outdir dist --target bun --config bunfig.toml
 
-      # 5️⃣ Prepare release tarball
-      - name: Package release
-        run: |
-          VERSION=${GITHUB_REF##*/}
-          PKG_NAME="led-dashboard-$VERSION"
-          mkdir -p release/$PKG_NAME
-          cp -r dist release/$PKG_NAME/
-          cp VERSION release/$PKG_NAME/
-          tar -czf release/$PKG_NAME.tar.gz -C release $PKG_NAME
+            # 5️⃣ Prepare release tarball
+            - name: Package release
+              run: |
+                  VERSION=${GITHUB_REF##*/}
+                  PKG_NAME="led-dashboard-$VERSION"
+                  mkdir -p release/$PKG_NAME
+                  cp -r dist release/$PKG_NAME/
+                  cp VERSION release/$PKG_NAME/
+                  tar -czf release/$PKG_NAME.tar.gz -C release $PKG_NAME
 
-      # 6️⃣ Create GitHub release with tarball
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          files: release/led-dashboard-${{ github.ref_name }}.tar.gz
+            # 6️⃣ Create GitHub release with tarball
+            - name: Create GitHub Release
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ github.ref_name }}
+                  name: Release ${{ github.ref_name }}
+                  files: release/led-dashboard-${{ github.ref_name }}.tar.gz
