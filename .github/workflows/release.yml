@@ -9,6 +9,8 @@ on:
 jobs:
     build_and_release:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
 
         steps:
             # 1️⃣ Checkout repo
@@ -28,11 +30,7 @@ jobs:
             # 4️⃣ Build the project
             - name: Build project
               run: |
-                pwd
-                ls -la
-                ls -la src/
-                # Try building with absolute path
-                bun build ./src/index.ts --outdir dist --target bun --config bunfig.toml
+                  bun build ./src/index.ts --outdir dist --target bun
 
             # 5️⃣ Prepare release tarball
             - name: Package release
