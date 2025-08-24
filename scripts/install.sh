@@ -134,15 +134,16 @@ sudo cp scripts/wifi-check.sh /usr/local/bin/wifi-check.sh
 sudo chmod +x /usr/local/bin/*
 
 echo "[6/8] Installing services..."
-sudo cp systemd/dashboard.service /etc/systemd/system/
-sudo cp systemd/wifi-check.service /etc/systemd/system/
+sudo cp systemdServices/dashboard.service /etc/systemd/system/
+sudo cp systemdServices/wifi-check.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable dashboard.service
 sudo systemctl enable wifi-check.service
 
 echo "[7/8] Installing network configs..."
-sudo cp configs/hostapd.conf /etc/hostapd/hostapd.conf
-sudo cp configs/dnsmasq.conf /etc/dnsmasq.conf
+sudo cp systemConfigs/hostapd.conf /etc/hostapd/hostapd.conf
+sudo cp systemConfigs/dnsmasq.conf /etc/dnsmasq.conf
+sudo cp systemConfigs/dhcpcd.conf /etc/dhcpcd.conf
 
 echo "[8/8] Setup complete."
 echo "SSL certificates have been generated and installed to $INSTALL_DIR/ssl/"
