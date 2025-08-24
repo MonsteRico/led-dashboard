@@ -149,6 +149,7 @@ fi
 source ~/.bashrc
 
 echo "[2.5/8] Running local build..."
+sudo chmod +x $REPO_DIR/scripts/*
 ./scripts/build.sh
 
 echo "[3/8] Creating install dir..."
