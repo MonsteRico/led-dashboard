@@ -33,8 +33,9 @@ export default class Spotify extends App {
         if (!this.currentTrack || !this.currentPlaybackState) {
             this.drawPlay({ x: 46, y: 18 });
             this.drawProgress({ x: 35, y: 27, width: 25 });
-            this.matrix.drawText("Spotify", 34, 12, { color: this.mainColor ?? new Color("#ffffff") });
-            this.matrix.drawText("Not playing", 34, 27, { color: this.secondaryColor ?? new Color("#ffffff") });
+            this.matrix.font(fonts["5x7"]);
+            this.matrix.drawText("Spotify", 34, 0, { color: this.mainColor ?? new Color("#ffffff") });
+            this.matrix.drawText("Not playing", 34, 12, { color: this.secondaryColor ?? new Color("#ffffff") });
             this.matrix.drawImage(images["spotifyLogo.png"], 0, 0);
             return;
         }

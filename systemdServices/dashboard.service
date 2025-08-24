@@ -1,14 +1,25 @@
 [Unit]
 Description=LED Dashboard
-After=network-online.target
-Wants=network-online.target
+After=network.target
 
 [Service]
-User=root
-WorkingDirectory=/opt/dashboard/current
-ExecStart=/usr/local/bin/bun index.ts
+# Run as the pi user (important so we don’t need full sudo for normal ops)
+User=pi
+WorkingDirectory=/home/pi/led-dashboard
+
+# Start the compiled build
+ExecStart=/home/pi/.bun/bin/bun run dist/index.js
+
+# Auto-restart on crashes
 Restart=always
-EnvironmentFile=/opt/dashboard/.env
+RestartSec=5
+
+# Environment file for optional settings (safe if missing)
+EnvironmentFile=-/home/pi/led-dashboard/.env
+
+# Where logs go
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
