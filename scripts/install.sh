@@ -109,12 +109,14 @@ fi
 source ~/.bashrc
 
 echo "[2.5/8] Running local build..."
+cp $REPO_DIR/.env.example $REPO_DIR/.env
 bun install
 bun build src/index.ts --outdir dist --target bun
 
 echo "[3/8] Creating install dir..."
 sudo mkdir -p "$INSTALL_DIR"
 sudo cp -r dist "$INSTALL_DIR/"
+sudo cp .env "$INSTALL_DIR/"
 sudo cp VERSION "$INSTALL_DIR/"
 
 echo "[4/8] Generating SSL certificates..."
