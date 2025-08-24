@@ -34,6 +34,7 @@ jobs:
                   PKG_NAME="led-dashboard-$VERSION"
                   mkdir -p release/$PKG_NAME
                   cp -r src release/$PKG_NAME/
+                  cp -r scripts release/$PKG_NAME/
                   cp package.json release/$PKG_NAME/
                   cp tsconfig.json release/$PKG_NAME/
                   cp bun.lock release/$PKG_NAME/

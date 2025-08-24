@@ -29,11 +29,13 @@ sudo systemctl stop dashboard.service
 
 # Replace source files
 sudo rm -rf "$INSTALL_DIR/src"
+sudo rm -rf "$INSTALL_DIR/scripts"
 sudo rm -f "$INSTALL_DIR/package.json"
 sudo rm -f "$INSTALL_DIR/tsconfig.json"
 sudo rm -f "$INSTALL_DIR/bun.lock"
 
 sudo cp -r "$TMP_DIR/src" "$INSTALL_DIR/"
+sudo cp -r "$TMP_DIR/scripts" "$INSTALL_DIR/"
 sudo cp "$TMP_DIR/package.json" "$INSTALL_DIR/"
 sudo cp "$TMP_DIR/tsconfig.json" "$INSTALL_DIR/"
 sudo cp "$TMP_DIR/bun.lock" "$INSTALL_DIR/"
@@ -41,6 +43,9 @@ echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
 
 # Ensure all files are owned by root since the service runs as root
 sudo chown -R root:root "$INSTALL_DIR"
+
+# Make scripts executable
+sudo chmod +x "$INSTALL_DIR/scripts"/*
 
 # Ensure build tools are available for native module compilation
 echo "Ensuring build tools are available..."
