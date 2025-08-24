@@ -27,7 +27,7 @@ jobs:
 
       # 4️⃣ Build the project
       - name: Build project
-        run: bun build src/index.ts --outdir dist
+        run: bun build src/index.ts --outdir dist --target bun
 
       # 5️⃣ Prepare release tarball
       - name: Package release
