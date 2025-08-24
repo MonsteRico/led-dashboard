@@ -14,7 +14,7 @@ if command_exists bun; then
     echo "Found Bun at: $BUN_PATH"
     
     # Create symlink to /usr/bin/bun
-    sudo ln -sf "$BUN_PATH" /usr/bin/bun
+    sudo ln -sf $BUN_PATH /usr/bin/bun
     echo "Created symlink: /usr/bin/bun -> $BUN_PATH"
     
     # Verify the symlink works
