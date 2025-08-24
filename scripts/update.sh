@@ -1,27 +1,38 @@
 #!/bin/bash
 set -e
+
+if [[ -z "$1" ]]; then
+  echo "Usage: update-dashboard <version>"
+  exit 1
+fi
+
+VERSION="$1"
 REPO="MonsteRico/led-dashboard"
+INSTALL_DIR="/opt/led-dashboard"
+TMP_DIR="/tmp/led-dashboard-update"
 
-# Get latest release
-LATEST_VERSION=$(curl -s https://api.github.com/repos/$REPO/releases/latest \
-  | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+echo "Updating to version $VERSION..."
 
-# Download build artifact
-cd /home/pi
-curl -L -o led-dashboard-update.tar.gz \
-  https://github.com/$REPO/releases/download/$LATEST_VERSION/led-dashboard-$LATEST_VERSION.tar.gz
+# Clean tmp dir
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
 
-# Backup old version
-mv led-dashboard led-dashboard-backup-$(date +%s)
+# Download release tarball
+curl -L "https://github.com/$REPO/releases/download/$VERSION/led-dashboard-$VERSION.tar.gz" \
+  -o "$TMP_DIR/update.tar.gz"
 
-# Extract new one
-tar -xzf led-dashboard-update.tar.gz
-mv led-dashboard-$LATEST_VERSION led-dashboard
+# Extract
+tar -xzf "$TMP_DIR/update.tar.gz" -C "$TMP_DIR"
 
-# Update version file
-echo "$LATEST_VERSION" > /home/pi/led-dashboard/VERSION
+# Stop service
+sudo systemctl stop dashboard.service
 
-# Restart dashboard
-sudo systemctl restart dashboard.service
+# Replace files
+sudo rm -rf "$INSTALL_DIR/dist"
+sudo cp -r "$TMP_DIR/dist" "$INSTALL_DIR/"
+echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
 
-echo "Updated to $LATEST_VERSION"
+# Restart service
+sudo systemctl start dashboard.service
+
+echo "Update complete. Now running $VERSION."

@@ -9,6 +9,7 @@ import { appRegistry } from "@/modules/config/app-registry";
 import { registerAllApps } from "@/modules/config/app-registrations";
 import { weatherService } from "@/modules/weather/weather-service";
 import { controlService } from "@/modules/control/control-service";
+import { updateService } from "@/modules/update/update-service";
 
 // Configure the time zone
 Settings.defaultZone = "America/Indianapolis";
@@ -63,6 +64,13 @@ Settings.defaultZone = "America/Indianapolis";
     for (const app of enabledApps) {
         await app.initialize?.();
     }
+
+    // Set app context for update service
+    updateService.setAppContext({
+        apps: enabledApps,
+        matrix: matrix,
+        webServer: webServer,
+    });
 
     let currentAppNumber = 0;
 

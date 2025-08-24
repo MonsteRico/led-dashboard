@@ -1,21 +1,22 @@
 [Unit]
 Description=LED Dashboard
 After=network.target
+Wants=network.target
 
 [Service]
 # Run as the pi user (important so we don’t need full sudo for normal ops)
 User=pi
-WorkingDirectory=/home/pi/led-dashboard
+WorkingDirectory=/opt/led-dashboard
 
 # Start the compiled build
-ExecStart=/home/pi/.bun/bin/bun run dist/index.js
+ExecStart=/usr/bin/bun /opt/led-dashboard/dist/index.js
 
 # Auto-restart on crashes
 Restart=always
 RestartSec=5
 
 # Environment file for optional settings (safe if missing)
-EnvironmentFile=-/home/pi/led-dashboard/.env
+EnvironmentFile=-/opt/led-dashboard/.env
 
 # Where logs go
 StandardOutput=journal

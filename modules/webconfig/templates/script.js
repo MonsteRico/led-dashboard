@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadNetworkStatus();
     loadEnvVariables();
     loadControlStatus();
+    checkForUpdates();
 });
 
 // WiFi Configuration Functions
@@ -536,5 +537,132 @@ function showControlStatus(message, type) {
         setTimeout(() => {
             controlStatus.style.display = "none";
         }, 3000);
+    }
+}
+
+// Update Functions
+function checkForUpdates() {
+    const currentVersion = document.getElementById("currentVersion");
+    const latestVersion = document.getElementById("latestVersion");
+    const updateAvailable = document.getElementById("updateAvailable");
+
+    currentVersion.textContent = "Checking...";
+    latestVersion.textContent = "-";
+    updateAvailable.textContent = "-";
+
+    fetch("/api/update/check")
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.error) {
+                currentVersion.textContent = "Error";
+                latestVersion.textContent = "Error";
+                updateAvailable.textContent = "Error";
+                showUpdateStatus("Error checking for updates", "error");
+            } else {
+                currentVersion.textContent = data.currentVersion;
+                latestVersion.textContent = data.latestVersion;
+                updateAvailable.textContent = data.updateAvailable ? "Yes" : "No";
+
+                if (data.updateAvailable) {
+                    showUpdateActions(data.latestVersion);
+                } else {
+                    hideUpdateActions();
+                }
+            }
+        })
+        .catch((error) => {
+            console.error("Error checking for updates:", error);
+            currentVersion.textContent = "Error";
+            latestVersion.textContent = "Error";
+            updateAvailable.textContent = "Error";
+            showUpdateStatus("Error checking for updates", "error");
+        });
+}
+
+function showUpdateActions(latestVersion) {
+    const updateActions = document.getElementById("updateActions");
+    const updateMessage = document.getElementById("updateMessage");
+
+    updateMessage.textContent = `A new version (${latestVersion}) is available for installation.`;
+    updateActions.style.display = "block";
+}
+
+function hideUpdateActions() {
+    const updateActions = document.getElementById("updateActions");
+    updateActions.style.display = "none";
+}
+
+function performUpdate() {
+    const updateProgress = document.getElementById("updateProgress");
+    const updateButton = document.querySelector("#updateActions .btn-primary");
+    const latestVersion = document.getElementById("latestVersion").textContent;
+
+    if (latestVersion === "-" || latestVersion === "Error") {
+        showUpdateStatus("No valid version available for update", "error");
+        return;
+    }
+
+    // Show progress and disable button
+    updateProgress.style.display = "block";
+    updateButton.disabled = true;
+    updateButton.textContent = "Installing...";
+
+    fetch("/api/update/perform", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ version: latestVersion }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showUpdateStatus(data.message, "success");
+
+                // If update was successful, show a message about service restart
+                if (data.message.includes("restart")) {
+                    showUpdateStatus("Update completed! The service is restarting. Please wait a moment and refresh the page.", "info");
+
+                    // Try to reconnect after a delay
+                    setTimeout(() => {
+                        showUpdateStatus("Attempting to reconnect to the service...", "info");
+                        // Try to check for updates again to see if service is back
+                        setTimeout(() => {
+                            checkForUpdates();
+                        }, 5000);
+                    }, 10000);
+                } else {
+                    // Refresh update status after a delay
+                    setTimeout(() => {
+                        checkForUpdates();
+                    }, 3000);
+                }
+            } else {
+                showUpdateStatus(data.message || "Update failed", "error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error performing update:", error);
+            showUpdateStatus("Error performing update", "error");
+        })
+        .finally(() => {
+            // Hide progress and re-enable button
+            updateProgress.style.display = "none";
+            updateButton.disabled = false;
+            updateButton.textContent = "Install Update";
+        });
+}
+
+function showUpdateStatus(message, type) {
+    const updateStatus = document.getElementById("updateStatusMessage");
+    updateStatus.textContent = message;
+    updateStatus.className = `update-status-message ${type}`;
+    updateStatus.style.display = "block";
+
+    // Auto-hide success messages after 5 seconds
+    if (type === "success") {
+        setTimeout(() => {
+            updateStatus.style.display = "none";
+        }, 5000);
     }
 }

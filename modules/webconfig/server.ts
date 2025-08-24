@@ -5,6 +5,7 @@ import { spotifyIntegration, type SpotifyIntegration } from "../spotify/spotify-
 import { wifiService } from "../wifi/wifi-service";
 import { envService } from "../env/env-service";
 import { controlService } from "../control/control-service";
+import { updateService } from "../update/update-service";
 
 export interface ServerConfig {
     port: number;
@@ -163,6 +164,18 @@ export class WebServer {
                 case "/api/control/rotate-right":
                     if (request.method === "POST") {
                         return await this.triggerRotateRight();
+                    }
+                    break;
+
+                case "/api/update/check":
+                    if (request.method === "GET") {
+                        return await this.checkForUpdates();
+                    }
+                    break;
+
+                case "/api/update/perform":
+                    if (request.method === "POST") {
+                        return await this.performUpdate(request);
                     }
                     break;
 
@@ -533,6 +546,64 @@ export class WebServer {
         } catch (error) {
             console.error("Error triggering rotate right:", error);
             return new Response(JSON.stringify({ success: false, message: "Failed to trigger rotate right" }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
+
+    private async checkForUpdates(): Promise<Response> {
+        try {
+            const updateInfo = await updateService.checkForUpdates();
+            return new Response(JSON.stringify(updateInfo), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Error checking for updates:", error);
+            return new Response(
+                JSON.stringify({
+                    error: "Failed to check for updates",
+                    currentVersion: "0.0.0",
+                    latestVersion: "0.0.0",
+                    updateAvailable: false,
+                }),
+                {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        }
+    }
+
+    private async performUpdate(request: Request): Promise<Response> {
+        try {
+            const body = await request.json();
+            const { version } = body;
+
+            if (!version) {
+                return new Response(JSON.stringify({ success: false, message: "Version is required" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const result = await updateService.performUpdate(version);
+
+            // If the update was successful, the process will exit shortly
+            // We need to send the response immediately
+            const response = new Response(JSON.stringify(result), {
+                headers: { "Content-Type": "application/json" },
+            });
+
+            // If update was successful, log that the process will exit
+            if (result.success) {
+                console.log("Update initiated successfully. Process will exit shortly.");
+            }
+
+            return response;
+        } catch (error) {
+            console.error("Error performing update:", error);
+            return new Response(JSON.stringify({ success: false, message: "Failed to perform update" }), {
                 status: 500,
                 headers: { "Content-Type": "application/json" },
             });

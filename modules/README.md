@@ -11,6 +11,7 @@ The dashboard uses a modular architecture where services and APIs are organized 
 - `weather/`: Weather API and services
 - `spotify/`: Spotify API and authentication
 - `webconfig/`: Web configuration interface
+- `update/`: System update checking and installation
 
 ### Module Pattern:
 
@@ -181,3 +182,53 @@ For users accessing the web interface from other devices on the network:
 3. Update your Spotify app settings in the developer dashboard with the same URI
 
 4. Access the web interface at `http://YOUR_PI_IP_ADDRESS:3000`
+
+## Update Module (`modules/update/`)
+
+The update module provides system update checking and installation functionality for the LED Dashboard.
+
+### Features:
+
+- Check for available updates from GitHub releases
+- Display current and latest versions
+- Perform system updates with progress tracking
+- Integration with the web interface for easy update management
+
+### Dependencies:
+
+This module depends on the following shell scripts in the `scripts/` directory:
+
+- `check-for-updates.sh`: Checks for available updates from GitHub
+- `update.sh`: Performs the actual system update
+
+### Files:
+
+- `update-service.ts`: Main update service with script execution
+- `README.md`: Detailed documentation for the update module
+
+### Usage:
+
+The update functionality is integrated into the web interface. Users can:
+
+1. Check for updates automatically when the page loads
+2. Manually check for updates using the "Check for Updates" button
+3. Install available updates with a single click
+4. View update progress and status messages
+
+### API Endpoints:
+
+- `GET /api/update/check`: Check for available updates
+- `POST /api/update/perform`: Perform an update to a specific version
+
+### Configuration:
+
+The update service automatically detects the environment:
+
+- **Development**: Uses scripts from the project root (`./scripts/`)
+- **Production**: Uses scripts from the installation directory (`/opt/led-dashboard/scripts/`)
+
+### Security:
+
+- Update scripts require proper permissions to execute
+- Scripts should be executable: `chmod +x scripts/*.sh`
+- The service validates script existence before execution
