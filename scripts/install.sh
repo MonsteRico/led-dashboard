@@ -122,48 +122,47 @@ else
 fi
 
 # Create symlink to Bun in /usr/bin for systemd service
-echo "Creating symlink to Bun in /usr/bin..."
-BUN_PATH=""
+echo "Checking if Bun symlink is needed in /usr/bin..."
 
-# Check multiple possible locations for Bun
-if [ -f "/root/.bun/bin/bun" ]; then
-    BUN_PATH="/root/.bun/bin/bun"
-    echo "Found Bun at: $BUN_PATH"
-elif [ -f "$HOME/.bun/bin/bun" ]; then
-    BUN_PATH="$HOME/.bun/bin/bun"
-    echo "Found Bun at: $BUN_PATH"
-elif command_exists bun; then
-    BUN_PATH=$(which bun)
-    echo "Found Bun in PATH at: $BUN_PATH"
-else
-    echo "ERROR: Could not find Bun binary to create symlink"
-    echo "Expected locations:"
-    echo "  - /root/.bun/bin/bun"
-    echo "  - $HOME/.bun/bin/bun"
-    echo "  - In PATH"
-    exit 1
-fi
-
-# Remove any existing symlink or file at /usr/bin/bun
-if [ -L "/usr/bin/bun" ]; then
-    echo "Removing existing symlink at /usr/bin/bun..."
-    sudo rm /usr/bin/bun
-elif [ -f "/usr/bin/bun" ]; then
-    echo "Backing up existing file at /usr/bin/bun..."
-    sudo mv /usr/bin/bun /usr/bin/bun.backup
-fi
-
-# Create the symlink
-sudo ln -sf "$BUN_PATH" /usr/bin/bun
-echo "Symlink created: /usr/bin/bun -> $BUN_PATH"
-
-# Verify the symlink works
-if [ -L "/usr/bin/bun" ] && [ -e "/usr/bin/bun" ]; then
-    echo "Symlink verified successfully"
+# Skip if /usr/bin/bun already exists
+if [ -e "/usr/bin/bun" ]; then
+    echo "Bun already exists at /usr/bin/bun, skipping symlink creation"
     echo "Bun version: $(/usr/bin/bun --version)"
 else
-    echo "ERROR: Failed to create working symlink"
-    exit 1
+    echo "Creating symlink to Bun in /usr/bin..."
+    BUN_PATH=""
+
+    # Check multiple possible locations for Bun
+    if [ -f "/root/.bun/bin/bun" ]; then
+        BUN_PATH="/root/.bun/bin/bun"
+        echo "Found Bun at: $BUN_PATH"
+    elif [ -f "$HOME/.bun/bin/bun" ]; then
+        BUN_PATH="$HOME/.bun/bin/bun"
+        echo "Found Bun at: $BUN_PATH"
+    elif command_exists bun; then
+        BUN_PATH=$(which bun)
+        echo "Found Bun in PATH at: $BUN_PATH"
+    else
+        echo "ERROR: Could not find Bun binary to create symlink"
+        echo "Expected locations:"
+        echo "  - /root/.bun/bin/bun"
+        echo "  - $HOME/.bun/bin/bun"
+        echo "  - In PATH"
+        exit 1
+    fi
+
+    # Create the symlink
+    sudo ln -sf "$BUN_PATH" /usr/bin/bun
+    echo "Symlink created: /usr/bin/bun -> $BUN_PATH"
+
+    # Verify the symlink works
+    if [ -L "/usr/bin/bun" ] && [ -e "/usr/bin/bun" ]; then
+        echo "Symlink verified successfully"
+        echo "Bun version: $(/usr/bin/bun --version)"
+    else
+        echo "ERROR: Failed to create working symlink"
+        exit 1
+    fi
 fi
 
 # Source the updated profile for current user
@@ -185,7 +184,29 @@ echo "[5/8] Installing dependencies in install directory..."
 cd "$INSTALL_DIR"
 sudo bun install
 
-echo "[6/8] Generating SSL certificates..."
+echo "[5.5/8] Compiling native modules..."
+# Ensure native modules are properly compiled for the current platform
+echo "Compiling rpi-led-matrix..."
+cd node_modules/rpi-led-matrix
+if [ -f "binding.gyp" ]; then
+    sudo bun run node-gyp rebuild
+else
+    echo "No binding.gyp found in rpi-led-matrix, skipping compilation"
+fi
+cd ../..
+
+echo "Compiling sharp..."
+cd node_modules/sharp
+if [ -f "binding.gyp" ]; then
+    sudo bun run node-gyp rebuild
+else
+    echo "No binding.gyp found in sharp, skipping compilation"
+fi
+cd ../..
+
+echo "Native module compilation completed"
+
+echo "[7/8] Generating SSL certificates..."
 # Run the SSL certificate generation script
 cd "$REPO_DIR"
 ./scripts/generate-ssl-certs.sh
@@ -196,20 +217,20 @@ sudo chown -R root:root "$INSTALL_DIR/ssl"
 sudo chmod 600 "$INSTALL_DIR/ssl/private-key.pem"
 sudo chmod 644 "$INSTALL_DIR/ssl/certificate.pem"
 
-echo "[7/8] Installing scripts..."
+echo "[8/8] Installing scripts..."
 sudo cp scripts/check-for-updates.sh /usr/local/bin/check-for-updates.sh
 sudo cp scripts/update.sh /usr/local/bin/update.sh
 sudo cp scripts/wifi-check.sh /usr/local/bin/wifi-check.sh
 sudo chmod +x /usr/local/bin/*
 
-echo "[8/8] Installing services..."
+echo "[9/8] Installing services..."
 sudo cp systemdServices/dashboard.service /etc/systemd/system/
 sudo cp systemdServices/wifi-check.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable dashboard.service
 sudo systemctl enable wifi-check.service
 
-echo "[9/8] Installing network configs..."
+echo "[10/8] Installing network configs..."
 sudo cp systemConfigs/hostapd.conf /etc/hostapd/hostapd.conf
 sudo cp systemConfigs/dnsmasq.conf /etc/dnsmasq.conf
 sudo cp systemConfigs/dhcpcd.conf /etc/dhcpcd.conf
