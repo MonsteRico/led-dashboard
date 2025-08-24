@@ -119,9 +119,6 @@ elif [ -f "$HOME/.bun/bin/bun" ]; then
 elif command_exists bun; then
     BUN_PATH=$(which bun)
     echo "Found Bun in PATH at: $BUN_PATH"
-elif [ -f "/usr/bin/bun" ]; then
-    BUN_PATH="/usr/bin/bun"
-    echo "Found Bun already at: $BUN_PATH"
 else
     echo "ERROR: Could not find Bun binary to create symlink"
     echo "Expected locations:"
