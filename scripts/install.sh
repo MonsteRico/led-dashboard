@@ -4,21 +4,108 @@ set -e
 REPO_DIR=$(pwd)
 INSTALL_DIR="/opt/led-dashboard"
 
-echo "[1/8] Installing dependencies..."
-sudo apt-get update
-sudo apt-get install -y hostapd dnsmasq git curl unzip build-essential openssl
+echo "[1/8] Checking and installing dependencies..."
 
-echo "[2/8] Installing Bun..."
-# Install Bun for the current user
-curl -fsSL https://bun.sh/install | bash
-# Install Bun for root user (sudo)
-sudo curl -fsSL https://bun.sh/install | sudo bash
-# Add Bun to PATH for both users
-echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.bashrc
-echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.bashrc
-sudo bash -c 'echo "export BUN_INSTALL=\"/root/.bun\"" >> /root/.bashrc'
-sudo bash -c 'echo "export PATH=\"/root/.bun/bin:\$PATH\"" >> /root/.bashrc'
-# Source the updated profile
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to check if a package is installed
+package_installed() {
+    dpkg -l "$1" >/dev/null 2>&1
+}
+
+# Check and install individual packages
+echo "Checking hostapd..."
+if ! package_installed hostapd; then
+    echo "Installing hostapd..."
+    sudo apt-get install -y hostapd
+else
+    echo "hostapd already installed"
+fi
+
+echo "Checking dnsmasq..."
+if ! package_installed dnsmasq; then
+    echo "Installing dnsmasq..."
+    sudo apt-get install -y dnsmasq
+else
+    echo "dnsmasq already installed"
+fi
+
+echo "Checking git..."
+if ! command_exists git; then
+    echo "Installing git..."
+    sudo apt-get install -y git
+else
+    echo "git already installed"
+fi
+
+echo "Checking curl..."
+if ! command_exists curl; then
+    echo "Installing curl..."
+    sudo apt-get install -y curl
+else
+    echo "curl already installed"
+fi
+
+echo "Checking unzip..."
+if ! command_exists unzip; then
+    echo "Installing unzip..."
+    sudo apt-get install -y unzip
+else
+    echo "unzip already installed"
+fi
+
+echo "Checking gcc and g++..."
+if ! command_exists gcc || ! command_exists g++; then
+    echo "Installing build-essential (for gcc/g++)..."
+    sudo apt-get install -y build-essential
+else
+    echo "gcc and g++ already available"
+fi
+
+echo "Checking openssl..."
+if ! command_exists openssl; then
+    echo "Installing openssl..."
+    sudo apt-get install -y openssl
+else
+    echo "openssl already installed"
+fi
+
+echo "Checking iw dev..."
+if ! command_exists iw || ! iw dev >/dev/null 2>&1; then
+    echo "Installing iw..."
+    sudo apt-get install -y iw
+else
+    echo "iw dev already available"
+fi
+
+echo "[2/8] Checking and installing Bun..."
+
+# Check if Bun is already installed for current user
+if ! command_exists bun; then
+    echo "Installing Bun for current user..."
+    curl -fsSL https://bun.sh/install | bash
+    # Add Bun to PATH for current user
+    echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.bashrc
+    echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.bashrc
+else
+    echo "Bun already installed for current user"
+fi
+
+# Check if Bun is already installed for root user
+if ! sudo bun --version >/dev/null 2>&1; then
+    echo "Installing Bun for root user..."
+    sudo curl -fsSL https://bun.sh/install | sudo bash
+    # Add Bun to PATH for root user
+    sudo bash -c 'echo "export BUN_INSTALL=\"/root/.bun\"" >> /root/.bashrc'
+    sudo bash -c 'echo "export PATH=\"/root/.bun/bin:\$PATH\"" >> /root/.bashrc'
+else
+    echo "Bun already installed for root user"
+fi
+
+# Source the updated profile for current user
 source ~/.bashrc
 
 echo "[3/8] Creating install dir..."
