@@ -1,12 +1,12 @@
 # Hardware
 
--   Raspberry Pi 4 (maybe a 3, definitely a 4, NOT A ZERO OR 5)
--   https://www.adafruit.com/product/2279 or similar led matrix
--   https://www.adafruit.com/product/3211 to connect the pi and matrix
--   https://www.adafruit.com/product/1466 power supply for the hat/matrix also powers the pi
--   mini hdmi to hdmi to connect pi to a monitor, usb keyboard to use with pi if need
--   sd card, 16gb is fine
--   alejandros 3d models for it
+- Raspberry Pi 4 (maybe a 3, definitely a 4, NOT A ZERO OR 5)
+- https://www.adafruit.com/product/2279 or similar led matrix
+- https://www.adafruit.com/product/3211 to connect the pi and matrix
+- https://www.adafruit.com/product/1466 power supply for the hat/matrix also powers the pi
+- mini hdmi to hdmi to connect pi to a monitor, usb keyboard to use with pi if need
+- sd card, 16gb is fine
+- alejandros 3d models for it
 
 # Use Ubuntu
 
@@ -36,20 +36,20 @@ Reboot the pi
 
 # Things you need on the pi
 
--   Install unzip, its required for bun `sudo apt-get install unzip`
--   Install gcc/g++/make `sudo apt install build-essential`
--   Install hostapd and dnsmasq `sudo apt install hostapd` and `sudo apt install dnsmasq`
-    -  Copy the `wifi-check.sh` and `/systemConfigs` and `/systemdServices` to the appropriate places (comment at top of file)
+- Install unzip, its required for bun `sudo apt-get install unzip`
+- Install gcc/g++/make `sudo apt install build-essential`
+- Install hostapd and dnsmasq `sudo apt install hostapd` and `sudo apt install dnsmasq`
+    - Copy the `wifi-check.sh` and `/systemConfigs` and `/systemdServices` to the appropriate places (comment at top of file)
     - `sudo systemctl daemon-reload` to reload systemd, `sudo systemctl enable {service name}` to enable (or disable) service `sudo systemctl status {service name}` to check status
--   Install bun `curl -fsSL https://bun.sh/install | bash`
-    -   Add bun to sudo path
-    -   `sudo visudo`
-    -   Find the secure_path and add to the end (before the closing quote)
-    -   `/home/${username of the pi, been defaulting to "pi"}/.bun/bin/bun`
-    -   save and exit with ctrl+x and then Y and enter
--   Install git if not already installed `sudo apt-get install git`
--   Make sure git is configured with credentials
-    Generate a key following these steps: more details
+- Install bun `curl -fsSL https://bun.sh/install | bash`
+    - Add bun to sudo path
+    - `sudo visudo`
+    - Find the secure_path and add to the end (before the closing quote)
+    - `/home/${username of the pi, been defaulting to "pi"}/.bun/bin/bun`
+    - save and exit with ctrl+x and then Y and enter
+- Install git if not already installed `sudo apt-get install git`
+- Make sure git is configured with credentials
+  Generate a key following these steps: more details
 
 `ssh-keygen -t rsa -b 4096 -C "yourEmail@something.com"`
 
@@ -66,8 +66,8 @@ If the private key is saved as id_rsa in the `~/.ssh/` directory, we add it for 
 `eval "$(ssh-agent -s)"`
 `ssh-add ~/.ssh/id_rsa`
 
--   Clone this repo USING THE SSH LINK since we setup that key
+- Clone this repo USING THE SSH LINK since we setup that key
 
 # How to run
 
--   theoretically just `bun index.ts` cuz bun does typescript?
+- theoretically just `bun index.ts` cuz bun does typescript?

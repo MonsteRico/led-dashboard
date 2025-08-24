@@ -4,12 +4,12 @@ After=network.target
 Wants=network.target
 
 [Service]
-# Run as the pi user (important so we don’t need full sudo for normal ops)
+# Run as the pi user (important so we don't need full sudo for normal ops)
 User=pi
 WorkingDirectory=/opt/led-dashboard
 
-# Start the compiled build
-ExecStart=/usr/bin/bun /opt/led-dashboard/dist/index.js
+# Start the TypeScript source directly with bun
+ExecStart=/usr/bin/bun run src/index.ts
 
 # Auto-restart on crashes
 Restart=always

@@ -27,10 +27,21 @@ tar -xzf "$TMP_DIR/update.tar.gz" -C "$TMP_DIR"
 # Stop service
 sudo systemctl stop dashboard.service
 
-# Replace files
-sudo rm -rf "$INSTALL_DIR/dist"
-sudo cp -r "$TMP_DIR/dist" "$INSTALL_DIR/"
+# Replace source files
+sudo rm -rf "$INSTALL_DIR/src"
+sudo rm -f "$INSTALL_DIR/package.json"
+sudo rm -f "$INSTALL_DIR/tsconfig.json"
+sudo rm -f "$INSTALL_DIR/bun.lock"
+
+sudo cp -r "$TMP_DIR/src" "$INSTALL_DIR/"
+sudo cp "$TMP_DIR/package.json" "$INSTALL_DIR/"
+sudo cp "$TMP_DIR/tsconfig.json" "$INSTALL_DIR/"
+sudo cp "$TMP_DIR/bun.lock" "$INSTALL_DIR/"
 echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
+
+# Install dependencies
+cd "$INSTALL_DIR"
+sudo bun install
 
 # Restart service
 sudo systemctl start dashboard.service

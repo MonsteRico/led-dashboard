@@ -4,7 +4,7 @@ set -e
 REPO_DIR=$(pwd)
 INSTALL_DIR="/opt/led-dashboard"
 
-echo "[1/8] Checking and installing dependencies..."
+echo "[1/7] Checking and installing dependencies..."
 
 # Function to check if a command exists
 command_exists() {
@@ -81,7 +81,7 @@ else
     echo "iw dev already available"
 fi
 
-echo "[2/8] Checking and installing Bun..."
+echo "[2/7] Checking and installing Bun..."
 
 # Check if Bun is already installed for current user
 if ! command_exists bun; then
@@ -157,17 +157,21 @@ fi
 # Source the updated profile for current user
 source ~/.bashrc
 
-echo "[2.5/8] Running local build..."
-sudo chmod +x $REPO_DIR/scripts/*
-./scripts/build.sh
-
-echo "[3/8] Creating install dir..."
+echo "[3/7] Creating install dir and copying source files..."
 sudo mkdir -p "$INSTALL_DIR"
-sudo cp -r dist "$INSTALL_DIR/"
+sudo cp -r src "$INSTALL_DIR/"
+sudo cp package.json "$INSTALL_DIR/"
+sudo cp tsconfig.json "$INSTALL_DIR/"
+sudo cp bun.lock "$INSTALL_DIR/"
 sudo cp VERSION "$INSTALL_DIR/"
 
-echo "[4/8] Generating SSL certificates..."
+echo "[4/7] Installing dependencies in install directory..."
+cd "$INSTALL_DIR"
+sudo bun install
+
+echo "[5/7] Generating SSL certificates..."
 # Run the SSL certificate generation script
+cd "$REPO_DIR"
 ./scripts/generate-ssl-certs.sh
 # Copy SSL certificates to install directory
 sudo mkdir -p "$INSTALL_DIR/ssl"
@@ -176,25 +180,27 @@ sudo chown -R root:root "$INSTALL_DIR/ssl"
 sudo chmod 600 "$INSTALL_DIR/ssl/private-key.pem"
 sudo chmod 644 "$INSTALL_DIR/ssl/certificate.pem"
 
-echo "[5/8] Installing scripts..."
+echo "[6/7] Installing scripts..."
 sudo cp scripts/check-for-updates.sh /usr/local/bin/check-for-updates.sh
 sudo cp scripts/update.sh /usr/local/bin/update.sh
 sudo cp scripts/wifi-check.sh /usr/local/bin/wifi-check.sh
 sudo chmod +x /usr/local/bin/*
 
-echo "[6/8] Installing services..."
+echo "[7/7] Installing services..."
 sudo cp systemdServices/dashboard.service /etc/systemd/system/
 sudo cp systemdServices/wifi-check.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable dashboard.service
 sudo systemctl enable wifi-check.service
 
-echo "[7/8] Installing network configs..."
+echo "[8/8] Installing network configs..."
 sudo cp systemConfigs/hostapd.conf /etc/hostapd/hostapd.conf
 sudo cp systemConfigs/dnsmasq.conf /etc/dnsmasq.conf
 sudo cp systemConfigs/dhcpcd.conf /etc/dhcpcd.conf
 
-echo "[8/8] Setup complete."
+echo "Setup complete."
 echo "SSL certificates have been generated and installed to $INSTALL_DIR/ssl/"
 echo "Bun has been installed for both current user and root user."
+echo "Source files have been copied to $INSTALL_DIR/"
+echo "Dependencies have been installed using bun install."
 echo "Reboot recommended."

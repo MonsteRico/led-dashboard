@@ -27,22 +27,20 @@ jobs:
             - name: Install dependencies
               run: bun install
 
-            # 4️⃣ Build the project
-            - name: Build project
-              run: |
-                  bun build ./src/index.ts --outdir dist --target bun
-
-            # 5️⃣ Prepare release tarball
+            # 4️⃣ Prepare release tarball with source files
             - name: Package release
               run: |
                   VERSION=${GITHUB_REF##*/}
                   PKG_NAME="led-dashboard-$VERSION"
                   mkdir -p release/$PKG_NAME
-                  cp -r dist release/$PKG_NAME/
+                  cp -r src release/$PKG_NAME/
+                  cp package.json release/$PKG_NAME/
+                  cp tsconfig.json release/$PKG_NAME/
+                  cp bun.lock release/$PKG_NAME/
                   cp VERSION release/$PKG_NAME/
                   tar -czf release/$PKG_NAME.tar.gz -C release $PKG_NAME
 
-            # 6️⃣ Create GitHub release with tarball
+            # 5️⃣ Create GitHub release with tarball
             - name: Create GitHub Release
               uses: ncipollo/release-action@v1
               with:
