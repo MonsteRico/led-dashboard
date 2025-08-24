@@ -39,6 +39,23 @@ sudo cp "$TMP_DIR/tsconfig.json" "$INSTALL_DIR/"
 sudo cp "$TMP_DIR/bun.lock" "$INSTALL_DIR/"
 echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
 
+# Ensure build tools are available for native module compilation
+echo "Ensuring build tools are available..."
+if ! command -v gcc >/dev/null 2>&1 || ! command -v g++ >/dev/null 2>&1; then
+    echo "Installing build-essential..."
+    sudo apt-get install -y build-essential
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Installing python3..."
+    sudo apt-get install -y python3
+fi
+
+if ! command -v make >/dev/null 2>&1; then
+    echo "Installing make..."
+    sudo apt-get install -y make
+fi
+
 # Install dependencies
 cd "$INSTALL_DIR"
 sudo bun install
