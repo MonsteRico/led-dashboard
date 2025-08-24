@@ -105,18 +105,29 @@ else
     echo "Bun already installed for root user"
 fi
 
+# Create symlink to Bun in /usr/bin for systemd service
+echo "Creating symlink to Bun in /usr/bin..."
+if [ -f "/root/.bun/bin/bun" ]; then
+    sudo ln -sf /root/.bun/bin/bun /usr/bin/bun
+    echo "Symlink created: /usr/bin/bun -> /root/.bun/bin/bun"
+elif [ -f "$HOME/.bun/bin/bun" ]; then
+    sudo ln -sf "$HOME/.bun/bin/bun" /usr/bin/bun
+    echo "Symlink created: /usr/bin/bun -> $HOME/.bun/bin/bun"
+else
+    echo "ERROR: Could not find Bun binary to create symlink"
+    exit 1
+fi
+
 # Source the updated profile for current user
 source ~/.bashrc
 
 echo "[2.5/8] Running local build..."
-cp $REPO_DIR/.env.example $REPO_DIR/.env
 bun install
 bun build src/index.ts --outdir dist --target bun
 
 echo "[3/8] Creating install dir..."
 sudo mkdir -p "$INSTALL_DIR"
 sudo cp -r dist "$INSTALL_DIR/"
-sudo cp .env "$INSTALL_DIR/"
 sudo cp VERSION "$INSTALL_DIR/"
 
 echo "[4/8] Generating SSL certificates..."
