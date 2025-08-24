@@ -27,7 +27,12 @@ jobs:
 
             # 4️⃣ Build the project
             - name: Build project
-              run: bun build src/index.ts --outdir dist --target bun --config bunfig.toml
+              run: |
+                pwd
+                ls -la
+                ls -la src/
+                # Try building with absolute path
+                bun build ./src/index.ts --outdir dist --target bun --config bunfig.toml
 
             # 5️⃣ Prepare release tarball
             - name: Package release
