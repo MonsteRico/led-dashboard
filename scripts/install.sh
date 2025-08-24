@@ -132,6 +132,15 @@ else
     exit 1
 fi
 
+# Remove any existing symlink or file at /usr/bin/bun
+if [ -L "/usr/bin/bun" ]; then
+    echo "Removing existing symlink at /usr/bin/bun..."
+    sudo rm /usr/bin/bun
+elif [ -f "/usr/bin/bun" ]; then
+    echo "Backing up existing file at /usr/bin/bun..."
+    sudo mv /usr/bin/bun /usr/bin/bun.backup
+fi
+
 # Create the symlink
 sudo ln -sf "$BUN_PATH" /usr/bin/bun
 echo "Symlink created: /usr/bin/bun -> $BUN_PATH"
