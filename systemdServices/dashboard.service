@@ -4,8 +4,8 @@ After=network.target
 Wants=network.target
 
 [Service]
-# Run as the pi user (important so we don't need full sudo for normal ops)
-User=pi
+# Run as root for hardware access (LED matrix requires GPIO permissions)
+User=root
 WorkingDirectory=/opt/led-dashboard
 
 # Start the TypeScript source directly with bun

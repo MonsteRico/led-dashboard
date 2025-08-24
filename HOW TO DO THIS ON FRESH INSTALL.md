@@ -72,3 +72,4 @@ If the private key is saved as id_rsa in the `~/.ssh/` directory, we add it for 
 # How to run
 
 - theoretically just `bun index.ts` cuz bun does typescript?
+- Note: The dashboard service runs as root to access LED matrix hardware (GPIO pins)

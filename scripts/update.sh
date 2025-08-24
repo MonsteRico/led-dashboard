@@ -39,6 +39,9 @@ sudo cp "$TMP_DIR/tsconfig.json" "$INSTALL_DIR/"
 sudo cp "$TMP_DIR/bun.lock" "$INSTALL_DIR/"
 echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
 
+# Ensure all files are owned by root since the service runs as root
+sudo chown -R root:root "$INSTALL_DIR"
+
 # Ensure build tools are available for native module compilation
 echo "Ensuring build tools are available..."
 if ! command -v gcc >/dev/null 2>&1 || ! command -v g++ >/dev/null 2>&1; then

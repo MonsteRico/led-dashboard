@@ -180,6 +180,9 @@ sudo cp tsconfig.json "$INSTALL_DIR/"
 sudo cp bun.lock "$INSTALL_DIR/"
 sudo cp VERSION "$INSTALL_DIR/"
 
+# Ensure all files are owned by root since the service runs as root
+sudo chown -R root:root "$INSTALL_DIR"
+
 echo "[5/8] Installing dependencies in install directory..."
 cd "$INSTALL_DIR"
 sudo bun install
