@@ -19,7 +19,7 @@ mkdir -p "$TMP_DIR"
 
 # Download release tarball
 echo "Downloading release tarball..."
-DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/led-dashboard-$VERSION.tar.gz"
+DOWNLOAD_URL="https://github.com/$REPO/archive/refs/tags/$VERSION.tar.gz"
 echo "URL: $DOWNLOAD_URL"
 
 if ! curl -L "$DOWNLOAD_URL" -o "$TMP_DIR/update.tar.gz" --fail --silent --show-error; then
@@ -47,12 +47,23 @@ if ! tar -xzf "$TMP_DIR/update.tar.gz" -C "$TMP_DIR"; then
     exit 1
 fi
 
+# The source archive extracts to a folder named led-dashboard-{version}
+EXTRACTED_DIR="$TMP_DIR/led-dashboard-${VERSION#v}"
+echo "Looking for extracted directory: $EXTRACTED_DIR"
+
 # Verify the extracted contents
 echo "Verifying extracted contents..."
-if [ ! -d "$TMP_DIR/src" ] || [ ! -f "$TMP_DIR/package.json" ]; then
-    echo "ERROR: Extracted contents are missing required files (src/ or package.json)"
+if [ ! -d "$EXTRACTED_DIR" ]; then
+    echo "ERROR: Expected directory $EXTRACTED_DIR not found"
     echo "Contents of $TMP_DIR:"
     ls -la "$TMP_DIR"
+    exit 1
+fi
+
+if [ ! -d "$EXTRACTED_DIR/src" ] || [ ! -f "$EXTRACTED_DIR/package.json" ]; then
+    echo "ERROR: Extracted contents are missing required files (src/ or package.json)"
+    echo "Contents of $EXTRACTED_DIR:"
+    ls -la "$EXTRACTED_DIR"
     exit 1
 fi
 
@@ -68,11 +79,11 @@ sudo rm -f "$INSTALL_DIR/package.json"
 sudo rm -f "$INSTALL_DIR/tsconfig.json"
 sudo rm -f "$INSTALL_DIR/bun.lock"
 
-sudo cp -r "$TMP_DIR/src" "$INSTALL_DIR/"
-sudo cp -r "$TMP_DIR/scripts" "$INSTALL_DIR/"
-sudo cp "$TMP_DIR/package.json" "$INSTALL_DIR/"
-sudo cp "$TMP_DIR/tsconfig.json" "$INSTALL_DIR/"
-sudo cp "$TMP_DIR/bun.lock" "$INSTALL_DIR/"
+sudo cp -r "$EXTRACTED_DIR/src" "$INSTALL_DIR/"
+sudo cp -r "$EXTRACTED_DIR/scripts" "$INSTALL_DIR/"
+sudo cp "$EXTRACTED_DIR/package.json" "$INSTALL_DIR/"
+sudo cp "$EXTRACTED_DIR/tsconfig.json" "$INSTALL_DIR/"
+sudo cp "$EXTRACTED_DIR/bun.lock" "$INSTALL_DIR/"
 echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
 
 # Ensure all files are owned by root since the service runs as root

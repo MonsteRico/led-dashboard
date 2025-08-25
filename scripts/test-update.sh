@@ -32,7 +32,7 @@ fi
 echo "Release $VERSION exists!"
 
 # Check for the specific asset
-DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/led-dashboard-$VERSION.tar.gz"
+DOWNLOAD_URL="https://github.com/$REPO/archive/refs/tags/$VERSION.tar.gz"
 echo "Checking download URL: $DOWNLOAD_URL"
 
 # Test the download
@@ -57,6 +57,14 @@ if curl -L "$DOWNLOAD_URL" -o "$TMP_DIR/test.tar.gz" --range 0-1023 --fail --sil
     # Check if it's gzip
     if file "$TMP_DIR/test.tar.gz" | grep -q "gzip compressed data"; then
         echo "File appears to be a valid gzip archive"
+        
+        # Test extraction to see the structure
+        echo "Testing extraction structure..."
+        if tar -tzf "$TMP_DIR/test.tar.gz" | head -5; then
+            echo "Archive structure looks good"
+        else
+            echo "WARNING: Could not read archive structure"
+        fi
     else
         echo "WARNING: File does not appear to be a gzip archive"
         echo "This might indicate the release was not created properly"
