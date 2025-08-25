@@ -52,10 +52,31 @@ export async function executeUpdateAfterShutdown(version: string, scriptsDir: st
 
         console.log(`Executing direct update script: ${updateScript} with version: ${version}`);
         console.log("Update logs will be written to /var/log/led-dashboard-update.log");
+        console.log(`Current working directory: ${process.cwd()}`);
+        console.log(`Scripts directory: ${scriptsDir}`);
+
+        // Check if the script exists
+        const fs = require("fs");
+        if (!fs.existsSync(updateScript)) {
+            const error = `Update script not found at: ${updateScript}`;
+            console.error(error);
+            reject(new Error(error));
+            return;
+        }
+
+        console.log("Update script exists, checking permissions...");
+        try {
+            const stats = fs.statSync(updateScript);
+            console.log(`Script permissions: ${stats.mode.toString(8)}`);
+            console.log(`Script is executable: ${(stats.mode & 0o111) !== 0}`);
+        } catch (error) {
+            console.error("Error checking script permissions:", error);
+        }
 
         // Use the direct update script which provides better logging
         const child = spawn("bash", [updateScript, version], {
             stdio: ["pipe", "pipe", "pipe"],
+            cwd: "/opt/led-dashboard", // Ensure we're in the right directory
         });
 
         let stdout = "";

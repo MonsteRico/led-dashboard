@@ -29,11 +29,17 @@ export class UpdateService {
         // In production, this should be /opt/led-dashboard/scripts
         // In development, it's relative to the project root
         const isProduction = process.env.NODE_ENV === "production";
+        console.log(`UpdateService: NODE_ENV = ${process.env.NODE_ENV}`);
+        console.log(`UpdateService: isProduction = ${isProduction}`);
+        console.log(`UpdateService: process.cwd() = ${process.cwd()}`);
+
         if (isProduction) {
             this.scriptsDir = "/opt/led-dashboard/scripts";
         } else {
             this.scriptsDir = join(process.cwd(), "scripts");
         }
+
+        console.log(`UpdateService: scriptsDir = ${this.scriptsDir}`);
     }
 
     /**
@@ -97,7 +103,7 @@ export class UpdateService {
     public async performUpdate(version: string): Promise<UpdateResult> {
         return new Promise(async (resolve) => {
             try {
-                const updateScript = join(this.scriptsDir, "update.sh");
+                const updateScript = join(this.scriptsDir, "update-direct.sh");
 
                 // Check if the script exists
                 const fs = require("fs");
@@ -122,20 +128,20 @@ export class UpdateService {
 
                 console.log("Starting update process...");
 
-                // // 1. Perform graceful shutdown
-                // await gracefulShutdown(this.appContext);
+                // 1. Perform graceful shutdown
+                await gracefulShutdown(this.appContext);
 
-                // 2. Execute update script in detached process
+                // 2. Execute update script
                 await executeUpdateAfterShutdown(version, this.scriptsDir);
 
                 // 3. Exit the current process
                 // The update script will restart the service
-                console.log("Update process initiated. Exiting...");
+                console.log("Update process completed. Exiting...");
 
                 // Give a small delay to ensure the response is sent
-                // setTimeout(() => {
-                //     process.exit(0);
-                // }, 1000);
+                setTimeout(() => {
+                    process.exit(0);
+                }, 1000);
 
                 resolve({
                     success: true,
