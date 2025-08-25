@@ -121,10 +121,7 @@ export class UpdateService {
                 }
 
                 console.log("Starting update process...");
-
-                // 1. Perform graceful shutdown
-                await gracefulShutdown(this.appContext);
-
+                
                 // 2. Execute update script in detached process
                 await executeUpdateAfterShutdown(version, this.scriptsDir);
 
