@@ -1,8 +1,6 @@
 [Unit]
 Description=LED Dashboard Update Service
 After=network.target
-Requires=dashboard.service
-Conflicts=dashboard.service
 
 [Service]
 Type=oneshot
@@ -13,7 +11,7 @@ StandardOutput=journal
 StandardError=journal
 RemainAfterExit=yes
 
-# Wait for dashboard service to stop before starting
+# Stop dashboard service before starting update
 ExecStartPre=/bin/systemctl stop dashboard.service
 ExecStartPre=/bin/sleep 2
 
