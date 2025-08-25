@@ -6,17 +6,10 @@ After=network.target
 Type=oneshot
 User=root
 WorkingDirectory=/opt/led-dashboard
-ExecStart=/opt/led-dashboard/scripts/update-direct.sh %i
+ExecStart=/opt/led-dashboard/scripts/update-with-service-control.sh %i
 StandardOutput=journal
 StandardError=journal
 RemainAfterExit=yes
-
-# Stop dashboard service before starting update
-ExecStartPre=/bin/systemctl stop dashboard.service
-ExecStartPre=/bin/sleep 2
-
-# Start dashboard service after update completes
-ExecStopPost=/bin/systemctl start dashboard.service
 
 [Install]
 WantedBy=multi-user.target

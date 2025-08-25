@@ -228,6 +228,7 @@ echo "[8/8] Installing scripts..."
 sudo cp scripts/check-for-updates.sh /usr/local/bin/check-for-updates.sh
 sudo cp scripts/update.sh /usr/local/bin/update.sh
 sudo cp scripts/update-direct.sh /usr/local/bin/update-direct.sh
+sudo cp scripts/update-with-service-control.sh /usr/local/bin/update-with-service-control.sh
 sudo cp scripts/monitor-update.sh /usr/local/bin/monitor-update.sh
 sudo cp scripts/wifi-check.sh /usr/local/bin/wifi-check.sh
 sudo chmod +x /usr/local/bin/*
