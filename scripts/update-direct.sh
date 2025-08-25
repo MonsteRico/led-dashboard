@@ -76,18 +76,8 @@ if [ ! -d "$EXTRACTED_DIR/src" ] || [ ! -f "$EXTRACTED_DIR/package.json" ]; then
     exit 1
 fi
 
-# Stop service
-echo "Stopping dashboard service..."
-if systemctl is-active --quiet dashboard.service; then
-    echo "Dashboard service is running, stopping it..."
-    if sudo systemctl stop dashboard.service; then
-        echo "Dashboard service stopped successfully"
-    else
-        echo "WARNING: Failed to stop dashboard service, but continuing..."
-    fi
-else
-    echo "Dashboard service was not running"
-fi
+# Note: Dashboard service is already stopped by systemd before this script runs
+echo "Dashboard service has been stopped by systemd"
 
 # Replace source files
 echo "Replacing source files..."
@@ -254,23 +244,8 @@ fi
 
 echo "Native module compilation completed successfully"
 
-# Restart service
-echo "Starting dashboard service..."
-if ! sudo systemctl start dashboard.service; then
-    echo "ERROR: Failed to start dashboard service"
-    echo "Attempting to check service status..."
-    sudo systemctl status dashboard.service
-    exit 1
-fi
-
-echo "Dashboard service started successfully"
-echo "Checking service status..."
-if ! sudo systemctl is-active --quiet dashboard.service; then
-    echo "WARNING: Dashboard service is not active after start attempt"
-    sudo systemctl status dashboard.service
-else
-    echo "Dashboard service is running successfully"
-fi
+# Note: Dashboard service will be started by systemd after this script completes
+echo "Update script completed. Dashboard service will be started by systemd."
 
 echo "=========================================="
 echo "Update complete. Now running $VERSION."

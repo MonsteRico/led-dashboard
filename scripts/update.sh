@@ -114,28 +114,6 @@ echo "Installing dependencies..."
 cd "$INSTALL_DIR"
 sudo bun install
 
-# Compile native modules
-echo "Compiling native modules..."
-echo "Compiling rpi-led-matrix..."
-cd node_modules/rpi-led-matrix
-if [ -f "binding.gyp" ]; then
-    sudo bun run node-gyp rebuild
-else
-    echo "No binding.gyp found in rpi-led-matrix, skipping compilation"
-fi
-cd ../..
-
-echo "Compiling sharp..."
-cd node_modules/sharp
-if [ -f "binding.gyp" ]; then
-    sudo bun run node-gyp rebuild
-else
-    echo "No binding.gyp found in sharp, skipping compilation"
-fi
-cd ../..
-
-echo "Native module compilation completed"
-
 # Restart service
 echo "Starting dashboard service..."
 sudo systemctl start dashboard.service

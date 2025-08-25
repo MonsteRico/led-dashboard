@@ -44,39 +44,17 @@ export async function gracefulShutdown(options: ShutdownOptions): Promise<void> 
 }
 
 /**
- * Executes the update using the direct update script
+ * Executes the update using systemd service trigger
  */
 export async function executeUpdateAfterShutdown(version: string, scriptsDir: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const updateScript = join(scriptsDir, "update-direct.sh");
+        console.log(`Triggering update service for version: ${version}`);
+        console.log("Update logs will be available in systemd journal");
+        console.log("Use 'journalctl -u update@${version}.service -f' to monitor the update");
 
-        console.log(`Executing direct update script: ${updateScript} with version: ${version}`);
-        console.log("Update logs will be written to /var/log/led-dashboard-update.log");
-        console.log(`Current working directory: ${process.cwd()}`);
-        console.log(`Scripts directory: ${scriptsDir}`);
-
-        // Check if the script exists
-        const fs = require("fs");
-        if (!fs.existsSync(updateScript)) {
-            const error = `Update script not found at: ${updateScript}`;
-            console.error(error);
-            reject(new Error(error));
-            return;
-        }
-
-        console.log("Update script exists, checking permissions...");
-        try {
-            const stats = fs.statSync(updateScript);
-            console.log(`Script permissions: ${stats.mode.toString(8)}`);
-            console.log(`Script is executable: ${(stats.mode & 0o111) !== 0}`);
-        } catch (error) {
-            console.error("Error checking script permissions:", error);
-        }
-
-        // Use the direct update script which provides better logging
-        const child = spawn("bash", [updateScript, version], {
+        // Use systemctl to start the update service
+        const child = spawn("systemctl", ["start", `update@${version}.service`], {
             stdio: ["pipe", "pipe", "pipe"],
-            cwd: "/opt/led-dashboard", // Ensure we're in the right directory
         });
 
         let stdout = "";
@@ -84,28 +62,28 @@ export async function executeUpdateAfterShutdown(version: string, scriptsDir: st
 
         child.stdout.on("data", (data) => {
             stdout += data.toString();
-            console.log("Update script output:", data.toString());
+            console.log("Update service output:", data.toString());
         });
 
         child.stderr.on("data", (data) => {
             stderr += data.toString();
-            console.error("Update script error:", data.toString());
+            console.error("Update service error:", data.toString());
         });
 
         child.on("close", (code) => {
             if (code === 0) {
-                console.log("Update script completed successfully");
-                console.log("Check /var/log/led-dashboard-update.log for detailed update logs");
+                console.log("Update service started successfully");
+                console.log("The update service will handle stopping the dashboard, updating, and restarting");
                 resolve();
             } else {
-                console.error(`Update script failed with code ${code}`);
-                console.error("Check /var/log/led-dashboard-update.log for detailed error logs");
-                reject(new Error(`Update script failed with code ${code}: ${stderr}`));
+                console.error(`Failed to start update service with code ${code}`);
+                console.error("Check systemd logs for details");
+                reject(new Error(`Failed to start update service with code ${code}: ${stderr}`));
             }
         });
 
         child.on("error", (error) => {
-            console.error("Failed to execute update script:", error);
+            console.error("Failed to trigger update service:", error);
             reject(error);
         });
     });

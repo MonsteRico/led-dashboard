@@ -128,15 +128,15 @@ export class UpdateService {
 
                 console.log("Starting update process...");
 
-                // 1. Perform graceful shutdown
-                await gracefulShutdown(this.appContext);
+                // The systemd service will handle stopping the dashboard service
+                // No need for graceful shutdown here as systemd manages the lifecycle
 
-                // 2. Execute update script
+                // Execute update service trigger
                 await executeUpdateAfterShutdown(version, this.scriptsDir);
 
-                // 3. Exit the current process
-                // The update script will restart the service
-                console.log("Update process completed. Exiting...");
+                // Exit the current process
+                // The update service will restart the dashboard service
+                console.log("Update service triggered. Exiting...");
 
                 // Give a small delay to ensure the response is sent
                 setTimeout(() => {
