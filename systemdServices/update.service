@@ -1,0 +1,16 @@
+[Unit]
+Description=LED Dashboard Update Service
+After=network.target
+Before=dashboard.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/led-dashboard
+ExecStart=/opt/led-dashboard/scripts/update.sh %i
+StandardOutput=journal
+StandardError=journal
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

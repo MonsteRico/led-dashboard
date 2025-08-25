@@ -44,17 +44,18 @@ export async function gracefulShutdown(options: ShutdownOptions): Promise<void> 
 }
 
 /**
- * Executes the update script after graceful shutdown
+ * Executes the update using the direct update script
  */
 export async function executeUpdateAfterShutdown(version: string, scriptsDir: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const updateScript = join(scriptsDir, "update.sh");
+        const updateScript = join(scriptsDir, "update-direct.sh");
 
-        console.log(`Executing update script: ${updateScript} with version: ${version}`);
+        console.log(`Executing direct update script: ${updateScript} with version: ${version}`);
+        console.log("Update logs will be written to /var/log/led-dashboard-update.log");
 
+        // Use the direct update script which provides better logging
         const child = spawn("bash", [updateScript, version], {
             stdio: ["pipe", "pipe", "pipe"],
-            detached: true, // Detach from parent process
         });
 
         let stdout = "";
@@ -73,9 +74,11 @@ export async function executeUpdateAfterShutdown(version: string, scriptsDir: st
         child.on("close", (code) => {
             if (code === 0) {
                 console.log("Update script completed successfully");
+                console.log("Check /var/log/led-dashboard-update.log for detailed update logs");
                 resolve();
             } else {
                 console.error(`Update script failed with code ${code}`);
+                console.error("Check /var/log/led-dashboard-update.log for detailed error logs");
                 reject(new Error(`Update script failed with code ${code}: ${stderr}`));
             }
         });
@@ -84,8 +87,5 @@ export async function executeUpdateAfterShutdown(version: string, scriptsDir: st
             console.error("Failed to execute update script:", error);
             reject(error);
         });
-
-        // Unref the child process so it can continue running after parent exits
-        child.unref();
     });
 }

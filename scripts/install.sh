@@ -227,12 +227,14 @@ sudo chmod 644 "$INSTALL_DIR/ssl/certificate.pem"
 echo "[8/8] Installing scripts..."
 sudo cp scripts/check-for-updates.sh /usr/local/bin/check-for-updates.sh
 sudo cp scripts/update.sh /usr/local/bin/update.sh
+sudo cp scripts/update-direct.sh /usr/local/bin/update-direct.sh
 sudo cp scripts/wifi-check.sh /usr/local/bin/wifi-check.sh
 sudo chmod +x /usr/local/bin/*
 
 echo "[9/8] Installing services..."
 sudo cp systemdServices/dashboard.service /etc/systemd/system/
 sudo cp systemdServices/wifi-check.service /etc/systemd/system/
+sudo cp systemdServices/update.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable dashboard.service
 sudo systemctl enable wifi-check.service
