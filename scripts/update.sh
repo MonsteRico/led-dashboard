@@ -18,16 +18,50 @@ rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
 
 # Download release tarball
-curl -L "https://github.com/$REPO/releases/download/$VERSION/led-dashboard-$VERSION.tar.gz" \
-  -o "$TMP_DIR/update.tar.gz"
+echo "Downloading release tarball..."
+DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/led-dashboard-$VERSION.tar.gz"
+echo "URL: $DOWNLOAD_URL"
+
+if ! curl -L "$DOWNLOAD_URL" -o "$TMP_DIR/update.tar.gz" --fail --silent --show-error; then
+    echo "ERROR: Failed to download release tarball from $DOWNLOAD_URL"
+    echo "This could mean:"
+    echo "1. The release doesn't exist yet"
+    echo "2. The version tag is incorrect"
+    echo "3. Network connectivity issues"
+    exit 1
+fi
+
+# Verify the downloaded file is a valid gzip archive
+echo "Verifying downloaded file..."
+if ! file "$TMP_DIR/update.tar.gz" | grep -q "gzip compressed data"; then
+    echo "ERROR: Downloaded file is not a valid gzip archive"
+    echo "File type: $(file "$TMP_DIR/update.tar.gz")"
+    echo "This usually means the download failed or the file is corrupted"
+    exit 1
+fi
 
 # Extract
-tar -xzf "$TMP_DIR/update.tar.gz" -C "$TMP_DIR"
+echo "Extracting release tarball..."
+if ! tar -xzf "$TMP_DIR/update.tar.gz" -C "$TMP_DIR"; then
+    echo "ERROR: Failed to extract release tarball"
+    exit 1
+fi
+
+# Verify the extracted contents
+echo "Verifying extracted contents..."
+if [ ! -d "$TMP_DIR/src" ] || [ ! -f "$TMP_DIR/package.json" ]; then
+    echo "ERROR: Extracted contents are missing required files (src/ or package.json)"
+    echo "Contents of $TMP_DIR:"
+    ls -la "$TMP_DIR"
+    exit 1
+fi
 
 # Stop service
+echo "Stopping dashboard service..."
 sudo systemctl stop dashboard.service
 
 # Replace source files
+echo "Replacing source files..."
 sudo rm -rf "$INSTALL_DIR/src"
 sudo rm -rf "$INSTALL_DIR/scripts"
 sudo rm -f "$INSTALL_DIR/package.json"
@@ -65,6 +99,7 @@ if ! command -v make >/dev/null 2>&1; then
 fi
 
 # Install dependencies
+echo "Installing dependencies..."
 cd "$INSTALL_DIR"
 sudo bun install
 
@@ -91,6 +126,7 @@ cd ../..
 echo "Native module compilation completed"
 
 # Restart service
+echo "Starting dashboard service..."
 sudo systemctl start dashboard.service
 
 echo "Update complete. Now running $VERSION."
