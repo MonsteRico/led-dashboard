@@ -79,80 +79,198 @@ fi
 # Stop service
 echo "Stopping dashboard service..."
 if systemctl is-active --quiet dashboard.service; then
-    sudo systemctl stop dashboard.service
-    echo "Dashboard service stopped"
+    echo "Dashboard service is running, stopping it..."
+    if sudo systemctl stop dashboard.service; then
+        echo "Dashboard service stopped successfully"
+    else
+        echo "WARNING: Failed to stop dashboard service, but continuing..."
+    fi
 else
     echo "Dashboard service was not running"
 fi
 
 # Replace source files
 echo "Replacing source files..."
-sudo rm -rf "$INSTALL_DIR/src"
-sudo rm -rf "$INSTALL_DIR/scripts"
-sudo rm -f "$INSTALL_DIR/package.json"
-sudo rm -f "$INSTALL_DIR/tsconfig.json"
-sudo rm -f "$INSTALL_DIR/bun.lock"
+echo "Removing old files..."
+if ! sudo rm -rf "$INSTALL_DIR/src"; then
+    echo "WARNING: Failed to remove old src directory"
+fi
+if ! sudo rm -rf "$INSTALL_DIR/scripts"; then
+    echo "WARNING: Failed to remove old scripts directory"
+fi
+if ! sudo rm -f "$INSTALL_DIR/package.json"; then
+    echo "WARNING: Failed to remove old package.json"
+fi
+if ! sudo rm -f "$INSTALL_DIR/tsconfig.json"; then
+    echo "WARNING: Failed to remove old tsconfig.json"
+fi
+if ! sudo rm -f "$INSTALL_DIR/bun.lock"; then
+    echo "WARNING: Failed to remove old bun.lock"
+fi
 
-sudo cp -r "$EXTRACTED_DIR/src" "$INSTALL_DIR/"
-sudo cp -r "$EXTRACTED_DIR/scripts" "$INSTALL_DIR/"
-sudo cp "$EXTRACTED_DIR/package.json" "$INSTALL_DIR/"
-sudo cp "$EXTRACTED_DIR/tsconfig.json" "$INSTALL_DIR/"
-sudo cp "$EXTRACTED_DIR/bun.lock" "$INSTALL_DIR/"
-echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null
+echo "Copying new files..."
+if ! sudo cp -r "$EXTRACTED_DIR/src" "$INSTALL_DIR/"; then
+    echo "ERROR: Failed to copy src directory"
+    exit 1
+fi
+if ! sudo cp -r "$EXTRACTED_DIR/scripts" "$INSTALL_DIR/"; then
+    echo "ERROR: Failed to copy scripts directory"
+    exit 1
+fi
+if ! sudo cp "$EXTRACTED_DIR/package.json" "$INSTALL_DIR/"; then
+    echo "ERROR: Failed to copy package.json"
+    exit 1
+fi
+if ! sudo cp "$EXTRACTED_DIR/tsconfig.json" "$INSTALL_DIR/"; then
+    echo "ERROR: Failed to copy tsconfig.json"
+    exit 1
+fi
+if ! sudo cp "$EXTRACTED_DIR/bun.lock" "$INSTALL_DIR/"; then
+    echo "ERROR: Failed to copy bun.lock"
+    exit 1
+fi
+
+echo "Updating VERSION file..."
+if ! echo "$VERSION" | sudo tee "$INSTALL_DIR/VERSION" > /dev/null; then
+    echo "ERROR: Failed to update VERSION file"
+    exit 1
+fi
+
+echo "Setting file ownership..."
+if ! sudo chown -R root:root "$INSTALL_DIR"; then
+    echo "ERROR: Failed to set file ownership"
+    exit 1
+fi
+
+echo "Making scripts executable..."
+if ! sudo chmod +x "$INSTALL_DIR/scripts"/*; then
+    echo "ERROR: Failed to make scripts executable"
+    exit 1
+fi
 
 # Ensure all files are owned by root since the service runs as root
-sudo chown -R root:root "$INSTALL_DIR"
+# This block is now redundant as ownership is set above
+# sudo chown -R root:root "$INSTALL_DIR"
 
 # Make scripts executable
-sudo chmod +x "$INSTALL_DIR/scripts"/*
+# This block is now redundant as scripts are made executable above
+# sudo chmod +x "$INSTALL_DIR/scripts"/*
 
 # Ensure build tools are available for native module compilation
 echo "Ensuring build tools are available..."
 if ! command -v gcc >/dev/null 2>&1 || ! command -v g++ >/dev/null 2>&1; then
     echo "Installing build-essential..."
-    sudo apt-get install -y build-essential
+    if ! sudo apt-get install -y build-essential; then
+        echo "ERROR: Failed to install build-essential"
+        exit 1
+    fi
+    echo "build-essential installed successfully"
+else
+    echo "build-essential already available"
 fi
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "Installing python3..."
-    sudo apt-get install -y python3
+    if ! sudo apt-get install -y python3; then
+        echo "ERROR: Failed to install python3"
+        exit 1
+    fi
+    echo "python3 installed successfully"
+else
+    echo "python3 already available"
 fi
 
 if ! command -v make >/dev/null 2>&1; then
     echo "Installing make..."
-    sudo apt-get install -y make
+    if ! sudo apt-get install -y make; then
+        echo "ERROR: Failed to install make"
+        exit 1
+    fi
+    echo "make installed successfully"
+else
+    echo "make already available"
 fi
 
 # Install dependencies
 echo "Installing dependencies..."
-cd "$INSTALL_DIR"
-sudo bun install
+echo "Changing to install directory: $INSTALL_DIR"
+if ! cd "$INSTALL_DIR"; then
+    echo "ERROR: Failed to change to install directory"
+    exit 1
+fi
+
+echo "Running bun install..."
+if ! sudo bun install; then
+    echo "ERROR: Failed to install dependencies with bun install"
+    exit 1
+fi
+echo "Dependencies installed successfully"
 
 # Compile native modules
 echo "Compiling native modules..."
 echo "Compiling rpi-led-matrix..."
-cd node_modules/rpi-led-matrix
+if ! cd node_modules/rpi-led-matrix; then
+    echo "ERROR: Failed to change to rpi-led-matrix directory"
+    exit 1
+fi
+
 if [ -f "binding.gyp" ]; then
-    sudo bun run node-gyp rebuild
+    echo "Found binding.gyp, compiling rpi-led-matrix..."
+    if ! sudo bun run node-gyp rebuild; then
+        echo "ERROR: Failed to compile rpi-led-matrix"
+        exit 1
+    fi
+    echo "rpi-led-matrix compiled successfully"
 else
     echo "No binding.gyp found in rpi-led-matrix, skipping compilation"
 fi
-cd ../..
+
+if ! cd ../..; then
+    echo "ERROR: Failed to return to install directory"
+    exit 1
+fi
 
 echo "Compiling sharp..."
-cd node_modules/sharp
+if ! cd node_modules/sharp; then
+    echo "ERROR: Failed to change to sharp directory"
+    exit 1
+fi
+
 if [ -f "binding.gyp" ]; then
-    sudo bun run node-gyp rebuild
+    echo "Found binding.gyp, compiling sharp..."
+    if ! sudo bun run node-gyp rebuild; then
+        echo "ERROR: Failed to compile sharp"
+        exit 1
+    fi
+    echo "sharp compiled successfully"
 else
     echo "No binding.gyp found in sharp, skipping compilation"
 fi
-cd ../..
 
-echo "Native module compilation completed"
+if ! cd ../..; then
+    echo "ERROR: Failed to return to install directory"
+    exit 1
+fi
+
+echo "Native module compilation completed successfully"
 
 # Restart service
 echo "Starting dashboard service..."
-sudo systemctl start dashboard.service
+if ! sudo systemctl start dashboard.service; then
+    echo "ERROR: Failed to start dashboard service"
+    echo "Attempting to check service status..."
+    sudo systemctl status dashboard.service
+    exit 1
+fi
+
+echo "Dashboard service started successfully"
+echo "Checking service status..."
+if ! sudo systemctl is-active --quiet dashboard.service; then
+    echo "WARNING: Dashboard service is not active after start attempt"
+    sudo systemctl status dashboard.service
+else
+    echo "Dashboard service is running successfully"
+fi
 
 echo "=========================================="
 echo "Update complete. Now running $VERSION."
