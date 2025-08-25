@@ -121,7 +121,10 @@ export class UpdateService {
                 }
 
                 console.log("Starting update process...");
-                
+
+                // // 1. Perform graceful shutdown
+                // await gracefulShutdown(this.appContext);
+
                 // 2. Execute update script in detached process
                 await executeUpdateAfterShutdown(version, this.scriptsDir);
 
@@ -130,9 +133,9 @@ export class UpdateService {
                 console.log("Update process initiated. Exiting...");
 
                 // Give a small delay to ensure the response is sent
-                setTimeout(() => {
-                    process.exit(0);
-                }, 1000);
+                // setTimeout(() => {
+                //     process.exit(0);
+                // }, 1000);
 
                 resolve({
                     success: true,
