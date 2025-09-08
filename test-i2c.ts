@@ -72,9 +72,11 @@ async function testI2C() {
 		console.log("1. Make sure I2C is enabled on your Raspberry Pi");
 		console.log("2. Run: sudo raspi-config -> Interfacing Options -> I2C -> Enable");
 		console.log('3. Or add "dtparam=i2c_arm=on" to /boot/config.txt');
-		console.log("4. Reboot the Raspberry Pi after enabling I2C");
-		console.log("5. Make sure you have permission to access I2C devices");
-		console.log("6. Try running with sudo if permission issues occur");
+		console.log("4. Install i2c-tools: sudo apt-get install i2c-tools");
+		console.log("5. Reboot the Raspberry Pi after enabling I2C");
+		console.log("6. Make sure you have permission to access I2C devices");
+		console.log("7. Try running with sudo if permission issues occur");
+		console.log("8. Test manually: sudo i2cdetect -y 1");
 	} finally {
 		// Clean up
 		try {

@@ -1,5 +1,3 @@
-import { I2CBus, openSync } from "i2c-bus";
-
 export interface I2CDevice {
 	address: number;
 	name?: string;
@@ -16,7 +14,6 @@ export interface I2CStatus {
 
 export class I2CService {
 	private static instance: I2CService;
-	private bus: I2CBus | null = null;
 	private busNumber: number = 1; // Default to I2C bus 1 on Raspberry Pi
 	private isInitialized: boolean = false;
 
@@ -36,17 +33,28 @@ export class I2CService {
 		try {
 			this.busNumber = busNumber;
 
-			// Close existing connection if any
-			if (this.bus) {
-				this.bus.closeSync();
-				this.bus = null;
+			// Check if I2C tools are available
+			try {
+				await Bun.$`which i2cdetect`;
+				await Bun.$`which i2cget`;
+				await Bun.$`which i2cset`;
+			} catch (error) {
+				throw new Error("I2C tools not found. Please install i2c-tools: sudo apt-get install i2c-tools");
 			}
 
-			// Open I2C bus
-			this.bus = openSync(busNumber);
-			this.isInitialized = true;
+			// Check if I2C bus device exists
+			const devicePath = `/dev/i2c-${busNumber}`;
+			try {
+				const stat = await Bun.file(devicePath).exists();
+				if (!stat) {
+					throw new Error(`I2C bus device ${devicePath} not found. Make sure I2C is enabled.`);
+				}
+			} catch (error) {
+				throw new Error(`Cannot access I2C bus device ${devicePath}: ${error}`);
+			}
 
-			console.log(`I2C Service: Successfully connected to I2C bus ${busNumber}`);
+			this.isInitialized = true;
+			console.log(`I2C Service: Successfully initialized I2C bus ${busNumber}`);
 			return { success: true, message: `I2C bus ${busNumber} initialized successfully` };
 		} catch (error) {
 			console.error(`I2C Service: Failed to initialize I2C bus ${busNumber}:`, error);
@@ -70,7 +78,7 @@ export class I2CService {
 		};
 
 		try {
-			if (!this.isInitialized || !this.bus) {
+			if (!this.isInitialized) {
 				status.error = "I2C bus not initialized";
 				return status;
 			}
@@ -90,33 +98,62 @@ export class I2CService {
 	}
 
 	/**
-	 * Scan for I2C devices on the bus
+	 * Scan for I2C devices on the bus using i2cdetect
 	 */
 	public async scanForDevices(): Promise<I2CDevice[]> {
 		const devices: I2CDevice[] = [];
 
-		if (!this.bus) {
+		if (!this.isInitialized) {
 			throw new Error("I2C bus not initialized");
 		}
 
 		try {
-			// Scan addresses 0x03 to 0x77 (valid I2C address range)
-			for (let address = 0x03; address <= 0x77; address++) {
-				try {
-					// Try to read a byte from the address
-					// This will throw an error if no device responds
-					this.bus.receiveByteSync(address);
+			// Use i2cdetect to scan for devices
+			const result = await Bun.$`i2cdetect -y ${this.busNumber}`;
+			const output = result.stdout.toString();
 
-					// If we get here, a device responded
-					devices.push({
-						address,
-						name: this.getDeviceName(address),
-						detected: true,
-					});
+			// Parse the output from i2cdetect
+			// Format is typically:
+			//      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+			// 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+			// 70: -- -- -- -- -- -- -- -- -- -- -- --
 
-					console.log(`I2C Service: Device found at address 0x${address.toString(16).toUpperCase()}`);
-				} catch (error) {
-					// No device at this address, continue scanning
+			const lines = output.split("\n");
+			for (const line of lines) {
+				// Skip header lines and empty lines
+				if (!line.includes(":") || line.includes("0  1  2  3")) {
+					continue;
+				}
+
+				// Extract the line number (first two characters)
+				const lineMatch = line.match(/^([0-9a-f]{2}):/);
+				if (!lineMatch) continue;
+
+				const lineNumber = parseInt(lineMatch[1], 16);
+
+				// Parse the addresses in this line
+				const addressMatches = line.match(/([0-9a-f]{2})/g);
+				if (addressMatches) {
+					// Skip the first match as it's the line number
+					for (let i = 1; i < addressMatches.length; i++) {
+						const address = parseInt(addressMatches[i], 16);
+						if (address !== 0) {
+							// 0 means no device
+							devices.push({
+								address,
+								name: this.getDeviceName(address),
+								detected: true,
+							});
+
+							console.log(`I2C Service: Device found at address 0x${address.toString(16).toUpperCase()}`);
+						}
+					}
 				}
 			}
 		} catch (error) {
@@ -159,15 +196,20 @@ export class I2CService {
 	}
 
 	/**
-	 * Read a byte from a specific I2C address
+	 * Read a byte from a specific I2C address using i2cget
 	 */
 	public async readByte(address: number): Promise<number> {
-		if (!this.bus) {
+		if (!this.isInitialized) {
 			throw new Error("I2C bus not initialized");
 		}
 
 		try {
-			const byte = this.bus.receiveByteSync(address);
+			// Use i2cget to read a byte from the device
+			const result = await Bun.$`i2cget -y ${this.busNumber} 0x${address.toString(16)}`;
+			const output = result.stdout.toString().trim();
+
+			// Parse the hex value (format: 0xXX)
+			const byte = parseInt(output, 16);
 			console.log(`I2C Service: Read byte 0x${byte.toString(16).toUpperCase()} from address 0x${address.toString(16).toUpperCase()}`);
 			return byte;
 		} catch (error) {
@@ -177,15 +219,16 @@ export class I2CService {
 	}
 
 	/**
-	 * Write a byte to a specific I2C address
+	 * Write a byte to a specific I2C address using i2cset
 	 */
 	public async writeByte(address: number, byte: number): Promise<void> {
-		if (!this.bus) {
+		if (!this.isInitialized) {
 			throw new Error("I2C bus not initialized");
 		}
 
 		try {
-			this.bus.sendByteSync(address, byte);
+			// Use i2cset to write a byte to the device
+			await Bun.$`i2cset -y ${this.busNumber} 0x${address.toString(16)} 0x${byte.toString(16)}`;
 			console.log(`I2C Service: Wrote byte 0x${byte.toString(16).toUpperCase()} to address 0x${address.toString(16).toUpperCase()}`);
 		} catch (error) {
 			console.error(`I2C Service: Error writing to address 0x${address.toString(16).toUpperCase()}:`, error);
@@ -194,16 +237,24 @@ export class I2CService {
 	}
 
 	/**
-	 * Read multiple bytes from a specific I2C address
+	 * Read multiple bytes from a specific I2C address using i2cget
 	 */
 	public async readBytes(address: number, length: number): Promise<Buffer> {
-		if (!this.bus) {
+		if (!this.isInitialized) {
 			throw new Error("I2C bus not initialized");
 		}
 
 		try {
 			const buffer = Buffer.alloc(length);
-			this.bus.i2cReadSync(address, length, buffer);
+
+			// Read bytes one by one using i2cget
+			for (let i = 0; i < length; i++) {
+				const result = await Bun.$`i2cget -y ${this.busNumber} 0x${address.toString(16)}`;
+				const output = result.stdout.toString().trim();
+				const byte = parseInt(output, 16);
+				buffer[i] = byte;
+			}
+
 			console.log(`I2C Service: Read ${length} bytes from address 0x${address.toString(16).toUpperCase()}`);
 			return buffer;
 		} catch (error) {
@@ -213,15 +264,21 @@ export class I2CService {
 	}
 
 	/**
-	 * Write multiple bytes to a specific I2C address
+	 * Write multiple bytes to a specific I2C address using i2cset
 	 */
 	public async writeBytes(address: number, buffer: Buffer): Promise<void> {
-		if (!this.bus) {
+		if (!this.isInitialized) {
 			throw new Error("I2C bus not initialized");
 		}
 
 		try {
-			this.bus.i2cWriteSync(address, buffer.length, buffer);
+			// Convert buffer to hex string for i2cset
+			const hexValues = Array.from(buffer)
+				.map((byte) => `0x${byte.toString(16).padStart(2, "0")}`)
+				.join(" ");
+
+			// Use i2cset to write multiple bytes
+			await Bun.$`i2cset -y ${this.busNumber} 0x${address.toString(16)} ${hexValues}`;
 			console.log(`I2C Service: Wrote ${buffer.length} bytes to address 0x${address.toString(16).toUpperCase()}`);
 		} catch (error) {
 			console.error(`I2C Service: Error writing ${buffer.length} bytes to address 0x${address.toString(16).toUpperCase()}:`, error);
@@ -234,12 +291,8 @@ export class I2CService {
 	 */
 	public async close(): Promise<void> {
 		try {
-			if (this.bus) {
-				this.bus.closeSync();
-				this.bus = null;
-				this.isInitialized = false;
-				console.log("I2C Service: Bus connection closed");
-			}
+			this.isInitialized = false;
+			console.log("I2C Service: Bus connection closed");
 		} catch (error) {
 			console.error("I2C Service: Error closing bus connection:", error);
 			throw error;
@@ -250,7 +303,7 @@ export class I2CService {
 	 * Get current initialization status
 	 */
 	public isBusInitialized(): boolean {
-		return this.isInitialized && this.bus !== null;
+		return this.isInitialized;
 	}
 
 	/**

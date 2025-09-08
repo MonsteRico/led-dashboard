@@ -97,6 +97,15 @@ else
     echo "iw dev already available"
 fi
 
+echo "Checking i2c-tools dev..."
+if ! command_exists i2c-tools || ! i2c-tools >/dev/null 2>&1; then
+    echo "Installing i2c-tools..."
+    sudo apt-get install -y i2c-tools
+else
+    echo "i2c-tools dev already available"
+fi
+
+
 echo "[2/8] Checking and installing Bun..."
 
 # Check if Bun is already installed for current user
@@ -208,6 +217,15 @@ if [ -f "binding.gyp" ]; then
     sudo bun run node-gyp rebuild
 else
     echo "No binding.gyp found in sharp, skipping compilation"
+fi
+cd ../..
+
+echo "Compiling i2c bus..."
+cd node_modules/i2c-bus
+if [ -f "binding.gyp" ]; then
+    sudo bun run node-gyp rebuild
+else
+    echo "No binding.gyp found in i2c bus, skipping compilation"
 fi
 cd ../..
 

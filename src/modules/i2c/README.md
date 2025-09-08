@@ -1,6 +1,6 @@
 # I2C Service Module
 
-This module provides I2C (Inter-Integrated Circuit) bus communication functionality for the LED Dashboard project. It uses the `i2c-bus` TypeScript package to interface with I2C devices connected to the Raspberry Pi.
+This module provides I2C (Inter-Integrated Circuit) bus communication functionality for the LED Dashboard project. It uses the built-in Linux I2C tools (`i2cdetect`, `i2cget`, `i2cset`) to interface with I2C devices connected to the Raspberry Pi.
 
 ## Features
 
@@ -120,7 +120,7 @@ The service provides comprehensive error handling:
 ## Requirements
 
 - Raspberry Pi with I2C enabled
-- `i2c-bus` package installed
+- `i2c-tools` package installed (`sudo apt-get install i2c-tools`)
 - Proper permissions to access I2C devices (usually requires running as root or adding user to i2c group)
 
 ## Enabling I2C on Raspberry Pi
@@ -148,3 +148,11 @@ The service logs all I2C operations to the console, including:
 - Error conditions
 
 This helps with debugging and monitoring I2C communication.
+
+## Advantages of Using System I2C Tools
+
+- **No Native Dependencies**: Avoids Node.js/Bun compatibility issues with native modules
+- **System Integration**: Uses the same tools that system administrators use
+- **Reliability**: Leverages well-tested Linux I2C subsystem
+- **No Compilation**: No need to compile native code for different architectures
+- **Easy Debugging**: Can manually test with the same commands the service uses
