@@ -42,15 +42,11 @@ export class I2CService {
 				throw new Error("I2C tools not found. Please install i2c-tools: sudo apt-get install i2c-tools");
 			}
 
-			// Check if I2C bus device exists
-			const devicePath = `/dev/i2c-${busNumber}`;
+			// Test I2C bus availability by running i2cdetect
 			try {
-				const stat = await Bun.file(devicePath).exists();
-				if (!stat) {
-					throw new Error(`I2C bus device ${devicePath} not found. Make sure I2C is enabled.`);
-				}
+				await Bun.$`i2cdetect -y ${busNumber}`;
 			} catch (error) {
-				throw new Error(`Cannot access I2C bus device ${devicePath}: ${error}`);
+				throw new Error(`I2C bus ${busNumber} not accessible. Make sure I2C is enabled and you have proper permissions.`);
 			}
 
 			this.isInitialized = true;
